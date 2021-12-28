@@ -1,5 +1,5 @@
 {
-  "name": "market",
+  "name": "collector",
   "version": "1.0.0",
   "main": "gulpfile.js",
   "scripts": {
@@ -7,14 +7,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/datasilk/saber-market.git"
+    "url": "git+https://github.com/datasilk/saber-Collector.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/datasilk/saber-market/issues"
+    "url": "https://github.com/datasilk/saber-collector/issues"
   },
-  "homepage": "https://github.com/datasilk/saber-market#readme",
+  "homepage": "https://github.com/datasilk/saber-collector#readme",
   "devDependencies": {
     "7zip-bin": "^5.0.3",
     "gulp": "^4.0.2",
