@@ -1,0 +1,25 @@
+{
+  "name": "market",
+  "version": "1.0.0",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/datasilk/saber-market.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/datasilk/saber-market/issues"
+  },
+  "homepage": "https://github.com/datasilk/saber-market#readme",
+  "devDependencies": {
+    "7zip-bin": "^5.0.3",
+    "gulp": "^4.0.2",
+    "gulp-concat-util": "^0.5.5",
+    "gulp-less": "^4.0.1",
+    "node-7z": "^2.1.2"
+  }
+}
