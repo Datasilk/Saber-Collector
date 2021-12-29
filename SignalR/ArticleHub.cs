@@ -5,18 +5,20 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Collector.Common.Platform;
-using Collector.Common.Analyze;
-using Collector.Models.Article;
+using Saber.Vendors.Collector.Models.Article;
 using Saber.Core.Extensions.Strings;
+using Saber.Vendor;
 
-namespace Collector.SignalR.Hubs
+namespace Saber.Vendors.Collector.Hubs
 {
     public class ArticleHub : Hub
     {
+        private IVendorInfo info = new Info();
+
         public async Task AnalyzeArticle(string url)
         {
-            await Clients.Caller.SendAsync("update", 1, "Collector v" + Server.Version);
+            
+            await Clients.Caller.SendAsync("update", 1, "Collector v" + info.Version);
 
             // Get Article HTML Content //////////////////////////////////////////////////////////////////////////////////////////////////
             try

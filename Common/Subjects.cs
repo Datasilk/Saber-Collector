@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Saber.Core.Extensions.Strings;
 
-namespace Collector.Common.Platform
+namespace Saber.Vendors.Collector
 {
     public static class Subjects
     {

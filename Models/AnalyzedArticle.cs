@@ -4,7 +4,7 @@ using System.Linq;
 using Utility.DOM;
 using Saber.Core.Extensions.Strings;
 
-namespace Collector.Models.Article
+namespace Saber.Vendors.Collector.Models.Article
 {
     public class AnalyzedArticle
     {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Collector.Models
+namespace Saber.Vendors.Collector.Models
 {
     public static class Blacklist
     {

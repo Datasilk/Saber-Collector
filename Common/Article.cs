@@ -6,10 +6,10 @@ using System.IO;
 using System.ServiceModel;
 using Saber.Core.Extensions.Strings;
 using Utility.DOM;
-using Collector.Models.Article;
+using Saber.Vendors.Collector.Models.Article;
 using WebBrowser.Wcf;
 
-namespace Collector.Common.Platform
+namespace Saber.Vendors.Collector
 {
     public static class Article
     {

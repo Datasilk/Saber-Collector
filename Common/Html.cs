@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.Json;
 using System.Net;
 using Utility.DOM;
-using Collector.Models.Article;
-using Collector.Models.Nodes;
+using Saber.Vendors.Collector.Models.Article;
+using Saber.Vendors.Collector.Models.Nodes;
 using Saber.Core.Extensions.Strings;
 
-namespace Collector.Common.Analyze
+namespace Saber.Vendors.Collector
 {
     public static class Html
     {

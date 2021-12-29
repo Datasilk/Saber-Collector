@@ -5,12 +5,10 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Net;
 using Microsoft.AspNetCore.SignalR;
-using Collector.Common.Platform;
-using Collector.Common.Analyze;
-using Collector.Models.Article;
+using Saber.Vendors.Collector.Models.Article;
 using Saber.Core.Extensions.Strings;
 
-namespace Collector.SignalR.Hubs
+namespace Saber.Vendors.Collector.Hubs
 {
     public class DownloadHub : Hub
     {

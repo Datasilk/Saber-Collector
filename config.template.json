@@ -1,0 +1,9 @@
+{
+  "browser": {
+    "path": {
+      "development": "C:/Projects/Charlotte/Charlotte.exe",
+      "staging": "C:/Projects/Charlotte/Charlotte.exe",
+      "production": "C:/Projects/Charlotte/Charlotte.exe"
+    }
+  }
+}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net;
 
-namespace Collector.Common.Platform
+namespace Saber.Vendors.Collector
 {
     public static class Articles
     {

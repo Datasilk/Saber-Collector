@@ -1,4 +1,4 @@
-﻿namespace Collector.Models.Article
+﻿namespace Saber.Vendors.Collector.Models.Article
 {
     public static class Rules
     {

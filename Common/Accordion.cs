@@ -1,5 +1,5 @@
 ﻿
-namespace Collector.Components
+namespace Saber.Vendors.Collector.Components
 {
     public static class Accordion
     {

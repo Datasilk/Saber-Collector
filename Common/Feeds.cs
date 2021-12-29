@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Collector.Common.Platform
+namespace Saber.Vendors.Collector
 {
     public static class Feeds
     {
