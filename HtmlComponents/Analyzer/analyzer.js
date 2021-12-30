@@ -40,7 +40,9 @@
 
         append: function (html) {
             //receive command from SignalR
-            $('.article').append(html);
+            console.log('append');
+            console.log(html);
+            $('.analyzer').append(html);
             accordion.load();
         },
 
