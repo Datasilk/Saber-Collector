@@ -45,10 +45,10 @@ namespace Saber.Vendors.Collector
                         environment = "staging";
                         break;
                 }
-                section = "browser:path:" + environment;
-                Cache.Add("browserPath", config.GetSection(section).Value);
                 section = "storage:" + environment;
-                Cache.Add("collectorStorage", config.GetSection(section).Value);
+                Article.storagePath = config.GetSection(section).Value;
+                section = "browser:endpoint:" + environment;
+                Article.browserEndpoint = config.GetSection(section).Value;
             }
             catch (Exception)
             {

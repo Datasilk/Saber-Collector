@@ -1,14 +1,14 @@
 {
   "browser": {
-    "path": {
-      "development": "C:/Projects/Charlotte/Charlotte.exe",
-      "staging": "C:/Projects/Charlotte/Charlotte.exe",
-      "production": "C:/Projects/Charlotte/Charlotte.exe"
+    "endpoint": {
+      "development": "http://localhost:7077/Browser",
+      "staging": "http://localhost:7077/Browser",
+      "production": "http://localhost:7077/Browser"
     }
   },
   "storage": {
     "development": "/Content/Collector/",
     "staging": "/Content/Collector/",
     "production": "/Content/Collector/"
-  }
+  },
 }

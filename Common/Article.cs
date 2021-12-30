@@ -13,12 +13,15 @@ namespace Saber.Vendors.Collector
 {
     public static class Article
     {
+        public static string storagePath { get; set; }
+        public static string browserEndpoint { get; set; }
+
         #region "Get Article"
         public static string ContentPath(string url)
         {
             //get content path for url
             var domain = url.GetDomainName();
-            return "/Content/articles/" + domain.Substring(0, 2) + "/" + domain + "/";
+            return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
         }
 
         public static double Version
@@ -32,7 +35,7 @@ namespace Saber.Vendors.Collector
 
         public static string Download(string url)
         {
-            var outpath = Saber.App.MapPath("/Content/browser/");
+            var outpath = Saber.App.MapPath(storagePath + "browser/");
             var outfile = Generate.NewId(5) + ".json";
             if (!Directory.Exists(outpath))
             {
@@ -43,7 +46,7 @@ namespace Saber.Vendors.Collector
             {
                 MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
             };
-            var endpoint = new EndpointAddress(new Uri("http://localhost:7077/Browser"));
+            var endpoint = new EndpointAddress(new Uri(browserEndpoint));
             var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
             var serviceClient = channelFactory.CreateChannel();
             var result = serviceClient.Collect(url);
