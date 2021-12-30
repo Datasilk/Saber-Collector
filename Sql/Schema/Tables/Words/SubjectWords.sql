@@ -1,5 +1,7 @@
-﻿CREATE TABLE [dbo].[SubjectWords]
-(
-	[wordId] INT NOT NULL PRIMARY KEY, 
-    [subjectId] INT NOT NULL
-)
+﻿BEGIN TRY
+	CREATE TABLE [dbo].[SubjectWords]
+	(
+		[wordId] INT NOT NULL PRIMARY KEY, 
+		[subjectId] INT NOT NULL
+	)
+END TRY BEGIN CATCH END CATCH

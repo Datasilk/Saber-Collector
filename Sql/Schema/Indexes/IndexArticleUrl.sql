@@ -1,2 +1,4 @@
-﻿CREATE INDEX [IndexArticleUrl]
-	ON [dbo].Articles (url ASC)
+﻿BEGIN TRY
+	CREATE INDEX [IndexArticleUrl]
+		ON [dbo].Articles (url ASC)
+END TRY BEGIN CATCH END CATCH

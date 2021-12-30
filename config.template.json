@@ -5,5 +5,10 @@
       "staging": "C:/Projects/Charlotte/Charlotte.exe",
       "production": "C:/Projects/Charlotte/Charlotte.exe"
     }
+  },
+  "storage": {
+    "development": "/Content/Collector/",
+    "staging": "/Content/Collector/",
+    "production": "/Content/Collector/"
   }
 }

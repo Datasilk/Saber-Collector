@@ -5,7 +5,7 @@ namespace Saber.Vendors.Collector.Components
     {
         public static string Render(string title, string classNames, string contents, bool expanded = true, bool whiteBg = false)
         {
-            var view = new View("/Views/Components/Accordion/accordion.html");
+            var view = new View("/Vendors/Collector/accordion.html");
             view["title"] = title;
             view["classNames"] = classNames;
             view["contents"] = contents;

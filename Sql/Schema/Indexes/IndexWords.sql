@@ -1,2 +1,4 @@
-﻿CREATE INDEX [IndexWords]
-	ON [dbo].Words (word)
+﻿BEGIN TRY
+	CREATE INDEX [IndexWords]
+		ON [dbo].Words (word)
+END TRY BEGIN CATCH END CATCH

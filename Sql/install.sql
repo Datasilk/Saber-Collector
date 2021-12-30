@@ -1,42 +1,45 @@
-CREATE TABLE [dbo].[Blacklist_Domains]
-(
-	[domain] NVARCHAR(64) NOT NULL PRIMARY KEY
-)
-
+BEGIN TRY
+	CREATE TABLE [dbo].[Blacklist_Domains]
+	(
+		[domain] NVARCHAR(64) NOT NULL PRIMARY KEY
+	)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[Dictionary]
-(
-	[word] NVARCHAR(25) NOT NULL PRIMARY KEY, 
-    [vocabtype] TINYINT NULL,  
-    [grammertype] TINYINT NULL,
-    [socialtype] TINYINT NULL, 
-    [objecttype] TINYINT NULL, 
-    [score] TINYINT NULL
-)
-
+BEGIN TRY
+    CREATE TABLE [dbo].[Dictionary]
+    (
+	    [word] NVARCHAR(25) NOT NULL PRIMARY KEY, 
+        [vocabtype] TINYINT NULL,  
+        [grammertype] TINYINT NULL,
+        [socialtype] TINYINT NULL, 
+        [objecttype] TINYINT NULL, 
+        [score] TINYINT NULL
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[Subjects]
-(
-	[subjectId] INT NOT NULL PRIMARY KEY, 
-    [parentId] INT NULL DEFAULT 0, 
-    [grammartype] INT NULL DEFAULT 0, 
-    [score] INT NULL DEFAULT 0, 
-    [haswords] BIT NULL DEFAULT 0, 
-    [title] NVARCHAR(50) NULL DEFAULT '', 
-    [hierarchy] NVARCHAR(50) NULL DEFAULT '', 
-    [breadcrumb] NVARCHAR(500) NULL DEFAULT ''
-)
-
+BEGIN TRY
+    CREATE TABLE [dbo].[Subjects]
+    (
+	    [subjectId] INT NOT NULL PRIMARY KEY, 
+        [parentId] INT NULL DEFAULT 0, 
+        [grammartype] INT NULL DEFAULT 0, 
+        [score] INT NULL DEFAULT 0, 
+        [haswords] BIT NULL DEFAULT 0, 
+        [title] NVARCHAR(50) NULL DEFAULT '', 
+        [hierarchy] NVARCHAR(50) NULL DEFAULT '', 
+        [breadcrumb] NVARCHAR(500) NULL DEFAULT ''
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -183,127 +186,150 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+BEGIN TRY
 CREATE INDEX [IndexArticleBugs]
 	ON [dbo].ArticleBugs (articleId ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleScore]
-	ON [dbo].Articles (score DESC)
+BEGIN TRY
+	CREATE INDEX [IndexArticleScore]
+		ON [dbo].Articles (score DESC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleSentences]
-	ON [dbo].ArticleSentences (articleId ASC)
+BEGIN TRY
+	CREATE INDEX [IndexArticleSentences]
+		ON [dbo].ArticleSentences (articleId ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleSubjects]
-	ON [dbo].ArticleSubjects (subjectId ASC, datepublished DESC, datecreated DESC)
+BEGIN TRY
+	CREATE INDEX [IndexArticleSubjects]
+		ON [dbo].ArticleSubjects (subjectId ASC, datepublished DESC, datecreated DESC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleUrl]
-	ON [dbo].Articles (url ASC)
+BEGIN TRY
+	CREATE INDEX [IndexArticleUrl]
+		ON [dbo].Articles (url ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleWords]
-	ON [dbo].ArticleWords ([wordId])
+BEGIN TRY
+	CREATE INDEX [IndexArticleWords]
+		ON [dbo].ArticleWords ([wordId])
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexArticleWordsByArticle]
-	ON [dbo].ArticleWords ([articleId])
+BEGIN TRY
+	CREATE INDEX [IndexArticleWordsByArticle]
+		ON [dbo].ArticleWords ([articleId])
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexDictionary]
-	ON [dbo].Dictionary (word ASC)
+BEGIN TRY
+	CREATE INDEX [IndexDictionary]
+		ON [dbo].Dictionary (word ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-
+BEGIN TRY
+	CREATE INDEX [IndexStatisticsResults]
+		ON [dbo].StatisticsResults (projectId ASC, statId ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexStatisticsResults]
-	ON [dbo].StatisticsResults (projectId ASC, statId ASC)
+BEGIN TRY
+	CREATE INDEX [IndexStatisticsResultsDate]
+		ON [dbo].StatisticsResults ([year] ASC, [month] ASC, [day] ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexStatisticsResultsDate]
-	ON [dbo].StatisticsResults ([year] ASC, [month] ASC, [day] ASC)
+BEGIN TRY
+	CREATE INDEX [IndexStatisticsResultsLocation]
+		ON [dbo].StatisticsResults (country ASC, [state] ASC, city ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexStatisticsResultsLocation]
-	ON [dbo].StatisticsResults (country ASC, [state] ASC, city ASC)
+BEGIN TRY
+	CREATE INDEX [IndexStatisticsResultsProject]
+		ON [dbo].StatisticsResults (projectId ASC)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexStatisticsResultsProject]
-	ON [dbo].StatisticsResults (projectId ASC)
+BEGIN TRY
+	CREATE INDEX [IndexSubjectsBreadcrumb]
+		ON [dbo].Subjects (breadcrumb)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexSubjectsBreadcrumb]
-	ON [dbo].Subjects (breadcrumb)
+BEGIN TRY
+	CREATE INDEX [IndexSubjectsHierarchy]
+		ON [dbo].Subjects (hierarchy)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE INDEX [IndexSubjectsHierarchy]
-	ON [dbo].Subjects (hierarchy)
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE INDEX [IndexWords]
-	ON [dbo].Words (word)
+BEGIN TRY
+	CREATE INDEX [IndexWords]
+		ON [dbo].Words (word)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -337,15 +363,17 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[ArticleBugs]
-(
-	[bugId] INT NOT NULL PRIMARY KEY, 
-    [articleId] INT NULL, 
-    [title] NVARCHAR(100) NULL, 
-    [description] NVARCHAR(MAX) NULL, 
-    [datecreated] DATETIME NULL, 
-    [status] TINYINT NULL
-)
+BEGIN TRY
+    CREATE TABLE [dbo].[ArticleBugs]
+    (
+	    [bugId] INT NOT NULL PRIMARY KEY, 
+        [articleId] INT NULL, 
+        [title] NVARCHAR(100) NULL, 
+        [description] NVARCHAR(MAX) NULL, 
+        [datecreated] DATETIME NULL, 
+        [status] TINYINT NULL
+    )
+END TRY BEGIN CATCH END CATCH
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -353,14 +381,142 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[ArticleDates]
-(
-	[articleId] INT NOT NULL PRIMARY KEY, 
-    [date] DATE NULL, 
-    [hasyear] BIT NULL, 
-    [hasmonth] BIT NULL, 
-    [hasday] BIT NULL
-)
+BEGIN TRY
+    CREATE TABLE [dbo].[ArticleDates]
+    (
+	    [articleId] INT NOT NULL PRIMARY KEY, 
+        [date] DATE NULL, 
+        [hasyear] BIT NULL, 
+        [hasmonth] BIT NULL, 
+        [hasday] BIT NULL
+    )
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+    CREATE TABLE [dbo].[Articles]
+    (
+	    [articleId] INT NOT NULL PRIMARY KEY, 
+        [feedId] INT NULL DEFAULT 0, 
+	    [subjects] TINYINT NULL DEFAULT 0,
+	    [subjectId] INT NULL DEFAULT 0,
+	    [score] SMALLINT NULL DEFAULT 0,
+        [images] TINYINT NULL DEFAULT 0, 
+	    [filesize] FLOAT NULL DEFAULT 0,
+        [wordcount] INT DEFAULT 0, 
+        [sentencecount] SMALLINT DEFAULT 0, 
+        [paragraphcount] SMALLINT DEFAULT 0,
+        [importantcount] SMALLINT DEFAULT 0, 
+	    [analyzecount] SMALLINT DEFAULT 0,
+        [yearstart] SMALLINT NULL DEFAULT 0, 
+        [yearend] SMALLINT NULL DEFAULT 0, 
+	    [years] NVARCHAR(50) DEFAULT '',
+        [datecreated] DATETIME NULL, 
+        [datepublished] DATETIME NULL, 
+        [relavance] SMALLINT NULL DEFAULT 0, 
+        [importance] SMALLINT NULL DEFAULT 0, 
+        [fiction] SMALLINT NULL DEFAULT 1, 
+        [domain] NVARCHAR(50) NULL DEFAULT '', 
+        [url] NVARCHAR(250) NULL DEFAULT '', 
+        [title] NVARCHAR(250) NULL DEFAULT '', 
+        [summary] NVARCHAR(250) NULL DEFAULT '',
+	    [analyzed] FLOAT DEFAULT 0,
+	    [cached] BIT NULL DEFAULT 0, 
+        [active] BIT NULL DEFAULT 0, 
+        [deleted] BIT NULL DEFAULT 0
+    )
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+    CREATE TABLE [dbo].[ArticleSentences]
+    (
+	    [articleId] INT NOT NULL, 
+        [index] SMALLINT NULL, 
+        [sentence] NVARCHAR(MAX) NULL
+    )
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+    CREATE TABLE [dbo].[ArticleSubjects]
+    (
+	    [subjectId] INT NOT NULL, 
+        [articleId] INT NULL, 
+        [score] SMALLINT NULL, 
+        [datecreated] DATETIME NULL, 
+        [datepublished] DATETIME NULL
+    )
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+	CREATE TABLE [dbo].[ArticleWords]
+	(
+		[articleId] INT NOT NULL,
+		[wordId] INT NOT NULL, 
+		[count] INT NULL
+	)
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+    CREATE TABLE [dbo].[DownloadDomains]
+    (
+	    [domainId] INT NOT NULL PRIMARY KEY, 
+        [domain] NVARCHAR(64) NOT NULL,
+        [lastchecked] DATETIME2 NOT NULL DEFAULT GETUTCDATE() -- last scraped a URL from the domain
+    )
+END TRY BEGIN CATCH END CATCH
+    GO
+
+BEGIN TRY
+    CREATE INDEX [IX_DownloadDomains_Domain] ON [dbo].[DownloadDomains] ([domain])
+END TRY BEGIN CATCH END CATCH
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+BEGIN TRY
+    CREATE TABLE [dbo].[DownloadQueue]
+    (
+	    [qid] INT NOT NULL,
+        [feedId] INT NULL, 
+        [domainId] INT NULL, 
+        [status] INT NOT NULL DEFAULT 0, 
+	    [url] NVARCHAR(255) NOT NULL, 
+        [datecreated] DATETIME NULL, 
+        CONSTRAINT [PK_DownloadQueue] PRIMARY KEY ([qid])
+    )
+END TRY BEGIN CATCH END CATCH
+
+GO
+
+BEGIN TRY
+    CREATE INDEX [IX_DownloadQueue_Url] ON [dbo].[DownloadQueue] ([url])
+END TRY BEGIN CATCH END CATCH
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -368,296 +524,141 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[Articles]
-(
-	[articleId] INT NOT NULL PRIMARY KEY, 
-    [feedId] INT NULL DEFAULT 0, 
-	[subjects] TINYINT NULL DEFAULT 0,
-	[subjectId] INT NULL DEFAULT 0,
-	[score] SMALLINT NULL DEFAULT 0,
-    [images] TINYINT NULL DEFAULT 0, 
-	[filesize] FLOAT NULL DEFAULT 0,
-    [wordcount] INT DEFAULT 0, 
-    [sentencecount] SMALLINT DEFAULT 0, 
-    [paragraphcount] SMALLINT DEFAULT 0,
-    [importantcount] SMALLINT DEFAULT 0, 
-	[analyzecount] SMALLINT DEFAULT 0,
-    [yearstart] SMALLINT NULL DEFAULT 0, 
-    [yearend] SMALLINT NULL DEFAULT 0, 
-	[years] NVARCHAR(50) DEFAULT '',
-    [datecreated] DATETIME NULL, 
-    [datepublished] DATETIME NULL, 
-    [relavance] SMALLINT NULL DEFAULT 0, 
-    [importance] SMALLINT NULL DEFAULT 0, 
-    [fiction] SMALLINT NULL DEFAULT 1, 
-    [domain] NVARCHAR(50) NULL DEFAULT '', 
-    [url] NVARCHAR(250) NULL DEFAULT '', 
-    [title] NVARCHAR(250) NULL DEFAULT '', 
-    [summary] NVARCHAR(250) NULL DEFAULT '',
-	[analyzed] FLOAT DEFAULT 0,
-	[cached] BIT NULL DEFAULT 0, 
-    [active] BIT NULL DEFAULT 0, 
-    [deleted] BIT NULL DEFAULT 0
-)
-
+BEGIN TRY
+	CREATE TABLE [dbo].[FeedCategories]
+	(
+		[categoryId] INT NOT NULL PRIMARY KEY, 
+		[title] NVARCHAR(64) NOT NULL
+	)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[ArticleSentences]
-(
-	[articleId] INT NOT NULL, 
-    [index] SMALLINT NULL, 
-    [sentence] NVARCHAR(MAX) NULL
-)
-
+BEGIN TRY
+    CREATE TABLE [dbo].[Feeds]
+    (
+	    [feedId] INT NOT NULL PRIMARY KEY, 
+        [categoryId] INT NULL, 
+        [title] NVARCHAR(100) NULL, 
+	    [url] NVARCHAR(100) NULL, 
+        [checkIntervals] INT NULL, 
+        [lastChecked] DATETIME NULL, 
+        [filter] NVARCHAR(MAX) NULL
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[ArticleSubjects]
-(
-	[subjectId] INT NOT NULL, 
-    [articleId] INT NULL, 
-    [score] SMALLINT NULL, 
-    [datecreated] DATETIME NULL, 
-    [datepublished] DATETIME NULL
-)
-
+BWEGIN TRY
+    CREATE TABLE [dbo].[FeedsCheckedLog]
+    (
+	    [feedId] INT NOT NULL, 
+        [links] SMALLINT NULL, 
+        [datechecked] DATETIME NULL 
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[ArticleWords]
-(
-	[articleId] INT NOT NULL,
-	[wordId] INT NOT NULL, 
-    [count] INT NULL
-)
-
+BEGIN TRY
+	CREATE TABLE [dbo].[StatisticsProjectResearchers]
+	(
+		[projectId] INT NOT NULL PRIMARY KEY, 
+		[researcherId] INT NULL
+	)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[DownloadDomains]
-(
-	[domainId] INT NOT NULL PRIMARY KEY, 
-    [domain] NVARCHAR(64) NOT NULL,
-    [lastchecked] DATETIME2 NOT NULL DEFAULT GETUTCDATE() -- last scraped a URL from the domain
-)
-
-GO
-
-CREATE INDEX [IX_DownloadDomains_Domain] ON [dbo].[DownloadDomains] ([domain])
-
+BEGIN TRY
+    CREATE TABLE [dbo].[StatisticsProjects]
+    (
+	    [projectId] INT NOT NULL PRIMARY KEY, 
+        [title] NVARCHAR(100) NULL, 
+        [url] NVARCHAR(100) NULL, 
+        [summary] NVARCHAR(250) NULL, 
+        [publishdate] DATETIME NULL 
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[DownloadQueue]
-(
-	[qid] INT NOT NULL,
-    [feedId] INT NULL, 
-    [domainId] INT NULL, 
-    [status] INT NOT NULL DEFAULT 0, 
-	[url] NVARCHAR(255) NOT NULL, 
-    [datecreated] DATETIME NULL, 
-    CONSTRAINT [PK_DownloadQueue] PRIMARY KEY ([qid])
-)
-
-GO
-
-CREATE INDEX [IX_DownloadQueue_Url] ON [dbo].[DownloadQueue] ([url])
-
+BEGIN TRY
+    CREATE TABLE [dbo].[StatisticsResearchers]
+    (
+	    [researcherId] INT NOT NULL PRIMARY KEY, 
+        [name] NVARCHAR(100) NULL, 
+        [credentials] NVARCHAR(MAX) NULL,
+        [bday] DATE NULL
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[FeedCategories]
-(
-	[categoryId] INT NOT NULL PRIMARY KEY, 
-    [title] NVARCHAR(64) NOT NULL
-)
-
+BEGIN TRY
+    CREATE TABLE [dbo].[StatisticsResults]
+    (
+	    [statId] INT NOT NULL PRIMARY KEY, 
+        [projectId] INT NULL, 
+        [year] INT NULL, 
+        [month] INT NULL, 
+        [day] INT NULL,
+        [test] FLOAT NULL, 
+        [result] FLOAT NULL, 
+        [country] NVARCHAR(3) NULL, 
+        [city] NVARCHAR(45) NULL, 
+        [state] NVARCHAR(5) NULL, 
+        [topic] NVARCHAR(50) NULL, 
+        [target] NVARCHAR(50) NULL, 
+        [sentence] NVARCHAR(250) NULL
+    )
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[Feeds]
-(
-	[feedId] INT NOT NULL PRIMARY KEY, 
-    [categoryId] INT NULL, 
-    [title] NVARCHAR(100) NULL, 
-	[url] NVARCHAR(100) NULL, 
-    [checkIntervals] INT NULL, 
-    [lastChecked] DATETIME NULL, 
-    [filter] NVARCHAR(MAX) NULL
-)
-
+BEGIN TRY
+	CREATE TABLE [dbo].[SubjectWords]
+	(
+		[wordId] INT NOT NULL PRIMARY KEY, 
+		[subjectId] INT NOT NULL
+	)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE TABLE [dbo].[FeedsCheckedLog]
-(
-	[feedId] INT NOT NULL, 
-    [links] SMALLINT NULL, 
-    [datechecked] DATETIME NULL 
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[StatisticsProjectResearchers]
-(
-	[projectId] INT NOT NULL PRIMARY KEY, 
-    [researcherId] INT NULL
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[StatisticsProjects]
-(
-	[projectId] INT NOT NULL PRIMARY KEY, 
-    [title] NVARCHAR(100) NULL, 
-    [url] NVARCHAR(100) NULL, 
-    [summary] NVARCHAR(250) NULL, 
-    [publishdate] DATETIME NULL 
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[StatisticsResearchers]
-(
-	[researcherId] INT NOT NULL PRIMARY KEY, 
-    [name] NVARCHAR(100) NULL, 
-    [credentials] NVARCHAR(MAX) NULL,
-    [bday] DATE NULL
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[StatisticsResults]
-(
-	[statId] INT NOT NULL PRIMARY KEY, 
-    [projectId] INT NULL, 
-    [year] INT NULL, 
-    [month] INT NULL, 
-    [day] INT NULL,
-    [test] FLOAT NULL, 
-    [result] FLOAT NULL, 
-    [country] NVARCHAR(3) NULL, 
-    [city] NVARCHAR(45) NULL, 
-    [state] NVARCHAR(5) NULL, 
-    [topic] NVARCHAR(50) NULL, 
-    [target] NVARCHAR(50) NULL, 
-    [sentence] NVARCHAR(250) NULL
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[SubjectWords]
-(
-	[wordId] INT NOT NULL PRIMARY KEY, 
-    [subjectId] INT NOT NULL
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE TABLE [dbo].[Words]
-(
-	[wordId] INT NOT NULL PRIMARY KEY,
-	[word] NVARCHAR(50) NOT NULL, 
-    [grammartype] INT NULL, 
-    [score] INT NULL
-)
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE PROCEDURE [dbo].[Blacklist_Domains_GetList]
-AS
-	SELECT domain FROM Blacklist_Domains ORDER BY domain ASC
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE PROCEDURE [dbo].[Blacklist_Domain_Add]
-	@domain nvarchar(64)
-AS
-	DECLARE @domainId int
-	BEGIN TRY
-	INSERT INTO Blacklist_Domains (domain) VALUES (@domain)
-	END TRY
-	BEGIN CATCH
-	END CATCH
-	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
-
-	-- delete all articles related to domain
-	DECLARE @cursor CURSOR, @articleId int
-	SET @cursor = CURSOR FOR
-	SELECT articleId FROM Articles WHERE url LIKE '%' + @domain + '/%'
-	OPEN @cursor
-	FETCH NEXT FROM @cursor INTO @articleId
-	WHILE @@FETCH_STATUS = 0 BEGIN
-		DELETE FROM ArticleBugs WHERE articleId=@articleId
-		DELETE FROM ArticleDates WHERE articleId=@articleId
-		DELETE FROM ArticleSentences WHERE articleId=@articleId
-		DELETE FROM ArticleSubjects WHERE articleId=@articleId
-		DELETE FROM ArticleWords WHERE articleId=@articleId
-		DELETE FROM Articles WHERE articleId=@articleId
-		FETCH NEXT FROM @cursor INTO @articleId
-	END
-	CLOSE @cursor
-	DEALLOCATE @cursor
-
-	--delete all download queue related to domain
-	DELETE FROM DownloadQueue WHERE domainId=@domainId
-	DELETE FROM DownloadDomains WHERE domainId=@domainId
+BEGIN TRY
+	CREATE TABLE [dbo].[Words]
+	(
+		[wordId] INT NOT NULL PRIMARY KEY,
+		[word] NVARCHAR(50) NOT NULL, 
+		[grammartype] INT NULL, 
+		[score] INT NULL
+	)
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -1456,6 +1457,53 @@ yearstart=@yearstart, yearend=@yearend, years=@years, images=@images, datepublis
 relavance=@relavance, importance=@importance, fiction=@fiction, analyzed=@analyzed
 WHERE articleId=@articleId
 
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+CREATE PROCEDURE [dbo].[Blacklist_Domains_GetList]
+AS
+	SELECT domain FROM Blacklist_Domains ORDER BY domain ASC
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+CREATE PROCEDURE [dbo].[Blacklist_Domain_Add]
+	@domain nvarchar(64)
+AS
+	DECLARE @domainId int
+	BEGIN TRY
+	INSERT INTO Blacklist_Domains (domain) VALUES (@domain)
+	END TRY
+	BEGIN CATCH
+	END CATCH
+	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
+
+	-- delete all articles related to domain
+	DECLARE @cursor CURSOR, @articleId int
+	SET @cursor = CURSOR FOR
+	SELECT articleId FROM Articles WHERE url LIKE '%' + @domain + '/%'
+	OPEN @cursor
+	FETCH NEXT FROM @cursor INTO @articleId
+	WHILE @@FETCH_STATUS = 0 BEGIN
+		DELETE FROM ArticleBugs WHERE articleId=@articleId
+		DELETE FROM ArticleDates WHERE articleId=@articleId
+		DELETE FROM ArticleSentences WHERE articleId=@articleId
+		DELETE FROM ArticleSubjects WHERE articleId=@articleId
+		DELETE FROM ArticleWords WHERE articleId=@articleId
+		DELETE FROM Articles WHERE articleId=@articleId
+		FETCH NEXT FROM @cursor INTO @articleId
+	END
+	CLOSE @cursor
+	DEALLOCATE @cursor
+
+	--delete all download queue related to domain
+	DELETE FROM DownloadQueue WHERE domainId=@domainId
+	DELETE FROM DownloadDomains WHERE domainId=@domainId
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO

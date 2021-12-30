@@ -29,26 +29,30 @@ namespace Saber.Vendors.Collector
             var config = new ConfigurationBuilder()
                     .AddJsonFile(file).Build();
 
+            var environment = "";
             var section = "";
             try
             {
                 switch (App.Environment)
                 {
                     case Environment.development:
-                        section = "browser:path:development";
+                        environment = "development";
                         break;
                     case Environment.production:
-                        section = "browser:path:production";
+                        environment = "production";
                         break;
                     case Environment.staging:
-                        section = "browser:path:staging";
+                        environment = "staging";
                         break;
                 }
+                section = "browser:path:" + environment;
                 Cache.Add("browserPath", config.GetSection(section).Value);
+                section = "storage:" + environment;
+                Cache.Add("collectorStorage", config.GetSection(section).Value);
             }
             catch (Exception)
             {
-                Console.WriteLine("configuration section " + section + " does not contain any values in /Vendors/Collector/config.json");
+                Console.WriteLine("configuration section " + section + " does not exist in /Vendors/Collector/config.json");
             }
         }
     }
