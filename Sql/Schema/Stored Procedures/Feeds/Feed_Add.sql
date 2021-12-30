@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Feed_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feed_Add')
+	DROP PROCEDURE [dbo].[Feed_Add]
+GO
+CREATE PROCEDURE [dbo].[Feed_Add]
 	@categoryId int,
 	@title nvarchar(100) = '',
 	@url nvarchar(100) = '',

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Article_Update]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Update')
+	DROP PROCEDURE [dbo].[Article_Update]
+GO
+CREATE PROCEDURE [dbo].[Article_Update]
 	@articleId int = 0,
 	@subjects int = 0,
 	@subjectId int = 0,

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleSubject_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSubject_Add')
+	DROP PROCEDURE [dbo].[ArticleSubject_Add]
+GO
+CREATE PROCEDURE [dbo].[ArticleSubject_Add]
 	@articleId int = 0,
 	@subjectId int = 0,
 	@datepublished datetime = null,

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Subject_Move]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_Move')
+	DROP PROCEDURE [dbo].[Subject_Move]
+GO
+CREATE PROCEDURE [dbo].[Subject_Move]
 	@subjectId int = 1,
 	@newParent int = 127
 AS

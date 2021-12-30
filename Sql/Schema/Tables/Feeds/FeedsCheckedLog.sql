@@ -1,4 +1,4 @@
-﻿BWEGIN TRY
+﻿BEGIN TRY
     CREATE TABLE [dbo].[FeedsCheckedLog]
     (
 	    [feedId] INT NOT NULL, 

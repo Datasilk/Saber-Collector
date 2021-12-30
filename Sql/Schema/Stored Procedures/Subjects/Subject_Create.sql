@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Subject_Create]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_Create')
+	DROP PROCEDURE [dbo].[Subject_Create]
+GO
+CREATE PROCEDURE [dbo].[Subject_Create]
 	@parentId int = 0,
 	@grammartype int = 0,
 	@score int = 0,

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleDate_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleDate_Add')
+	DROP PROCEDURE [dbo].[ArticleDate_Add]
+GO
+CREATE PROCEDURE [dbo].[ArticleDate_Add]
 	@articleId int = 0,
 	@date date,
 	@hasyear bit = 0,

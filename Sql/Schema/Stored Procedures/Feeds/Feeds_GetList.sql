@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Feeds_GetList]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_GetList')
+	DROP PROCEDURE [dbo].[Feeds_GetList]
+GO
+CREATE PROCEDURE [dbo].[Feeds_GetList]
 AS
 SELECT f.*, fc.title AS category
 FROM Feeds f

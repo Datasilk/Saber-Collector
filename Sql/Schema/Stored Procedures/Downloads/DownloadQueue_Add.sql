@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[DownloadQueue_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DownloadQueue_Add')
+	DROP PROCEDURE [dbo].[DownloadQueue_Add]
+GO
+CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 	@urls nvarchar(MAX) = '', --comma delimited list
 	@domain nvarchar(64) = '',
 	@feedId int = 0

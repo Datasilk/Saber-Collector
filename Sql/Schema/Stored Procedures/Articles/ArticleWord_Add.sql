@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleWord_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleWord_Add')
+	DROP PROCEDURE [dbo].[ArticleWord_Add]
+GO
+CREATE PROCEDURE [dbo].[ArticleWord_Add]
 	@articleId int = 0,
 	@wordId int = 0,
 	@count int = 0

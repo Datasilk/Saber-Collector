@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Feeds_GetListWithLogs]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_GetListWithLogs')
+	DROP PROCEDURE [dbo].[Feeds_GetListWithLogs]
+GO
+CREATE PROCEDURE [dbo].[Feeds_GetListWithLogs]
 	@days int = 7,
 	@dateStart date
 AS

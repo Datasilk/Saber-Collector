@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Articles_GetList]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Articles_GetList')
+	DROP PROCEDURE [dbo].[Articles_GetList]
+GO
+CREATE PROCEDURE [dbo].[Articles_GetList]
 	@subjectIds nvarchar(MAX),
 	@search nvarchar(MAX),
 	@isActive int = 2,

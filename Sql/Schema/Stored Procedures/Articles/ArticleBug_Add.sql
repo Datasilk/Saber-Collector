@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleBug_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBug_Add')
+	DROP PROCEDURE [dbo].[ArticleBug_Add]
+GO
+CREATE PROCEDURE [dbo].[ArticleBug_Add]
 	@articleId int = 0,
 	@title nvarchar(100) = '',
 	@description nvarchar(MAX) = '',

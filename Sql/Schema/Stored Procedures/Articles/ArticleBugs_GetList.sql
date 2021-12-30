@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleBugs_GetList]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBugs_GetList')
+	DROP PROCEDURE [dbo].[ArticleBugs_GetList]
+GO
+CREATE PROCEDURE [dbo].[ArticleBugs_GetList]
 	@articleId int = 0,
 	@start int = 1,
 	@length int = 50,

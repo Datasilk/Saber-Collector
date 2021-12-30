@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[DestroyCollection]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DestroyCollection')
+	DROP PROCEDURE [dbo].[DestroyCollection]
+GO
+CREATE PROCEDURE [dbo].[DestroyCollection]
 	@articles BIT = 1,
 	@subjects BIT = 1,
 	@topics BIT = 1

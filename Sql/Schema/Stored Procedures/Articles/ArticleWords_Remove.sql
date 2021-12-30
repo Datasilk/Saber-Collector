@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleWords_Remove]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleWords_Remove')
+	DROP PROCEDURE [dbo].[ArticleWords_Remove]
+GO
+CREATE PROCEDURE [dbo].[ArticleWords_Remove]
 	@articleId int = 0,
 	@word nvarchar(50) = ''
 AS

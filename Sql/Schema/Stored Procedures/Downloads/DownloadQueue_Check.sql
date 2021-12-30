@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[DownloadQueue_Check]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DownloadQueue_Check')
+	DROP PROCEDURE [dbo].[DownloadQueue_Check]
+GO
+CREATE PROCEDURE [dbo].[DownloadQueue_Check]
 	@domaindelay int = 5 -- in minutes
 AS
 	DECLARE @qid int, @domainId int

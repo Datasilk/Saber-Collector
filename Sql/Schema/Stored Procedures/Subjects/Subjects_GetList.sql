@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Subjects_GetList]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subjects_GetList')
+	DROP PROCEDURE [dbo].[Subjects_GetList]
+GO
+CREATE PROCEDURE [dbo].[Subjects_GetList]
 	@subjectIds nvarchar(MAX),
 	@parentId int = -1
 AS

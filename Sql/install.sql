@@ -46,13 +46,15 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceArticleBugs]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceArticleBugs]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
+END TRY BEGIN CATCH END CATCH
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -60,126 +62,135 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceArticles]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceArticles]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceDownloadDomains]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceDownloadDomains]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceDownloadQueue]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceDownloadQueue]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceFeedCategories]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceFeedCategories]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceFeeds]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceFeeds]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceStatisticsProjects]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceStatisticsProjects]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceStatisticsResults]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceStatisticsResults]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceSubjects]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceSubjects]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE SEQUENCE [dbo].[SequenceWords]
+BEGIN TRY
+	CREATE SEQUENCE [dbo].[SequenceWords]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
 		NO MAXVALUE
 		NO CYCLE
 		NO CACHE
-
+END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -336,6 +347,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DestroyCollection')
+	DROP PROCEDURE [dbo].[DestroyCollection]
+GO
 CREATE PROCEDURE [dbo].[DestroyCollection]
 	@articles BIT = 1,
 	@subjects BIT = 1,
@@ -555,7 +569,7 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-BWEGIN TRY
+BEGIN TRY
     CREATE TABLE [dbo].[FeedsCheckedLog]
     (
 	    [feedId] INT NOT NULL, 
@@ -665,6 +679,62 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Blacklist_Domains_GetList')
+	DROP PROCEDURE [dbo].[Blacklist_Domains_GetList]
+GO
+CREATE PROCEDURE [dbo].[Blacklist_Domains_GetList]
+AS
+	SELECT domain FROM Blacklist_Domains ORDER BY domain ASC
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Blacklist_Domain_Add')
+	DROP PROCEDURE [dbo].[Blacklist_Domain_Add]
+GO
+CREATE PROCEDURE [dbo].[Blacklist_Domain_Add]
+	@domain nvarchar(64)
+AS
+	DECLARE @domainId int
+	BEGIN TRY
+	INSERT INTO Blacklist_Domains (domain) VALUES (@domain)
+	END TRY
+	BEGIN CATCH
+	END CATCH
+	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
+
+	-- delete all articles related to domain
+	DECLARE @cursor CURSOR, @articleId int
+	SET @cursor = CURSOR FOR
+	SELECT articleId FROM Articles WHERE url LIKE '%' + @domain + '/%'
+	OPEN @cursor
+	FETCH NEXT FROM @cursor INTO @articleId
+	WHILE @@FETCH_STATUS = 0 BEGIN
+		DELETE FROM ArticleBugs WHERE articleId=@articleId
+		DELETE FROM ArticleDates WHERE articleId=@articleId
+		DELETE FROM ArticleSentences WHERE articleId=@articleId
+		DELETE FROM ArticleSubjects WHERE articleId=@articleId
+		DELETE FROM ArticleWords WHERE articleId=@articleId
+		DELETE FROM Articles WHERE articleId=@articleId
+		FETCH NEXT FROM @cursor INTO @articleId
+	END
+	CLOSE @cursor
+	DEALLOCATE @cursor
+
+	--delete all download queue related to domain
+	DELETE FROM DownloadQueue WHERE domainId=@domainId
+	DELETE FROM DownloadDomains WHERE domainId=@domainId
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+GO
+
+/* ////////////////////////////////////////////////////////////////////////////////////// */
+
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBugs_GetList')
+	DROP PROCEDURE [dbo].[ArticleBugs_GetList]
+GO
 CREATE PROCEDURE [dbo].[ArticleBugs_GetList]
 	@articleId int = 0,
 	@start int = 1,
@@ -687,6 +757,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBug_Add')
+	DROP PROCEDURE [dbo].[ArticleBug_Add]
+GO
 CREATE PROCEDURE [dbo].[ArticleBug_Add]
 	@articleId int = 0,
 	@title nvarchar(100) = '',
@@ -703,6 +776,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBug_UpdateDescription')
+	DROP PROCEDURE [dbo].[ArticleBug_UpdateDescription]
+GO
 CREATE PROCEDURE [dbo].[ArticleBug_UpdateDescription]
 	@bugId int = 0,
 	@description nvarchar(MAX) = ''
@@ -715,6 +791,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleBug_UpdateStatus')
+	DROP PROCEDURE [dbo].[ArticleBug_UpdateStatus]
+GO
 CREATE PROCEDURE [dbo].[ArticleBug_UpdateStatus]
 	@bugId int = 0,
 	@status int = 0
@@ -727,6 +806,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleDate_Add')
+	DROP PROCEDURE [dbo].[ArticleDate_Add]
+GO
 CREATE PROCEDURE [dbo].[ArticleDate_Add]
 	@articleId int = 0,
 	@date date,
@@ -744,6 +826,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSentences_Remove')
+	DROP PROCEDURE [dbo].[ArticleSentences_Remove]
+GO
 CREATE PROCEDURE [dbo].[ArticleSentences_Remove]
 	@articleId int = 0
 AS
@@ -756,6 +841,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSentence_Add')
+	DROP PROCEDURE [dbo].[ArticleSentence_Add]
+GO
 CREATE PROCEDURE [dbo].[ArticleSentence_Add]
 	@articleId int = 0,
 	@index int = 0,
@@ -771,6 +859,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSubjects_Remove')
+	DROP PROCEDURE [dbo].[ArticleSubjects_Remove]
+GO
 CREATE PROCEDURE [dbo].[ArticleSubjects_Remove]
 	@articleId int = 0,
 	@subjectId int = 0
@@ -788,6 +879,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSubject_Add')
+	DROP PROCEDURE [dbo].[ArticleSubject_Add]
+GO
 CREATE PROCEDURE [dbo].[ArticleSubject_Add]
 	@articleId int = 0,
 	@subjectId int = 0,
@@ -805,6 +899,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Articles_GetList')
+	DROP PROCEDURE [dbo].[Articles_GetList]
+GO
 CREATE PROCEDURE [dbo].[Articles_GetList]
 	@subjectIds nvarchar(MAX),
 	@search nvarchar(MAX),
@@ -865,6 +962,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Articles_GetListForFeeds')
+	DROP PROCEDURE [dbo].[Articles_GetListForFeeds]
+GO
 CREATE PROCEDURE [dbo].[Articles_GetListForFeeds]
 	@subjectIds nvarchar(MAX),
 	@feedId int = -1,
@@ -1087,6 +1187,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Articles_GetListForSubjects')
+	DROP PROCEDURE [dbo].[Articles_GetListForSubjects]
+GO
 CREATE PROCEDURE [dbo].[Articles_GetListForSubjects]
 	@subjectIds nvarchar(MAX),
 	@search nvarchar(MAX),
@@ -1299,6 +1402,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleWords_Remove')
+	DROP PROCEDURE [dbo].[ArticleWords_Remove]
+GO
 CREATE PROCEDURE [dbo].[ArticleWords_Remove]
 	@articleId int = 0,
 	@word nvarchar(50) = ''
@@ -1318,6 +1424,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleWord_Add')
+	DROP PROCEDURE [dbo].[ArticleWord_Add]
+GO
 CREATE PROCEDURE [dbo].[ArticleWord_Add]
 	@articleId int = 0,
 	@wordId int = 0,
@@ -1334,40 +1443,43 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE PROCEDURE [dbo].[Article_Add]
-	@feedId int = 0,
-	@subjects int = 0,
-	@subjectId int = 0,
-	@score smallint = 0,
-	@domain nvarchar(50),
-	@url nvarchar(250),
-	@title nvarchar(250),
-	@summary nvarchar(250),
-	@filesize float = 0,
-	@wordcount int = 0,
-	@sentencecount smallint = 0,
-	@paragraphcount smallint = 0,
-	@importantcount smallint = 0,
-	@yearstart smallint = 0,
-	@yearend smallint = 0,
-	@years nvarchar(50),
-	@images tinyint = 0,
-	@datepublished datetime,
-	@relavance smallint = 1,
-	@importance smallint = 1,
-	@fiction smallint = 1,
-	@analyzed float = 0.1,
-	@active bit = 1
-AS
-	DECLARE @articleId int = NEXT VALUE FOR SequenceArticles
-	INSERT INTO Articles 
-	(articleId, feedId, subjects, subjectId, score, domain, url, title, summary, filesize, wordcount, sentencecount, paragraphcount, importantcount, analyzecount,
-	yearstart, yearend, years, images, datecreated, datepublished, relavance, importance, fiction, analyzed, active)
-	VALUES 
-	(@articleId, @feedId, @subjects, @subjectId, @score, @domain, @url, @title, @summary, @filesize, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
-	@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Add')
+	DROP PROCEDURE [dbo].[Article_Add]
+GO
+	CREATE PROCEDURE [dbo].[Article_Add]
+		@feedId int = 0,
+		@subjects int = 0,
+		@subjectId int = 0,
+		@score smallint = 0,
+		@domain nvarchar(50),
+		@url nvarchar(250),
+		@title nvarchar(250),
+		@summary nvarchar(250),
+		@filesize float = 0,
+		@wordcount int = 0,
+		@sentencecount smallint = 0,
+		@paragraphcount smallint = 0,
+		@importantcount smallint = 0,
+		@yearstart smallint = 0,
+		@yearend smallint = 0,
+		@years nvarchar(50),
+		@images tinyint = 0,
+		@datepublished datetime,
+		@relavance smallint = 1,
+		@importance smallint = 1,
+		@fiction smallint = 1,
+		@analyzed float = 0.1,
+		@active bit = 1
+	AS
+		DECLARE @articleId int = NEXT VALUE FOR SequenceArticles
+		INSERT INTO Articles 
+		(articleId, feedId, subjects, subjectId, score, domain, url, title, summary, filesize, wordcount, sentencecount, paragraphcount, importantcount, analyzecount,
+		yearstart, yearend, years, images, datecreated, datepublished, relavance, importance, fiction, analyzed, active)
+		VALUES 
+		(@articleId, @feedId, @subjects, @subjectId, @score, @domain, @url, @title, @summary, @filesize, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
+		@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
 
-	SELECT @articleId
+		SELECT @articleId
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -1375,6 +1487,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Clean')
+	DROP PROCEDURE [dbo].[Article_Clean]
+GO
 CREATE PROCEDURE [dbo].[Article_Clean]
 	@articleId int = 0
 AS
@@ -1388,6 +1503,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Exists')
+	DROP PROCEDURE [dbo].[Article_Exists]
+GO
 CREATE PROCEDURE [dbo].[Article_Exists]
 	@url nvarchar(250)
 AS
@@ -1399,6 +1517,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_GetByUrl')
+	DROP PROCEDURE [dbo].[Article_GetByUrl]
+GO
 CREATE PROCEDURE [dbo].[Article_GetByUrl]
 	@url nvarchar(250)
 AS
@@ -1411,6 +1532,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Remove')
+	DROP PROCEDURE [dbo].[Article_Remove]
+GO
 CREATE PROCEDURE [dbo].[Article_Remove]
 	@articleId int = 0
 AS
@@ -1427,6 +1551,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Article_Update')
+	DROP PROCEDURE [dbo].[Article_Update]
+GO
 CREATE PROCEDURE [dbo].[Article_Update]
 	@articleId int = 0,
 	@subjects int = 0,
@@ -1463,53 +1590,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
-CREATE PROCEDURE [dbo].[Blacklist_Domains_GetList]
-AS
-	SELECT domain FROM Blacklist_Domains ORDER BY domain ASC
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DownloadQueue_Add')
+	DROP PROCEDURE [dbo].[DownloadQueue_Add]
 GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-CREATE PROCEDURE [dbo].[Blacklist_Domain_Add]
-	@domain nvarchar(64)
-AS
-	DECLARE @domainId int
-	BEGIN TRY
-	INSERT INTO Blacklist_Domains (domain) VALUES (@domain)
-	END TRY
-	BEGIN CATCH
-	END CATCH
-	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
-
-	-- delete all articles related to domain
-	DECLARE @cursor CURSOR, @articleId int
-	SET @cursor = CURSOR FOR
-	SELECT articleId FROM Articles WHERE url LIKE '%' + @domain + '/%'
-	OPEN @cursor
-	FETCH NEXT FROM @cursor INTO @articleId
-	WHILE @@FETCH_STATUS = 0 BEGIN
-		DELETE FROM ArticleBugs WHERE articleId=@articleId
-		DELETE FROM ArticleDates WHERE articleId=@articleId
-		DELETE FROM ArticleSentences WHERE articleId=@articleId
-		DELETE FROM ArticleSubjects WHERE articleId=@articleId
-		DELETE FROM ArticleWords WHERE articleId=@articleId
-		DELETE FROM Articles WHERE articleId=@articleId
-		FETCH NEXT FROM @cursor INTO @articleId
-	END
-	CLOSE @cursor
-	DEALLOCATE @cursor
-
-	--delete all download queue related to domain
-	DELETE FROM DownloadQueue WHERE domainId=@domainId
-	DELETE FROM DownloadDomains WHERE domainId=@domainId
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
-GO
-
-/* ////////////////////////////////////////////////////////////////////////////////////// */
-
 CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 	@urls nvarchar(MAX) = '', --comma delimited list
 	@domain nvarchar(64) = '',
@@ -1549,6 +1632,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'DownloadQueue_Check')
+	DROP PROCEDURE [dbo].[DownloadQueue_Check]
+GO
 CREATE PROCEDURE [dbo].[DownloadQueue_Check]
 	@domaindelay int = 5 -- in minutes
 AS
@@ -1576,6 +1662,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Downloads_GetCount')
+	DROP PROCEDURE [dbo].[Downloads_GetCount]
+GO
 CREATE PROCEDURE [dbo].[Downloads_GetCount]
 	
 AS
@@ -1587,6 +1676,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Download_Update')
+	DROP PROCEDURE [dbo].[Download_Update]
+GO
 CREATE PROCEDURE [dbo].[Download_Update]
 	@qid int = 0,
 	@status int = 0
@@ -1598,6 +1690,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_Categories_GetList')
+	DROP PROCEDURE [dbo].[Feeds_Categories_GetList]
+GO
 CREATE PROCEDURE [dbo].[Feeds_Categories_GetList]
 AS
 	SELECT * FROM FeedCategories ORDER BY title ASC
@@ -1608,6 +1703,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_Category_Add')
+	DROP PROCEDURE [dbo].[Feeds_Category_Add]
+GO
 CREATE PROCEDURE [dbo].[Feeds_Category_Add]
 	@title nvarchar(64)
 AS
@@ -1621,6 +1719,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_Check')
+	DROP PROCEDURE [dbo].[Feeds_Check]
+GO
 CREATE PROCEDURE [dbo].[Feeds_Check]
 	
 AS
@@ -1635,6 +1736,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_GetList')
+	DROP PROCEDURE [dbo].[Feeds_GetList]
+GO
 CREATE PROCEDURE [dbo].[Feeds_GetList]
 AS
 SELECT f.*, fc.title AS category
@@ -1648,6 +1752,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feeds_GetListWithLogs')
+	DROP PROCEDURE [dbo].[Feeds_GetListWithLogs]
+GO
 CREATE PROCEDURE [dbo].[Feeds_GetListWithLogs]
 	@days int = 7,
 	@dateStart date
@@ -1722,6 +1829,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feed_Add')
+	DROP PROCEDURE [dbo].[Feed_Add]
+GO
 CREATE PROCEDURE [dbo].[Feed_Add]
 	@categoryId int,
 	@title nvarchar(100) = '',
@@ -1740,6 +1850,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'FeedCheckedLog_Add')
+	DROP PROCEDURE [dbo].[FeedCheckedLog_Add]
+GO
 CREATE PROCEDURE [dbo].[FeedCheckedLog_Add]
 	@feedId int = 0,
 	@links int = 0
@@ -1753,6 +1866,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Feed_Checked')
+	DROP PROCEDURE [dbo].[Feed_Checked]
+GO
 CREATE PROCEDURE [dbo].[Feed_Checked]
 	@feedId int = 0
 AS
@@ -1765,6 +1881,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subjects_GetList')
+	DROP PROCEDURE [dbo].[Subjects_GetList]
+GO
 CREATE PROCEDURE [dbo].[Subjects_GetList]
 	@subjectIds nvarchar(MAX),
 	@parentId int = -1
@@ -1789,6 +1908,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_Create')
+	DROP PROCEDURE [dbo].[Subject_Create]
+GO
 CREATE PROCEDURE [dbo].[Subject_Create]
 	@parentId int = 0,
 	@grammartype int = 0,
@@ -1834,6 +1956,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_GetById')
+	DROP PROCEDURE [dbo].[Subject_GetById]
+GO
 CREATE PROCEDURE [dbo].[Subject_GetById]
 	@subjectId int
 AS
@@ -1845,6 +1970,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_GetByTitle')
+	DROP PROCEDURE [dbo].[Subject_GetByTitle]
+GO
 CREATE PROCEDURE [dbo].[Subject_GetByTitle]
 	@title nvarchar(50),
 	@breadcrumb nvarchar(MAX)
@@ -1857,6 +1985,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Subject_Move')
+	DROP PROCEDURE [dbo].[Subject_Move]
+GO
 CREATE PROCEDURE [dbo].[Subject_Move]
 	@subjectId int = 1,
 	@newParent int = 127
@@ -1930,6 +2061,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Words_GetList')
+	DROP PROCEDURE [dbo].[Words_GetList]
+GO
 CREATE PROCEDURE [dbo].[Words_GetList]
 	@words nvarchar(MAX)
 AS
@@ -1945,6 +2079,9 @@ GO
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Word_Add')
+	DROP PROCEDURE [dbo].[Word_Add]
+GO
 CREATE PROCEDURE [dbo].[Word_Add]
 	@word nvarchar(50),
 	@subjectId int = 0,

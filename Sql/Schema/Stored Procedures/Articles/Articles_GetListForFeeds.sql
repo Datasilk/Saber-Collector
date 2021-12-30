@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Articles_GetListForFeeds]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Articles_GetListForFeeds')
+	DROP PROCEDURE [dbo].[Articles_GetListForFeeds]
+GO
+CREATE PROCEDURE [dbo].[Articles_GetListForFeeds]
 	@subjectIds nvarchar(MAX),
 	@feedId int = -1,
 	@search nvarchar(MAX),

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[Word_Add]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Word_Add')
+	DROP PROCEDURE [dbo].[Word_Add]
+GO
+CREATE PROCEDURE [dbo].[Word_Add]
 	@word nvarchar(50),
 	@subjectId int = 0,
 	@grammartype int = 0,

@@ -1,4 +1,7 @@
-﻿CREATE PROCEDURE [dbo].[ArticleSubjects_Remove]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'ArticleSubjects_Remove')
+	DROP PROCEDURE [dbo].[ArticleSubjects_Remove]
+GO
+CREATE PROCEDURE [dbo].[ArticleSubjects_Remove]
 	@articleId int = 0,
 	@subjectId int = 0
 AS
