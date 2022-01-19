@@ -4,6 +4,6 @@ namespace Saber.Vendors.Collector.Models
 {
     public static class Blacklist
     {
-        public static List<string> Domains { get; set; }
+        public static List<string> Domains { get; set; } = new List<string>();
     }
 }

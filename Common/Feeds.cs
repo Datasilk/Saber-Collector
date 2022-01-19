@@ -9,7 +9,7 @@ namespace Saber.Vendors.Collector
     {
         public static string RenderList(List<Query.Models.FeedCategory> categories)
         {
-            var view = new View("/Views/Feeds/list-item.html");
+            var view = new View("/Vendors/Collector/HtmlComponents/Feeds/list-item.html");
             var feeds = Query.Feeds.GetList();
             var result = new StringBuilder();
             var html = new StringBuilder();

@@ -5,7 +5,7 @@ using System.Text;
 using Saber.Core;
 using Saber.Vendor;
 
-namespace Saber.Vendors.Collector.HtmlComponents
+namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
 {
     public class Analyzer : IVendorHtmlComponents
     {
@@ -30,6 +30,14 @@ namespace Saber.Vendors.Collector.HtmlComponents
                                 DataType = HtmlComponentParameterDataType.Text,
                                 Required = true
                             } 
+                        },
+                        {"article-only", new HtmlComponentParameter()
+                            {
+                                Name = "Hide Analyzer Panels",
+                                Description = "Only display the article contents and hide all other analyzer panels",
+                                DefaultValue = "url",
+                                DataType = HtmlComponentParameterDataType.Boolean,
+                            }
                         }
                     },
                     Render = new Func<View, IRequest, Dictionary<string, string>, Dictionary<string, object>, string, string, List<KeyValuePair<string, string>>>((view, request, args, data, prefix, key) =>
@@ -46,9 +54,14 @@ namespace Saber.Vendors.Collector.HtmlComponents
                         );
 
                         //add CSS & JS files
-                        request.AddCSS("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.css");
-                        request.AddScript("/editor/js/utility/signalr/signalr.js");
-                        request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js");
+                        request.AddCSS("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.css", "collector_analyzer_css");
+                        request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
+                        request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js", "collector_analyzer_js");
+
+                        if(args.ContainsKey("article-only") && args["article-only"] == "1")
+                        {
+                            viewComponent.Show("article-only");
+                        }
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;

@@ -10,6 +10,10 @@
         article.hub.on('append', article.analyze.append);
         article.hub.on('rawhtml', article.rawHtml.load);
         article.hub.start().catch(article.analyze.error);
+        if ($('.analyzer.article-only').length > 0) {
+            $('.analyzer .article-text .box').removeClass('box');
+            setTimeout(article.analyze.start, 500);
+        }
     },
 
     analyze: {
@@ -44,6 +48,9 @@
             console.log(html);
             $('.analyzer').append(html);
             accordion.load();
+            if ($('.analyzer.article-only').length > 0) {
+                $('.analyzer .article-text .box').removeClass('box');
+            }
         },
 
         error: function (err) {

@@ -20,7 +20,7 @@ namespace Saber.Vendors.Collector.Hubs
                 AnalyzedArticle article = new AnalyzedArticle();
                 await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
 
-                //download content
+                //download content //////////////////////////////////////////////////////
                 var result = Article.Download(queue.url);
                 if (result == "")
                 {
@@ -40,10 +40,11 @@ namespace Saber.Vendors.Collector.Hubs
                 //save article
                 Article.Add(queue.url);
 
-                //get URLs from all anchor links on page
+                //get URLs from all anchor links on page //////////////////////////////////
                 var urls = new Dictionary<string, List<string>>();
                 var links = article.elements.Where(a => a.tagName == "a").Select(a => a.attribute.ContainsKey("href") ? a.attribute["href"] : "");
-                foreach(var url in links)
+                var viableDownloads = 0;
+                foreach (var url in links)
                 {
                     if (string.IsNullOrEmpty(url)) { continue; }
                     var uri = Web.CleanUrl(url);
@@ -69,8 +70,22 @@ namespace Saber.Vendors.Collector.Hubs
                     
                 }
 
+                //process article /////////////////////////////////////////////////////
+                var articleInfo = Article.AddFromAnalyzedArticle(queue.url, article);
+                if(articleInfo.wordcount > 50)
+                {
+                    viableDownloads++;
+                }
+                await Clients.Caller.SendAsync("update", "<span>" + 
+                        "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
+                        "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
+                    "</span>");
+                await Clients.Caller.SendAsync("checked", articleInfo.wordcount > 50 ? 1 : 0, links.Count(), articleInfo.wordcount, articleInfo.importantcount);
             }
-            await Clients.Caller.SendAsync("checked");
+            else
+            {
+                await Clients.Caller.SendAsync("checked", 0, 0, 0, 0);
+            }
         }
 
         public async Task CheckFeeds()

@@ -95,6 +95,66 @@ namespace Saber.Vendors.Collector
             article.articleId = Query.Articles.Add(article);
             return article;
         }
+
+        public static Query.Models.Article AddFromAnalyzedArticle(string url, AnalyzedArticle article)
+        {
+            var articleInfo = Query.Articles.GetByUrl(url);
+
+            //get filesize of article
+            FileSize(article);
+            article.url = url;
+            article.id = articleInfo.articleId;
+            article.feedId = articleInfo.feedId ?? -1;
+            article.domain = Web.GetDomainName(url);
+            Html.GetArticleInfoFromDOM(article);
+
+            //get article contents
+            var elements = new List<AnalyzedElement>();
+            Html.GetBestElementIndexes(article, elements);
+            Html.GetArticleElements(article, elements);
+
+            articleInfo.title = article.title;
+            articleInfo.analyzecount++;
+            articleInfo.analyzed = Article.Version;
+            articleInfo.cached = true;
+            articleInfo.domain = article.domain;
+            articleInfo.feedId = article.feedId;
+            articleInfo.fiction = (short)(article.fiction == true ? 1 : 0);
+            articleInfo.filesize = article.fileSize;
+            articleInfo.importance = (short)article.importance;
+            articleInfo.importantcount = (short)article.totalImportantWords;
+            articleInfo.paragraphcount = (short)article.totalParagraphs;
+            articleInfo.relavance = (short)article.relevance;
+            try
+            {
+                var subj = article.subjects.OrderBy(a => a.score * -1).First();
+                if (subj != null)
+                {
+                    articleInfo.score = (short)subj.score;
+                    articleInfo.subjectId = subj.id;
+                    articleInfo.subjects = Convert.ToByte(article.subjects.Count);
+                }
+            }
+            catch (Exception) { }
+            articleInfo.sentencecount = (short)article.totalSentences;
+            articleInfo.summary = article.summary;
+            articleInfo.wordcount = article.totalWords;
+            articleInfo.yearstart = (short)article.yearStart;
+            articleInfo.yearend = (short)article.yearEnd;
+            try
+            {
+                articleInfo.years = string.Join(",", article.years.ToArray());
+            }
+            catch (Exception) { }
+            Query.Articles.Update(articleInfo);
+            return articleInfo;
+        }
+
+        public static Query.Models.Article Add(Query.Models.Article article)
+        {
+            article.articleId = Query.Articles.Add(article);
+            return article;
+        }
         #endregion
 
         #region "Render"
