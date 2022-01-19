@@ -115,7 +115,7 @@ namespace Saber.Vendors.Collector
 
             articleInfo.title = article.title;
             articleInfo.analyzecount++;
-            articleInfo.analyzed = Article.Version;
+            articleInfo.analyzed = Version;
             articleInfo.cached = true;
             articleInfo.domain = article.domain;
             articleInfo.feedId = article.feedId;
