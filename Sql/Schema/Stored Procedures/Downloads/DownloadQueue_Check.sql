@@ -8,6 +8,7 @@ AS
 	SELECT TOP 1 @qid = q.qid, @domainId = q.domainId
 	FROM DownloadQueue q
 	JOIN DownloadDomains d ON d.domainId = q.domainId
+	JOIN Whitelist_Domains w ON w.domain = d.domain -- must be a whitelisted domain
 	WHERE q.status = 0
 	AND d.lastchecked < DATEADD(MINUTE, 0 - @domaindelay, GETUTCDATE())
 

@@ -5,6 +5,7 @@ namespace Query.Models
     public class Feed
     {
         public int feedId { get; set; }
+        public Query.Feeds.DocTypes doctype { get; set; }
         public string title { get; set; }
         public string url { get; set; }
         public int? checkIntervals { get; set; }

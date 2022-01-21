@@ -1,17 +1,19 @@
 ﻿using System;
-using Saber.Core;
 using Saber.Vendor;
+using Saber.Core.Extensions.Strings;
 
 namespace Saber.Vendors.Collector.Services
 {
     public class CollectorFeeds : Service, IVendorService
     {
-        public string Add(int categoryId, string title, string url, int intervals = 720, string filter = "")
+        public string Add(int doctype, int categoryId, string title, string url, int intervals = 720, string filter = "")
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             try
             {
-                Query.Feeds.Add(categoryId, title, url, filter, intervals);
+                var uri = Web.CleanUrl(url);
+                var domain = uri.GetDomainName();
+                Query.Feeds.Add((Query.Feeds.DocTypes)doctype, categoryId, title, url, domain, filter, intervals);
                 return Success();
             }
             catch (Exception ex)

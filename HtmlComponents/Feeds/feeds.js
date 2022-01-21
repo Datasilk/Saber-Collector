@@ -28,12 +28,14 @@
 
         save: function () {
             S.ajax.post('/CollectorFeeds/Add', {
-                    categoryId: $('#feedcategory').val(),
-                    url: $('#txtfeed').val(),
-                    title: $('#txtfeedtitle').val(),
-                },
-                function () {
-                    location.reload();
+                doctype: $('#doctype').val(),
+                intervals: $('#intervals').val(),
+                categoryId: $('#feedcategory').val(),
+                url: $('#txtfeed').val(),
+                title: $('#txtfeedtitle').val(),
+            },
+            function () {
+                location.reload();
             });
 
             $('#txtfeed').val('');

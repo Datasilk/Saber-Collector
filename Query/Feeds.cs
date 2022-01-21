@@ -5,9 +5,15 @@ namespace Query
 {
     public static class Feeds
     {
-        public static int Add(int categoryId, string title, string url, string filter = "", int checkIntervals = 720)
+        public enum DocTypes
         {
-            return Sql.ExecuteScalar<int>("Feed_Add", new { categoryId, title, url, filter, checkIntervals });
+            RSS = 1,
+            HTML = 2
+        }
+
+        public static int Add(DocTypes doctype, int categoryId, string title, string url, string domain, string filter = "", int checkIntervals = 720)
+        {
+            return Sql.ExecuteScalar<int>("Feed_Add", new {doctype = (int)doctype, categoryId, title, url, domain, filter, checkIntervals });
         }
 
         public static void LogCheckedLinks(int feedId, int count)

@@ -2,7 +2,7 @@
 
 namespace Saber.Vendors.Collector.Models.Nodes
 {
-    //used for deserializing computed DOM object from WebBrowser console app
+    //used for deserializing computed DOM object from Charlotte service
     public class Document
     {
         public string[] a { get; set; }

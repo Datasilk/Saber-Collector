@@ -656,7 +656,7 @@ namespace Saber.Vendors.Collector
             for (var x = 0; x < article.body.Count; x++)
             {
                 domText = article.elements[article.body[x]];
-                if (domText.HierarchyTags().Where(h => Rules.headerTags.Contains(h)).Count() > 0)
+                if (domText.text == null || domText.HierarchyTags().Where(h => Rules.headerTags.Contains(h)).Count() > 0)
                 {
                     continue;
                 }
@@ -878,6 +878,11 @@ namespace Saber.Vendors.Collector
                 return text.ReplaceAll(" {1} ", ws).Replace("  ", " ").Replace("  ", " ").Replace("  ", " ").Split(' ').Where(w => w != "").ToArray();
             }
             return text.ReplaceAll(" {1} ", Rules.wordSeparators).Replace("  ", " ").Replace("  ", " ").Replace("  ", " ").Split(' ').Where(w => w != "").ToArray();
+        }
+
+        public static string[] CleanWords(string[] words)
+        {
+            return words.Where(a => a.OnlyAlphabet()).ToArray();
         }
 
         public static int CountWordsInText(string text, string[] words)

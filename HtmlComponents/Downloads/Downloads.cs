@@ -59,11 +59,13 @@ namespace Saber.Vendors.Collector.HtmlComponents
                         html.Append(viewStat.Render());
 
                         //total important
-                        viewStat.Clear();
-                        viewStat.Show("number");
-                        viewStat["id"] = "important";
-                        viewStat["title"] = "Important";
-                        html.Append(viewStat.Render());
+                        //viewStat.Clear();
+                        //viewStat.Show("number");
+                        //viewStat["id"] = "important";
+                        //viewStat["title"] = "Important";
+                        //html.Append(viewStat.Render());
+
+                        viewStatistics["stats"] = html.ToString();
 
 
                         viewComponent["content"] = Components.Accordion.Render("Statistics", "", viewStatistics.Render()) +

@@ -2,6 +2,7 @@
     CREATE TABLE [dbo].[Feeds]
     (
 	    [feedId] INT NOT NULL PRIMARY KEY, 
+        [doctype] INT NULL, -- 1 = RSS, 2 = HTML
         [categoryId] INT NULL, 
         [title] NVARCHAR(100) NULL, 
 	    [url] NVARCHAR(100) NULL, 

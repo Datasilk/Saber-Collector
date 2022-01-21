@@ -19,8 +19,8 @@ SELECT [value] FROM #urls
 OPEN @cursor
 FETCH NEXT FROM @cursor INTO @url
 WHILE @@FETCH_STATUS = 0 BEGIN
-	IF (SELECT COUNT(*) FROM DownloadQueue WHERE url=@url) = 0 BEGIN
-		IF (SELECT COUNT(*) FROM Articles WHERE url=@url) = 0 BEGIN
+	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) BEGIN
+		IF NOT EXISTS(SELECT * FROM Articles WHERE url=@url) BEGIN
 			SET @qid = NEXT VALUE FOR SequenceDownloadQueue
 			INSERT INTO DownloadQueue (qid, url, feedId, domainId, [status], datecreated) 
 			VALUES (@qid, @url, @feedId, @domainId, 0, GETDATE())

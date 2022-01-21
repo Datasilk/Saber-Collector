@@ -112,7 +112,16 @@ namespace Saber.Vendors.Collector
             var elements = new List<AnalyzedElement>();
             Html.GetBestElementIndexes(article, elements);
             Html.GetArticleElements(article, elements);
+            var text = Html.GetArticleText(article);
 
+            // too CPU intensive & large amount of data sent to SQL /////////////////////////
+            var words = Html.CleanWords(Html.SeparateWordsFromText(text));
+            article.totalWords = Html.CountWordsInText(text, words);
+            //article.totalSentences = Html.GetSentences(text).Count;
+            //var important = Query.Words.GetList(string.Join(",", words.Distinct()));
+            //article.totalImportantWords = important.Count;
+            /////////////////////////////////////////////////////////////////////////////////
+            ///
             articleInfo.title = article.title;
             articleInfo.analyzecount++;
             articleInfo.analyzed = Version;
