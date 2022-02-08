@@ -29,7 +29,7 @@ namespace Saber.Vendors.Collector.HtmlComponents
                         var viewArticle = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
                         var html = new StringBuilder();
 
-                        viewComponent["content"] = Components.Accordion.Render("Articles", "", Collector.Articles.RenderList());
+                        viewComponent["content"] = Components.Accordion.Render("Articles", "", Collector.Articles.RenderList(orderBy: Query.Articles.SortBy.highestScore));
 
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/Articles/articles.css", "collector_articles_css");

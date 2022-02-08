@@ -11,6 +11,8 @@ namespace Query.Models
         public short? score { get; set; }
         public byte? images { get; set; }
         public double? filesize { get; set; }
+        public int? linkcount { get; set; }
+        public int? linkwordcount { get; set; }
         public int? wordcount { get; set; }
         public short? sentencecount { get; set; }
         public short? paragraphcount { get; set; }

@@ -59,14 +59,13 @@ namespace Saber.Vendors.Collector
             article.fileSize = int.Parse((Encoding.Unicode.GetByteCount(article.rawHtml) / 1024).ToString("c").Replace("$", "").Replace(",", "").Replace(".00", ""));
         }
 
-        public static Query.Models.Article Add(string url)
+        public static Query.Models.Article Create(string url)
         {
-            var version = Version;
-            var article = new Query.Models.Article()
+            return new Query.Models.Article()
             {
                 active = true,
                 analyzecount = 0,
-                analyzed = version,
+                analyzed = Version,
                 cached = false,
                 datecreated = DateTime.Now,
                 datepublished = DateTime.Now,
@@ -92,20 +91,34 @@ namespace Saber.Vendors.Collector
                 years = "",
                 yearstart = 0
             };
+        }
+
+        public static Query.Models.Article Add(Query.Models.Article article)
+        {
+            article.articleId = Query.Articles.Add(article);
+            return article;
+        }
+
+        public static Query.Models.Article Add(string url)
+        {
+            var article = Create(url);
             article.articleId = Query.Articles.Add(article);
             return article;
         }
 
         public static Query.Models.Article AddFromAnalyzedArticle(string url, AnalyzedArticle article)
         {
-            var articleInfo = Query.Articles.GetByUrl(url);
+            return AddFromAnalyzedArticle(Query.Articles.GetByUrl(url), article);
+        }
 
+        public static Query.Models.Article AddFromAnalyzedArticle(Query.Models.Article articleInfo, AnalyzedArticle article)
+        {
             //get filesize of article
             FileSize(article);
-            article.url = url;
+            article.url = articleInfo.url;
             article.id = articleInfo.articleId;
             article.feedId = articleInfo.feedId ?? -1;
-            article.domain = Web.GetDomainName(url);
+            article.domain = Web.GetDomainName(articleInfo.url);
             Html.GetArticleInfoFromDOM(article);
 
             //get article contents
@@ -157,12 +170,6 @@ namespace Saber.Vendors.Collector
             catch (Exception) { }
             Query.Articles.Update(articleInfo);
             return articleInfo;
-        }
-
-        public static Query.Models.Article Add(Query.Models.Article article)
-        {
-            article.articleId = Query.Articles.Add(article);
-            return article;
         }
         #endregion
 
@@ -402,7 +409,7 @@ namespace Saber.Vendors.Collector
                         {
                             parts.Add(new ArticlePart()
                             {
-                                value = relpath + article.id + "/" + img.index + "." + img.extension,
+                                value = relpath + img.filename + "." + img.extension, //+ article.id + "/" + img.index + "." + img.extension,
                                 type = new List<TextType>() { TextType.image }
                             });
                         }

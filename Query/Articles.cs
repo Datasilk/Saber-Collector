@@ -8,37 +8,33 @@ namespace Query
     {
         public static int Add(Models.Article article)
         {
-            try
-            {
-                return Sql.ExecuteScalar<int>("Article_Add", new { 
-                    article.feedId,
-                    article.subjects,
-                    article.subjectId,
-                    article.score,
-                    article.domain,
-                    article.url,
-                    article.title,
-                    article.summary,
-                    article.filesize,
-                    article.wordcount,
-                    article.sentencecount,
-                    article.paragraphcount,
-                    article.importantcount,
-                    article.yearstart,
-                    article.yearend,
-                    article.years,
-                    article.images,
-                    article.datepublished,
-                    article.relavance,
-                    article.importance,
-                    article.fiction,
-                    article.analyzed,
-                    article.active 
-                });
-            } catch(Exception ex)
-            {
-                throw ex;
-            }
+            return Sql.ExecuteScalar<int>("Article_Add", new { 
+                article.feedId,
+                article.subjects,
+                article.subjectId,
+                article.score,
+                article.domain,
+                article.url,
+                article.title,
+                article.summary,
+                article.filesize,
+                article.linkcount,
+                article.linkwordcount,
+                article.wordcount,
+                article.sentencecount,
+                article.paragraphcount,
+                article.importantcount,
+                article.yearstart,
+                article.yearend,
+                article.years,
+                article.images,
+                article.datepublished,
+                article.relavance,
+                article.importance,
+                article.fiction,
+                article.analyzed,
+                article.active 
+            });
             
         }
 

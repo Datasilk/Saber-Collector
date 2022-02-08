@@ -8,6 +8,8 @@
 	    [score] SMALLINT NULL DEFAULT 0,
         [images] TINYINT NULL DEFAULT 0, 
 	    [filesize] FLOAT NULL DEFAULT 0,
+        [linkcount] INT DEFAULT 0, 
+        [linkwordcount] INT DEFAULT 0, 
         [wordcount] INT DEFAULT 0, 
         [sentencecount] SMALLINT DEFAULT 0, 
         [paragraphcount] SMALLINT DEFAULT 0,

@@ -38,7 +38,7 @@ namespace Saber.Vendors.Collector.Hubs
                     articleInfo = Article.Add(url);
                 }
                 var relpath = Article.ContentPath(url);
-                var filepath = Saber.App.MapPath(relpath);
+                var filepath = App.MapPath(relpath);
                 var filename = articleInfo.articleId + ".html";
                 
                 if (File.Exists(filepath + filename))
@@ -131,12 +131,12 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", 1, "Downloading images for article...");
 
                         //build image path within wwwroot folder
-                        var imgpath = "/wwwroot/" + relpath.ToLower() + article.id + "/";
+                        var imgpath = "/wwwroot/" + relpath.ToLower() + "/"; // + article.id + "/";
 
                         //check if img folder exists
-                        if (!Directory.Exists(Saber.App.MapPath(imgpath)))
+                        if (!Directory.Exists(App.MapPath(imgpath)))
                         {
-                            Directory.CreateDirectory(Saber.App.MapPath(imgpath));
+                            Directory.CreateDirectory(App.MapPath(imgpath));
                         }
 
                         var cachedCount = 0;
@@ -145,7 +145,7 @@ namespace Saber.Vendors.Collector.Hubs
                         {
                             //download each image
                             var img = article.images[x];
-                            var path = Saber.App.MapPath(imgpath + img.index + "." + img.extension);
+                            var path = App.MapPath(imgpath + img.filename + "." + img.extension);
                             if (!File.Exists(path))
                             {
                                 try

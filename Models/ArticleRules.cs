@@ -65,7 +65,9 @@
 
         //used to find URLs that may be used for advertisements or UI buttons
         public static string[] badUrls = new string[] {
-            "/ads/", "/ad/", "/click/", "/bait/", "javascript:"
+            "/ads/", "/ad/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:", 
+            "login", "/submit", "/jobs", "advertiser", "/user", "privacy-policy", "/signup", "/signin",
+            "privacypolicy", "/careers", "/donate", "/newsletter", "/sign-up", "/sign-in"
         };
 
         //used to find anchor links with flagged words they may be UI links

@@ -898,7 +898,18 @@ namespace Saber.Vendors.Collector
             )).ToArray();
         }
 
-
+        public static List<string> GetTextFromElement(DomElement elem)
+        {
+            var text = new List<string>();
+            if(elem.text != "") { text.Add(elem.text); }
+            foreach(var child in elem.Children())
+            {
+                if(child.text != "") { text.Add(child.text); }
+                var list = GetTextFromElement(child);
+                if(list.Count > 0) { text.AddRange(list); }
+            }
+            return text;
+        }
         public static void RemoveAllChildIndexes(AnalyzedArticle article, List<AnalyzedElement> indexes, AnalyzedElement element)
         {
             var children = new List<int>();

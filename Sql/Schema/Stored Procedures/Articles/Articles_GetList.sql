@@ -9,7 +9,7 @@ CREATE PROCEDURE [dbo].[Articles_GetList]
 	@minImages int = 0,
 	@dateStart nvarchar(50),
 	@dateEnd nvarchar(50),
-	@orderby int = 1,
+	@orderby int = 4,
 	@start int = 1,
 	@length int = 50,
 	@bugsonly bit = 0

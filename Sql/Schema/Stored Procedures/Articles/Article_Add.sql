@@ -11,6 +11,8 @@ CREATE PROCEDURE [dbo].[Article_Add]
 	@title nvarchar(250),
 	@summary nvarchar(250),
 	@filesize float = 0,
+	@linkcount int = 0,
+	@linkwordcount int = 0,
 	@wordcount int = 0,
 	@sentencecount smallint = 0,
 	@paragraphcount smallint = 0,
@@ -28,10 +30,10 @@ CREATE PROCEDURE [dbo].[Article_Add]
 AS
 	DECLARE @articleId int = NEXT VALUE FOR SequenceArticles
 	INSERT INTO Articles 
-	(articleId, feedId, subjects, subjectId, score, domain, url, title, summary, filesize, wordcount, sentencecount, paragraphcount, importantcount, analyzecount,
+	(articleId, feedId, subjects, subjectId, score, domain, url, title, summary, filesize, linkcount, linkwordcount, wordcount, sentencecount, paragraphcount, importantcount, analyzecount,
 	yearstart, yearend, years, images, datecreated, datepublished, relavance, importance, fiction, analyzed, active)
 	VALUES 
-	(@articleId, @feedId, @subjects, @subjectId, @score, @domain, @url, @title, @summary, @filesize, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
+	(@articleId, @feedId, @subjects, @subjectId, @score, @domain, @url, @title, @summary, @filesize, @linkcount, @linkwordcount, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
 	@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
 
 	SELECT @articleId
