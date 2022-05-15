@@ -37,69 +37,33 @@ namespace Saber.Vendors.Collector
         }
 
         #region "Render"
-        public static Datasilk.Core.Web.Response RenderList(int parentId = 0, bool getHierarchy = false, bool isFirst = false)
+        public static Datasilk.Core.Web.Response RenderList(Query.Models.Subject parent = null)
         {
             var inject = new Datasilk.Core.Web.Response() { };
 
             var html = new StringBuilder();
-            var list = new View("/Views/Subjects/subject.html");
-            var item = new View("/Views/Subjects/list-item.html");
-            var subjects = Query.Subjects.GetList("", parentId);
-            var indexes = new string[] { };
-            if (parentId > 0)
+            var item = new View("/Vendors/Collector/HtmlComponents/Subjects/list-item.html");
+            var subjects = Query.Subjects.GetList("", parent == null ? 0 : parent.subjectId);
+
+            //set up subject sub-items
+            if(subjects.Count > 0)
             {
-                var details = Query.Subjects.GetSubjectById(parentId);
-                if (details == null) {
-                    throw new Exception("Parent subject does not exist");
-                }
-
-                //set up subject
-                var crumb = details.breadcrumb.Replace(">", " &gt; ");
-                if (details.parentId == 0) { crumb = details.title; } else { crumb += " &gt; " + details.title; }
-                indexes = details.hierarchy.Split('>');
-                list["parentId"] = details.subjectId.ToString();
-                list["breadcrumbs"] = crumb;
-
-                if (indexes.Length >= 1 && getHierarchy == true)
+                subjects.ForEach((Query.Models.Subject subject) =>
                 {
-                    var hier = details.hierarchy;
-                    var bread = details.breadcrumb;
-                    if (bread != "") { bread += ">" + details.title; } else { bread = details.title; }
-                    var pId = "0";
-                    if (hier != "")
-                    {
-                        var hier2 = hier.Split('>');
-                        pId = hier2[hier2.Length - 1];
-                    }
-                    inject.javascript = "S.subjects.select.show(" + parentId + "," + pId + ",'" + bread + "', 0, true);";
-
-                    //get inject object for parent within hierarchy
-                    var parent = RenderList(indexes.Length > 1 ? int.Parse(indexes[indexes.Length - 2]) : 0, indexes.Length > 1 ? true : false);
-                    html.Append(parent.html + "\n");
-                    inject.javascript += parent.javascript;
-                }
+                    var breadcrumbs = subject.breadcrumb;
+                    if (breadcrumbs == "") { breadcrumbs = subject.title; }
+                    item["subjectId"] = subject.subjectId.ToString();
+                    item["parentId"] = subject.parentId.ToString();
+                    item["breadcrumbs"] = subject.breadcrumb.Replace(">", "&gt;") + (subject.breadcrumb != "" ? "&gt;" : "") + subject.title;
+                    item["title"] = subject.title.Capitalize();
+                    html.Append(item.Render() + "\n");
+                });
             }
             else
             {
-                list["parentId"] = "0";
+                html.Append(Cache.LoadFile("/Vendors/Collector/HtmlComponents/Subjects/no-subjects.html"));
             }
-
-
-            //set up subject sub-items
-            subjects.ForEach((Query.Models.Subject subject) =>
-            {
-                var breadcrumbs = subject.breadcrumb;
-                if (breadcrumbs == "") { breadcrumbs = subject.title; }
-                item["subjectId"] = subject.subjectId.ToString();
-                item["parentId"] = subject.parentId.ToString();
-                item["breadcrumbs"] = subject.breadcrumb.Replace(">", "&gt;") + (subject.breadcrumb != "" ? "&gt;" : "") + subject.title;
-                item["title"] = subject.title.Capitalize();
-                html.Append(item.Render() + "\n");
-            });
-
-            list["subjects-list"] = html.ToString();
-
-            inject.html = list.Render();
+            inject.html = Components.Accordion.Render("Subjects", "", html.ToString());
             return inject;
         }
         #endregion

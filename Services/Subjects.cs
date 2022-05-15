@@ -27,7 +27,7 @@ namespace Saber.Vendors.Collector.Services
                     parentId = subject.subjectId;
                 }
 
-                return JsonResponse(Subjects.RenderList(parentId, false, hier.Length > 0));
+                return JsonResponse(Subjects.RenderList(Query.Subjects.GetSubjectById(parentId)));
             }
             catch (Exception ex)
             {
@@ -37,7 +37,7 @@ namespace Saber.Vendors.Collector.Services
         
         public string LoadSubjectsUI(int parentId = 0, bool getHierarchy = false, bool isFirst = false)
         {
-            return JsonResponse(Subjects.RenderList(parentId, getHierarchy, isFirst));
+            return JsonResponse(Subjects.RenderList(Query.Subjects.GetSubjectById(parentId)));
         }
     }
 }

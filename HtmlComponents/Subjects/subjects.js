@@ -3,11 +3,11 @@
         $('#form-addsubjects').on('submit', function (e) {
             S.subjects.buttons.saveSubjects(); e.preventDefault(); return false;
         });
-        $('#btnaddsubjects').off().on('click', S.subjects.add.show);
-        $('#btnsavesubjects').off().on('click', S.subjects.add.save);
-        $('#btncanceladdsubject').off().on('click', S.subjects.add.hide);
-        $('#btnmovesubject').off().on('click', S.subjects.move.submit);
-        $('#btncancelmovesubject').off().on('click', S.subjects.move.hide);
+        $('#btnaddsubjects').on('click', S.subjects.add.show);
+        $('#btnsavesubjects').on('click', S.subjects.add.save);
+        $('#btncanceladdsubject').on('click', S.subjects.add.hide);
+        $('#btnmovesubject').on('click', S.subjects.move.submit);
+        $('#btncancelmovesubject').on('click', S.subjects.move.hide);
     },
 
     add: {
@@ -35,7 +35,7 @@
                 function (data) {
                     $('.subjects-list .accordion.subjects:not(.selected)').remove();
                     var d = JSON.parse(data);
-                    d.d.inject = 1; //append
+                    d.type = 1; //append
                     console.log(d);
                     S.ajax.inject('.subjects-list > .inner', d);
                 });

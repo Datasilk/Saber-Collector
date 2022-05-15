@@ -4,7 +4,7 @@ using System.Text;
 using Saber.Core;
 using Saber.Vendor;
 
-namespace Saber.Vendors.Collector.HtmlComponents
+namespace Saber.Vendors.Collector.HtmlComponents.Articles
 {
     public class Articles : IVendorHtmlComponents
     {

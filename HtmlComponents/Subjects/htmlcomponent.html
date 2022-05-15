@@ -31,14 +31,14 @@
         
     </div>
 </div>
+{{has-parent}}
+    <div class="parent-subject">
+        <h4><a href="{{parent}}">&lt;</a> {{breadcrumbs}}</h4>
+    </div>
+{{/has-parent}}
 
 <div class="subjects-list">
     <div class="inner">
-        {{content}}
-        {{no-subjects}}
-        <div class="row pad-lg text-center">
-            No subjects exist in the database yet.
-        </div>
-        {{/no-subjects}}
+        {{subjects}}
     </div>
 </div>
