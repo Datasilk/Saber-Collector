@@ -11,6 +11,7 @@
         S.downloads.hub = new signalR.HubConnectionBuilder().withUrl('/downloadhub').build();
         S.downloads.hub.on('update', S.downloads.update);
         S.downloads.hub.on('checked', S.downloads.checked);
+        S.downloads.hub.on('article', S.downloads.articles.found);
         S.downloads.hub.start().catch(S.downloads.error);
     },
 
@@ -18,6 +19,8 @@
         S.downloads.running = true;
         $('.downloads .download').hide();
         $('.cancel-downloads').show();
+        $('.btn-download-start').addClass('hide');
+        $('.btn-download-stop').removeClass('hide');
         setTimeout(() => {
             S.downloads.check();
             S.downloads.checkFeeds();
@@ -28,6 +31,8 @@
         S.downloads.running = false;
         $('.downloads .download').show();
         $('.cancel-downloads').hide();
+        $('.btn-download-start').removeClass('hide');
+        $('.btn-download-stop').addClass('hide');
         setTimeout(() => {
             S.downloads.hub.invoke('StopQueue', S.downloads.id);
         }, 10);
@@ -36,9 +41,10 @@
     check: function () {
         if (S.downloads.running === false) { return; }
         var id = S.math.rnd.guid(6);
+        var feedId = feedid ? parseInt(feedid.value) : 0;
         S.downloads.id = id;
         setTimeout(() => {
-            S.downloads.hub.invoke('CheckQueue', id);
+            S.downloads.hub.invoke('CheckQueue', id, feedId);
         });
     },
 
@@ -50,6 +56,39 @@
         $('.downloads .console').append(div);
         //var box = $('.downloads .accordion > .box')[0];
         //box.scrollTop = box.scrollHeight;
+    },
+
+    articles: {
+        list: [],
+
+        found: function (json) {
+            var article = JSON.parse(json);
+            if (article == null || article.wordcount == null || article.wordcount == 0) { return; }
+            $('.articles-list').append(S.downloads.articles.render(article));
+            $('.no-articles').remove();
+            S.downloads.articles.list.push(article);
+        },
+
+        render: function (article) {
+            return temp_article_item.innerHTML
+                .replace('#url#', article.url)
+                .replace('#url#', article.url)
+                .replace('#article-url#', encodeURIComponent(article.url))
+                .replace('#title#', article.title)
+                .replace('#score#', article.score)
+                .replace('#words#', article.wordcount)
+                .replace('#links#', article.linkcount)
+                .replace('#filesize#', article.filesize);
+        },
+
+        sort: function () {
+            var list = $('.articles-list');
+            list.html('');
+            S.downloads.articles.list.sort((a, b) => a.score < b.score ? 1 : -1)
+            .forEach(a => {
+                list.append(S.downloads.articles.render(a));
+            });
+        }
     },
 
     checked: function (downloaded, article, links, words, important) {
@@ -89,6 +128,26 @@
     whitelist: {
         add: function (domain) {
             S.downloads.hub.invoke('Whitelist', domain);
+            if ($('.popup.show .whitelist').length > 0) {
+                //reload list
+                S.downloads.whitelist.show();
+            }
+        },
+
+        show: function () {
+            S.ajax.post('CollectorDownloads/RenderWhitelist', {}, (response) => {
+                S.popup.show('Whitelist Domains', response, { width: 400 });
+                $('.popup.show .whitelist .close-btn').on('click', (e) => {
+                    var domain = $(e.target).parents('.row.hover').first().attr('data-id');
+                    S.downloads.whitelist.remove(domain);
+                })
+            });
+        },
+
+        remove: function (domain) {
+            S.ajax.post('CollectorDownloads/DeleteWhitelist', {domain:domain}, (response) => {
+                $('.popup.show .row.hover[data-id="' + domain + '"]').remove();
+            });
         }
     },
 
@@ -112,7 +171,6 @@ S.math.rnd = {
             ];
             result += String.fromCharCode(seeds[Math.floor(Math.random() * 2)]);
         }
-        console.log(result);
         if (separator && groups) {
             let e = 0;
             for (var x = 0; x < groups.length; x++) {

@@ -6,10 +6,10 @@ namespace Query.Models
     {
         public int articleId { get; set; }
         public int? feedId { get; set; }
-        public byte? subjects { get; set; }
+        public short? subjects { get; set; }
         public int? subjectId { get; set; }
         public short? score { get; set; }
-        public byte? images { get; set; }
+        public short? images { get; set; }
         public double? filesize { get; set; }
         public int? linkcount { get; set; }
         public int? linkwordcount { get; set; }

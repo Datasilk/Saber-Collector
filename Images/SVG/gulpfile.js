@@ -29,5 +29,5 @@ gulp.task('svg', function () {
     '<defs>'))
     .pipe(replace(' fill="#FFFFFF"', ''))
     .pipe(replace(' fill="#ffffff"', ''))
-	.pipe(gulp.dest('../../'));
+	.pipe(gulp.dest('../'));
 });

@@ -35,7 +35,7 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                             {
                                 Name = "Hide Analyzer Panels",
                                 Description = "Only display the article contents and hide all other analyzer panels",
-                                DefaultValue = "url",
+                                DefaultValue = "1",
                                 DataType = HtmlComponentParameterDataType.Boolean,
                             }
                         }
@@ -58,8 +58,13 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js", "collector_analyzer_js");
 
-                        if(args.ContainsKey("article-only") && args["article-only"] == "1")
+                        if(request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0")
                         {
+                            //do nothing
+                        }else if((args.ContainsKey("article-only") && args["article-only"] == "1") ||
+                            (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "1"))
+                        {
+                            //show article only (no console, no accordions, no buttons)
                             viewComponent.Show("article-only");
                         }
 

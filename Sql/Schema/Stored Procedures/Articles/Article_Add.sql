@@ -20,7 +20,7 @@ CREATE PROCEDURE [dbo].[Article_Add]
 	@yearstart smallint = 0,
 	@yearend smallint = 0,
 	@years nvarchar(50),
-	@images tinyint = 0,
+	@images smallint = 0,
 	@datepublished datetime,
 	@relavance smallint = 1,
 	@importance smallint = 1,

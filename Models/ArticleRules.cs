@@ -31,7 +31,7 @@
             "comments", "related articles", "related posts"
         };
 
-        //used to identify DOM elements that should be skipped when analyzing the document
+        //used to identify DOM elements that should be skipped entirely when analyzing the document
         public static string[] skipTags = new string[] {
             "html", "body", "meta", "title", "link", "script", "style"
         };
@@ -39,9 +39,10 @@
         //used to identify DOM elements that should not be included in the article
         public static string[] badTags = new string[]  {
             "head", "meta", "link", "applet", "area", "style",
-            "audio", "canvas", "dialog", "small", "embed", "iframe",
+            "audio", "canvas", "dialog", "embed", "iframe",
             "input", "label", "nav", "object", "option", "s", "script", 
             "textarea", "video", "noscript", "footer"
+            //, "small"
         };
 
         //used to determine if a DOM element is used for advertisements or UI
@@ -49,12 +50,13 @@
             "social", "advert", "menu", "keyword", "twitter", "replies", "reply",
             "search", "trending", "footer", "logo", "disqus", "popular", "contacts",
             "bread", "callout", "masthead", "addthis", "-ad-", "ad-cont", "tags",
-            "banner", "subscri", "button", "reddit", "login", "signup", "promo",
+            "banner", "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "reading", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "meta", "related",
             "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", 
             "embed", "hide", "hidden", "carousel", "overlay", "progress", "comment",
-            "guestbook", "loading", "free-trial", "rating", "message"
+            "guestbook", "loading", "free-trial", "rating", "message", "slider", "divid", 
+            "widget", "privacy", "popup", "pop-up", "captcha", "badge"
         };
 
         //used to protect DOM elements that may be a part of the article
@@ -66,8 +68,8 @@
         //used to find URLs that may be used for advertisements or UI buttons
         public static string[] badUrls = new string[] {
             "/ads/", "/ad/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:", 
-            "login", "/submit", "/jobs", "advertiser", "/user", "privacy-policy", "/signup", "/signin",
-            "privacypolicy", "/careers", "/donate", "/newsletter", "/sign-up", "/sign-in"
+            "login", "/submit", "/job", "advertiser", "/user", "/privacy", "/signup", "/signin", 
+            "/career", "/donate", "/newsletter", "/sign-up", "/sign-in", "/legal"
         };
 
         //used to find anchor links with flagged words they may be UI links
@@ -86,7 +88,8 @@
             "disqus", "advertisement", "follow on twitter", "check out our", "announcement",
             "users", "sign up", "log in", "sign in", "reset pass", "subscribe", "learn more",
             "more stories", "click for", "update required", "update your browser", "supports html5",
-            "support html5", "support", "member", "this site", "exclusive", "podcast", "newsletter"
+            "support html5", "support", "member", "this site", "exclusive", "podcast", "newsletter",
+            "tick the box", "recent stories", "recent articles", "recent posts", "viewers", "followers", "skip"
         };
 
         //used to determine if parent DOM element should be flagged for contamination
@@ -126,9 +129,10 @@
         //used to determine if a sentence (or group of sentences) is part of a legal document
         public static string[] badLegal = new string[]
         {
-            "must directly", "illegal", "distribute", "official", "promote", "piracy", "must include",
-            "must be accompanied", "appropriate", "do not use", "promotion", "policy", "agreement",
-            "provisions", "prohibited", "please report"
+            "legal", "illegal", "must directly", "distribute", "official", "promote", "piracy", "must include",
+            "must be accompanied", "appropriate", "do not use", "promotion", "privacy", "policy", "agreement",
+            "provisions", "prohibited", "please report", "you agree to", "accept all", "liability", "accept the",
+            "cookies", "your device", "usage", "marketing", "analyze"
         };
 
 

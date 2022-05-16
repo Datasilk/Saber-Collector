@@ -1,0 +1,13 @@
+﻿<div class="row add-domain">
+    <div class="row field">Whitelist a Domain</div>
+    <div class="row">
+        <div class="col input">
+            <input type="text" id="txtwhitelist" placeholder="cnn.com" />
+        </div>
+        <div class="col input right"><button onclick="S.downloads.whitelist.add(txtwhitelist.value)">Add Domain</button></div>
+    </div>
+    
+</div>
+<div class="row whitelist pad-top">
+    {{list}}
+</div>

@@ -36,7 +36,6 @@
                     $('.subjects-list .accordion.subjects:not(.selected)').remove();
                     var d = JSON.parse(data);
                     d.type = 1; //append
-                    console.log(d);
                     S.ajax.inject('.subjects-list > .inner', d);
                 });
 
@@ -91,7 +90,6 @@
             setTimeout(function () { subj.addClass('selected'); }, speed);
 
             //set events for selected subject options
-            console.log(title);
             subj.find('.add-from-subject').off().attr('onclick', 'S.subjects.add.showFromSubject("' + breadcrumb + '"); return false;');
             subj.find('.move-from-subject').off().attr('onclick', 'S.subjects.move.show("' + id + '", "' + title + '","' + pbread + '"); return false;');
             subj.find('.goback').off().attr('onclick', 'S.subjects.select.cancel(\'' + pid + '\'); return false;');

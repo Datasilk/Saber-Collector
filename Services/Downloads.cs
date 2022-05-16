@@ -1,0 +1,39 @@
+﻿using System;
+using System.Text;
+using Saber.Core;
+using Saber.Vendor;
+
+namespace Saber.Vendors.Collector.Services
+{
+    public class CollectorDownloads : Service, IVendorService
+    {
+
+        #region "Whitelist"
+        public string RenderWhitelist()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Downloads/whitelist.html");
+            var item = new View("/Vendors/Collector/Views/Downloads/whitelist-item.html");
+            var whitelists = Query.Whitelists.Domains.GetList();
+            var html = new StringBuilder();
+            foreach(var whitelist in whitelists)
+            {
+                item.Clear();
+                item["domain"] = whitelist;
+                item["url"] = "https://" + whitelist;
+                html.Append(item.Render());
+            }
+            view["list"] = html.ToString();
+            return view.Render();
+        }
+
+        public string DeleteWhitelist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == null || domain == "") { return Error("Missing domain"); }
+            Query.Whitelists.Domains.Remove(domain);
+            return Success();
+        }
+        #endregion
+    }
+}

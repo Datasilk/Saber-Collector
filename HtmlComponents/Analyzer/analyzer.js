@@ -44,8 +44,6 @@
 
         append: function (html) {
             //receive command from SignalR
-            console.log('append');
-            console.log(html);
             $('.analyzer').append(html);
             accordion.load();
             if ($('.analyzer.article-only').length > 0) {
@@ -80,7 +78,6 @@
         },
 
         inject: function (start, length, area) {
-            //console.log([start, length, area]);
             var raw = article.rawHtml;
             if (raw.injecting || start > raw.lines.length || start < 0) { return; }
             article.rawHtml.injecting = true;
@@ -231,7 +228,6 @@
                         var scrollBottom = $('.raw-html .contents').height() - target.scrollTop - target.clientHeight;
                         var length = raw.lines.length - raw.displayed[raw.displayed.length - 1] - (scrollBottom / 18);
                         if (length < raw.length) { length = raw.length; }
-                        if (length > raw.length) { console.log(length); }
                         raw.inject(raw.displayed[raw.displayed.length - 1] + 1, length);
                     } else if (raw.displayed.length == 0) {
                         raw.inject(0, raw.length);

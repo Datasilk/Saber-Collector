@@ -4,7 +4,7 @@ using System.Text;
 using Saber.Core;
 using Saber.Vendor;
 
-namespace Saber.Vendors.Collector.HtmlComponents
+namespace Saber.Vendors.Collector.HtmlComponents.Downloads
 {
     public class Downloads : IVendorHtmlComponents
     {
@@ -69,12 +69,13 @@ namespace Saber.Vendors.Collector.HtmlComponents
 
 
                         viewComponent["content"] = Components.Accordion.Render("Statistics", "", viewStatistics.Render()) +
-                        Components.Accordion.Render("Downloads", "", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/console.html"));
+                        Components.Accordion.Render("Downloads", "", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/console.html")) +
+                        Components.Accordion.Render("Articles Found", "", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/articles-found.html"));
 
                         //add CSS & JS files
-                        request.AddCSS("/editor/vendors/collector/htmlcomponents/Downloads/downloads.css", "collector_downloads_css");
+                        request.AddCSS("/editor/vendors/collector/htmlcomponents/downloads/downloads.css", "collector_downloads_css");
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
-                        request.AddScript("/editor/vendors/collector/htmlcomponents/Downloads/downloads.js", "collector_downloads_js");
+                        request.AddScript("/editor/vendors/collector/htmlcomponents/downloads/downloads.js", "collector_downloads_js");
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;

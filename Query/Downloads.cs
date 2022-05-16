@@ -21,9 +21,9 @@ namespace Query
             return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls, domain, feedId });
         }
 
-        public static Models.DownloadQueue CheckQueue(int domaindelay = 5)
+        public static Models.DownloadQueue CheckQueue(int feedId = 0, int domaindelay = 60)
         {
-            var list = Sql.Populate<Models.DownloadQueue>("DownloadQueue_Check", new { domaindelay });
+            var list = Sql.Populate<Models.DownloadQueue>("DownloadQueue_Check", new { domaindelay, feedId });
             return list.FirstOrDefault();
         }
 

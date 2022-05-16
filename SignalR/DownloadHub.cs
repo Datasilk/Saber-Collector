@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Net;
 using Microsoft.AspNetCore.SignalR;
@@ -15,9 +16,9 @@ namespace Saber.Vendors.Collector.Hubs
     {
         private List<string> StopQueues = new List<string>();
 
-        public async Task CheckQueue(string id)
+        public async Task CheckQueue(string id, int feedId)
         {
-            var queue = Query.Downloads.CheckQueue(1); // 1 minute delay for each download on a single domain
+            var queue = Query.Downloads.CheckQueue(feedId, 10); // 10 second delay for each download on a single domain
             if(queue != null)
             {
                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
@@ -128,6 +129,8 @@ namespace Saber.Vendors.Collector.Hubs
                     //save article
                     Article.Add(articleInfo);
 
+                    await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
+
                     return;
                 }
                 catch(Exception ex)
@@ -139,6 +142,7 @@ namespace Saber.Vendors.Collector.Hubs
             }
             else
             {
+                await Clients.Caller.SendAsync("update", "No downloads queued at the moment...");
                 await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0);
             }
         }
