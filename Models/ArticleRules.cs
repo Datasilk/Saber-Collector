@@ -52,13 +52,14 @@
             "bread", "callout", "masthead", "addthis", "-ad-", "ad-cont", "tags",
             "banner", "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "reading", "share", "sharing", "facebook",
-            "poweredby", "powered-by", "invisible", "newsletter", "meta", "related",
+            "poweredby", "powered-by", "invisible", "newsletter", "related",
             "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", "label",
             "embed", "hide", "hidden", "carousel", "overlay", "progress", "comment",
-            "guestbook", "loading", "free-trial", "rating", "message", "slider", "divid", 
+            "guestbook", "free-trial", "rating", "message", "divid", 
             "widget", "privacy", "popup", "pop-up", "captcha", "badge", "comment", "cancel",
             "apply", "links", "skip", "premium", "dropdown", "drop-down", "truncated",
-            "editors-picks", "also", "categories", "notifi", "timer", "next", "previous"
+            "editors-picks", "also", "categories", "notifi", "timer", "next", "previous",
+            "signout", "sign-out", "player", "picker", "stories"
         };
 
         //used to protect DOM elements that may be a part of the article
@@ -70,8 +71,8 @@
         //used to find URLs that may be used for advertisements or UI buttons
         public static string[] badUrls = new string[] {
             "/ads/", "/ad/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:", 
-            "login", "/submit", "/job", "advertiser", "/user", "/privacy", "/signup", "/signin", 
-            "/career", "/donate", "/newsletter", "/sign-up", "/sign-in", "/legal"
+            "login", "/submit", "/job", "advertiser", "/privacy", "/signup", "/signin", 
+            "/career", "/donate", "/newsletter", "/sign-up", "/sign-in", "/legal", "doubleclick"
         };
 
         //used to find anchor links with flagged words they may be UI links
@@ -92,7 +93,7 @@
             "more stories", "click for", "update required", "update your browser", "supports html5",
             "support html5", "support", "member", "this site", "exclusive", "podcast", "newsletter",
             "tick the box", "recent stories", "recent articles", "recent posts", "viewers", "followers", "skip",
-            "related content"
+            "related content", "sponsored", "links"
         };
 
         //used to find 2 or more words in a sentence that suggests the sentence is used after the end of an article

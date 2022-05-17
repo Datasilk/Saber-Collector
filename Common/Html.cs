@@ -343,7 +343,7 @@ namespace Saber.Vendors.Collector
                         //check if element is potential menu item
                         if (index.hierarchy.Where(a => Rules.textTags.Contains(a.Element.tagName)).Count() == 0 &&
                             index.hierarchy.Where(a => Rules.menuTags.Contains(a.Element.tagName)).Count() > 0 &&
-                            CountWordsInText(txt, Rules.badMenu) > 0
+                            CountWordsInText(txt, Rules.badMenu, false) > 0
                         )
                         {
                             index.AddFlag(ElementFlags.MenuItem);
@@ -352,7 +352,7 @@ namespace Saber.Vendors.Collector
                         //check if element has an anchor link in the hierarchy
                         if(index.hierarchy.Any(a => a.Element.tagName == "a"))
                         {
-                            if (CountWordsInText(txt, Rules.badLinkWords) > 0)
+                            if (CountWordsInText(txt, Rules.badLinkWords, false) > 0)
                             {
                                 index.AddFlag(ElementFlags.BadLinkWord);
                                 index.isBad = true;
@@ -391,13 +391,13 @@ namespace Saber.Vendors.Collector
                     }
                     if (words.Length <= 30)
                     {
-                        var bad = CountWordsInText(txt, Rules.badKeywords) +
-                            (CountWordsInText(txt, Rules.badTrailing) > 2 ? 1 : 0);
+                        var bad = CountWordsInText(txt, Rules.badKeywords, false) +
+                            (CountWordsInText(txt, Rules.badTrailing, false) > 2 ? 1 : 0);
                         //check bad keywords
                         index.UpdateCounter(ElementFlagCounters.badKeywords, bad);
 
                         //check bad keywords for flagging parent element
-                        if(CountWordsInText(txt, Rules.badKeywordsForParentElement) > 0)
+                        if(CountWordsInText(txt, Rules.badKeywordsForParentElement, false) > 0)
                         {
                             index.hierarchy.Last().isContaminated = true;
                             RemoveAllChildIndexes(article, indexes, index);
@@ -408,7 +408,7 @@ namespace Saber.Vendors.Collector
                         if(words.Length > 0 && 100 / words.Length * bad > 30)
                         {
                             index.isBad = true;
-                            continue;
+                            index.isContaminated = true;
                         }
                     }
 
@@ -490,7 +490,6 @@ namespace Saber.Vendors.Collector
                     {
                         if ((element.attribute.ContainsKey("src") &&
                             Rules.badUrls.Where(a => element.attribute["src"].IndexOf(a) >= 0).Count() > 0)
-                            || element.className.Any(a => a.IndexOf("thumb") >= 0)
                             )
                         {
                             index.AddFlag(ElementFlags.BadUrl);
@@ -928,9 +927,9 @@ namespace Saber.Vendors.Collector
             return words.Where(a => a.OnlyAlphabet()).ToArray();
         }
 
-        public static int CountWordsInText(string text, string[] words)
+        public static int CountWordsInText(string text, string[] words, bool matchStartOnly = true)
         {
-            return GetWordsInText(text, words).Length;
+            return GetWordsInText(text, words, matchStartOnly).Length;
         }
 
         public static string[] GetWordsInText(string text, string[] words, bool matchStartOnly = true)

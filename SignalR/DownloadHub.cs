@@ -33,7 +33,7 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
                     await Clients.Caller.SendAsync("checked");
                     return;
-                }else if(result.IndexOf("file:") == 0)
+                }else if(result.Substring(0, 5) == "file:")
                 {
                     await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
                     await Clients.Caller.SendAsync("checked");

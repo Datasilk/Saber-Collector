@@ -38,7 +38,11 @@
 }
 
 .article-text{
-    .contents{white-space:normal !important;}
+    .contents{white-space:normal !important;
+        & > {
+            h1, h2, h3, h4, h5, h6{clear:both;}
+        }
+    }
     h1, h2, h3, h4, h5, h6, span, li, p{line-height:1.35 !important;}
     span, li, p, blockquote{font-size:17px;}
     p{padding:0 0 15px 0;}
@@ -53,8 +57,11 @@
     li{padding-bottom:7px;}
     ul{padding-bottom:15px; padding-left:10px;}
     li > ul{padding-top:7px; padding-left:30px; padding-bottom:0px;}
-    .image{width:100%; text-align:center; box-sizing:border-box; padding:15px 0 10px 0;}
+    .image{text-align:center; box-sizing:border-box; padding:15px 0 10px 0;}
     img{max-width:100%;}
+    .small-img{float:left; margin-right:30px; margin-bottom:15px; clear:both;}
+    .large-img{display:block; margin:0 auto; clear:both; padding:10px 0;}
+    .img-description{text-align:center; width:100%; display:block; padding-bottom:20px;}
     blockquote{font-style:italic; margin:5px 0 15px 0px; padding:7px 7px 7px 20px; line-height:1.3 !important; background:rgba(255, 255, 255, 0.05);}
     pre{padding:10px; margin:0 0 15px 0; background:rgba(255, 255, 255, 0.05);}
 }

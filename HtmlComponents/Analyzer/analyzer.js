@@ -49,6 +49,35 @@
             if ($('.analyzer.article-only').length > 0) {
                 $('.analyzer .article-text .box').removeClass('box');
             }
+
+            //remove empty tags (temporary bug-fix)
+            $('.analyzer').find('p').filter((i, a) => $(a).children().length == 0).remove();
+
+            //find small images
+            $('.analyzer img').on('load', (e) => {
+                var win = S.window.pos();
+                var a = $(e.target);
+                var nextElem = $(a).parent().next();
+                var text = nextElem != null ? article.getText(nextElem) : [];
+                if (text == null) { text = []; }
+                var small = false;
+
+                if (100 / win.w * $(a).width() < 40) {
+                    $(a).parent().addClass('small-img');
+                    small = true;
+                } else {
+                    $(a).parent().addClass('large-img');
+                }
+                //check for image description below image
+                var alltext = text.join('');
+                if (text.length <= 5 && alltext.length > 5 && alltext.length < 100) {
+                    nextElem.addClass('img-description');
+                    if (small) {
+                        //move description into image div
+                        $(a).parent().append(nextElem);
+                    }
+                }
+            });
         },
 
         error: function (err) {
@@ -265,6 +294,30 @@
         S.ajax.post('CollectorArticles/DeleteJsonCachedHtmlFile', { articleId: articleId }, () => {
             S.message.show('.analyzer .messages', '', 'Cached HTML file deleted for article successfully');
         });
+    },
+
+    getText: function (elem) {
+        var textNodes = [];
+        if (elem) {
+            if (typeof elem.hasClass == 'function') {
+                if (elem.length > 0) {
+                    elem = elem[0];
+                } else {
+                    //no elements
+                    return;
+                }
+            }
+            for (var nodes = elem.childNodes, i = nodes.length; i--;) {
+                var node = nodes[i], nodeType = node.nodeType;
+                if (nodeType == 3) {
+                    textNodes.push(node);
+                }
+                else if (nodeType == 1 || nodeType == 9 || nodeType == 11) {
+                    textNodes = textNodes.concat(article.getText(node));
+                }
+            }
+        }
+        return textNodes;
     }
 };
 
