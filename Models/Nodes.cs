@@ -5,13 +5,20 @@ namespace Saber.Vendors.Collector.Models.Nodes
     //used for deserializing computed DOM object from Charlotte service
     public class Document
     {
-        public string[] a { get; set; }
+        public string[] a { get; set; }//attribute names
+        public string[] t { get; set; } //tag names
         public Node dom { get; set; }
+    }
+
+    public class Dictionaries //used by Html.Traverse
+    {
+        public string[] a { get; set; }//attribute names
+        public string[] t { get; set; } //tag names
     }
 
     public class Node
     {
-        public string t { get; set; } = ""; //tag name
+        public int t { get; set; } = 0; //tag name index
         public int[] s { get; set; } = null; //array of style values [display (0 = none, 1 = block, 2 = inline), font-size, bold, italic]
         public Dictionary<int, string> a { get; set; } //dictionary of element attributes
         public List<Node> c { get; set; } //list of child elements

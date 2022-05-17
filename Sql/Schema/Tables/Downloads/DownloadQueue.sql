@@ -1,7 +1,7 @@
 ﻿BEGIN TRY
     CREATE TABLE [dbo].[DownloadQueue]
     (
-	    [qid] INT NOT NULL,
+	    [qid] BIGINT NOT NULL,
         [feedId] INT NULL, 
         [domainId] INT NULL, 
         [status] INT NOT NULL DEFAULT 0, 

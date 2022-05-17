@@ -41,7 +41,7 @@
             "head", "meta", "link", "applet", "area", "style",
             "audio", "canvas", "dialog", "embed", "iframe",
             "input", "label", "nav", "object", "option", "s", "script", 
-            "textarea", "video", "noscript", "footer"
+            "textarea", "video", "noscript", "footer", "aside"
             //, "small"
         };
 
@@ -53,10 +53,12 @@
             "banner", "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "reading", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "meta", "related",
-            "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", 
+            "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", "label",
             "embed", "hide", "hidden", "carousel", "overlay", "progress", "comment",
             "guestbook", "loading", "free-trial", "rating", "message", "slider", "divid", 
-            "widget", "privacy", "popup", "pop-up", "captcha", "badge"
+            "widget", "privacy", "popup", "pop-up", "captcha", "badge", "comment", "cancel",
+            "apply", "links", "skip", "premium", "dropdown", "drop-down", "truncated",
+            "editors-picks", "also", "categories", "notifi", "timer", "next", "previous"
         };
 
         //used to protect DOM elements that may be a part of the article
@@ -89,7 +91,14 @@
             "users", "sign up", "log in", "sign in", "reset pass", "subscribe", "learn more",
             "more stories", "click for", "update required", "update your browser", "supports html5",
             "support html5", "support", "member", "this site", "exclusive", "podcast", "newsletter",
-            "tick the box", "recent stories", "recent articles", "recent posts", "viewers", "followers", "skip"
+            "tick the box", "recent stories", "recent articles", "recent posts", "viewers", "followers", "skip",
+            "related content"
+        };
+
+        //used to find 2 or more words in a sentence that suggests the sentence is used after the end of an article
+        public static string[] badTrailing = new string[] {
+            "additional", "resources", "notes", "comment", "discuss", "post", "links",
+            "share", "article"
         };
 
         //used to determine if parent DOM element should be flagged for contamination
@@ -133,13 +142,6 @@
             "must be accompanied", "appropriate", "do not use", "promotion", "privacy", "policy", "agreement",
             "provisions", "prohibited", "please report", "you agree to", "accept all", "liability", "accept the",
             "cookies", "your device", "usage", "marketing", "analyze"
-        };
-
-
-        //used to find 2 or more words in a sentence that suggests the sentence is used after the end of an article
-        public static string[] badTrailing = new string[] {
-            "additional", "resources", "notes", "comment", "discuss", "post", "links",
-            "share", "article"
         };
 
         //check DOM element role attribute for bad role names

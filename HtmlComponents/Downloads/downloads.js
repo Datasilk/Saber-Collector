@@ -116,7 +116,8 @@
     },
 
     checkFeeds: function () {
-        S.downloads.hub.invoke('CheckFeeds');
+        var feedId = feedid ? parseInt(feedid.value) : 0;
+        S.downloads.hub.invoke('CheckFeeds', feedId);
         setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
     },
 

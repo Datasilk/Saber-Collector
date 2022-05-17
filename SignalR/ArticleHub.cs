@@ -46,6 +46,8 @@ namespace Saber.Vendors.Collector.Hubs
                     //open cached content from disk
                     article = Html.DeserializeArticle(File.ReadAllText(filepath + filename));
                     await Clients.Caller.SendAsync("update", 1, "Loaded cached content for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                    await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
+                        "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
                     download = false;
                     Article.FileSize(article);
                 }
@@ -63,6 +65,12 @@ namespace Saber.Vendors.Collector.Hubs
                     if(result == "")
                     {
                         await Clients.Caller.SendAsync("update", 1, "Download timed out for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                        return;
+                    }
+                    else if (result.IndexOf("file:") == 0)
+                    {
+                        await Clients.Caller.SendAsync("update", 1, "URL points to a file of type \"" + result.Substring(5) + "\"");
+                        await Clients.Caller.SendAsync("update", 1, "Download file: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
                         return;
                     }
                     try
@@ -89,6 +97,8 @@ namespace Saber.Vendors.Collector.Hubs
 
                     File.WriteAllText(filepath + filename, result);
                     await Clients.Caller.SendAsync("update", 1, "Downloaded URL (" + article.fileSize + " KB" + "): <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                    await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
+                        "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
                 }
 
                 //set article information
@@ -228,6 +238,7 @@ namespace Saber.Vendors.Collector.Hubs
 
                 //finished
                 await Clients.Caller.SendAsync("update", 1, "Done!");
+                await Clients.Caller.SendAsync("update", 1, "<a href=\"?url=" + WebUtility.UrlEncode(url) + "&article-only=1\" target=\"_blank\">View Article</a>");
             }
             catch (Exception ex)
             {

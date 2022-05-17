@@ -1,10 +1,17 @@
 ﻿.content{max-width:1400px;}
 .analyzer{
+    .toolbar{
+        .show-analyzer{display:none;}
+    }
+
     &.article-only{
         .accordion{display:none;}
         .accordion.article-text{display:block;
             & > .title{display:none;}
             & > .box{max-height:none;}
+        }
+        .toolbar{
+            .show-analyzer{display:inline-block;}
         }
     }
 }
@@ -31,6 +38,7 @@
 }
 
 .article-text{
+    .contents{white-space:normal !important;}
     h1, h2, h3, h4, h5, h6, span, li, p{line-height:1.35 !important;}
     span, li, p, blockquote{font-size:17px;}
     p{padding:0 0 15px 0;}

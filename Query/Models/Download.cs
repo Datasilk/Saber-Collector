@@ -4,7 +4,7 @@ namespace Query.Models
 {
     public class DownloadQueue
     {
-        public int qid { get; set; }
+        public Int64 qid { get; set; }
         public int domainId { get; set; }
         public int feedId { get; set; }
         public int status { get; set; }

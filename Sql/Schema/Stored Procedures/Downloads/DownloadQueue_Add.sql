@@ -7,7 +7,7 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 	@feedId int = 0
 AS
 SELECT * INTO #urls FROM dbo.SplitArray(@urls, ',')
-DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid INT, @count INT = 0
+DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid BIGINT, @count INT = 0
 IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
 	SELECT @domainId = domainId FROM DownloadDomains WHERE domain=@domain
 END ELSE BEGIN

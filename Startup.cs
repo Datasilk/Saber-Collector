@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,7 @@ namespace Saber.Vendors.Collector
         private void ConfigurePlugin()
         {
             var file = App.MapPath("/Vendors/Collector/config.json");
-            if (!System.IO.File.Exists(file))
+            if (!File.Exists(file))
             {
                 Console.WriteLine("You must copy, rename, then modify \"/Vendors/Collector/config.template.json\" to \"/Vendors/Collector/config.json\" and restart Saber to use Collector.");
                 return;
@@ -49,6 +50,16 @@ namespace Saber.Vendors.Collector
                 Article.storagePath = config.GetSection(section).Value;
                 section = "browser:endpoint:" + environment;
                 Article.browserEndpoint = config.GetSection(section).Value;
+
+                //create folders if they don't exist
+                if (!Directory.Exists(Article.storagePath + "articles"))
+                {
+                    Directory.CreateDirectory(Article.storagePath + "articles");
+                }
+                if (!Directory.Exists(Article.storagePath + "files"))
+                {
+                    Directory.CreateDirectory(Article.storagePath + "files");
+                }
             }
             catch (Exception)
             {

@@ -31,6 +31,12 @@ namespace Saber.Vendors.Collector.Hubs
                 if (result == "")
                 {
                     await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
+                    await Clients.Caller.SendAsync("checked");
+                    return;
+                }else if(result.IndexOf("file:") == 0)
+                {
+                    await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
+                    await Clients.Caller.SendAsync("checked");
                     return;
                 }
                 try
@@ -124,12 +130,15 @@ namespace Saber.Vendors.Collector.Hubs
                             "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
                             "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
                         "</span>");
-                    await Clients.Caller.SendAsync("checked", 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
-
+                    
                     //save article
                     Article.Add(articleInfo);
 
+                    //display article
                     await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
+
+                    //show console message
+                    await Clients.Caller.SendAsync("checked", 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
 
                     return;
                 }
@@ -164,9 +173,9 @@ namespace Saber.Vendors.Collector.Hubs
             return false;
         }
 
-        public async Task CheckFeeds()
+        public async Task CheckFeeds(int feedId)
         {
-            var feeds = Query.Feeds.Check();
+            var feeds = Query.Feeds.Check(feedId);
             foreach(var feed in feeds)
             {
                 if(feed.doctype == Query.Feeds.DocTypes.RSS)
@@ -208,13 +217,28 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     //Read HTML feed //////////////////////////////////////////////////////////////////////////////
                     AnalyzedArticle article = new AnalyzedArticle();
-                    var result = Article.Download(feed.url);
+                    string result;
+                    try
+                    {
+                        result = Article.Download(feed.url);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                        Query.Feeds.UpdateLastChecked(feed.feedId); //mark feed as checked (since it was attempted to be downloaded)
+                        await Clients.Caller.SendAsync("update", "Error downloading " + feed.url + "!");
+                        continue;
+                    }
                     try
                     {
                         article = Html.DeserializeArticle(result);
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                        Query.Feeds.UpdateLastChecked(feed.feedId); //mark feed as checked (since it was downloaded)
                         await Clients.Caller.SendAsync("update", "Error parsing feed DOM for " + feed.url + "!");
                         continue;
                     }

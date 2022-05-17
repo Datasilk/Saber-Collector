@@ -258,6 +258,13 @@
         error: function (msg) {
             article.message.error(msg.toString());
         }
+    },
+
+    delete: function (articleId) {
+        if (!confirm('Do you really want to delete the cached HTML file for this article? This cannot be undone.')) { return false; }
+        S.ajax.post('CollectorArticles/DeleteJsonCachedHtmlFile', { articleId: articleId }, () => {
+            S.message.show('.analyzer .messages', '', 'Cached HTML file deleted for article successfully');
+        });
     }
 };
 

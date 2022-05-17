@@ -53,6 +53,11 @@ namespace Query
             return Sql.Populate<Models.Article>("Article_GetByUrl", new { url }).FirstOrDefault();
         }
 
+        public static Models.Article GetById(int articleId)
+        {
+            return Sql.Populate<Models.Article>("Article_GetById", new { articleId }).FirstOrDefault();
+        }
+
         public static void Remove(int articleId)
         {
             Sql.ExecuteNonQuery("Article_Remove", new { articleId });

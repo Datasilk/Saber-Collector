@@ -24,11 +24,12 @@ namespace Saber.Vendors.Collector
                 var html = new StringBuilder();
                 var hierarchy = new List<int>();                
                 var parser = new Parser("");
+                var dict = new Dictionaries() { t = node.t, a = node.a};
 
                 //build DOM tree
                 var elems = new List<DomElement>();
                 var index = 0;
-                Traverse(node.dom, ref index, elems, hierarchy, node.a, parser);
+                Traverse(node.dom, ref index, elems, hierarchy, dict, parser);
                 parser.Elements = elems;
                 article.elements = elems;
                 article.rawHtml = FormatHtml(elems).ToString();
@@ -43,7 +44,7 @@ namespace Saber.Vendors.Collector
             return article;
         }
 
-        private static DomElement Traverse(Node parent, ref int index, List<DomElement> elems, List<int> hierarchy, string[] attributes, Parser parser)
+        private static DomElement Traverse(Node parent, ref int index, List<DomElement> elems, List<int> hierarchy, Dictionaries dict, Parser parser)
         {
             //create local copy of hierarchy
             var parentId = -1;
@@ -58,7 +59,7 @@ namespace Saber.Vendors.Collector
             var elem = new DomElement(parser);
             elem.index = index;
             elem.parent = parentId;
-            elem.tagName = parent.t;
+            elem.tagName = dict.t[parent.t];
             elem.className = new List<string>();
             elem.hierarchyIndexes = hier.ToArray();
             elem.childIndexes = new List<int>();
@@ -102,13 +103,13 @@ namespace Saber.Vendors.Collector
             {
                 foreach (var x in parent.a)
                 {
-                    if(attributes[x.Key] == "class")
+                    if(dict.a[x.Key] == "class")
                     {
                         elem.className = x.Value.Replace("  ", " ").Replace("  ", " ").Split(" ").ToList();
                     }
                     else
                     {
-                        elem.attribute.Add(attributes[x.Key], x.Value);
+                        elem.attribute.Add(dict.a[x.Key], x.Value);
                     }
                 }
             }
@@ -125,7 +126,7 @@ namespace Saber.Vendors.Collector
                 foreach (var child in parent.c)
                 {
                     index++;
-                    var childElem = Traverse(child, ref index, elems, hier.ToList(), attributes, parser);
+                    var childElem = Traverse(child, ref index, elems, hier.ToList(), dict, parser);
                     elem.childIndexes.Add(childElem.index);
                 }
             }
@@ -136,7 +137,7 @@ namespace Saber.Vendors.Collector
                 index++;
                 var closing = new DomElement(parser);
                 closing.index = index;
-                closing.tagName = "/" + parent.t;
+                closing.tagName = "/" + dict.t[parent.t];
                 closing.hierarchyIndexes = hierarchy.ToArray();
                 closing.childIndexes = new List<int>();
                 closing.style = new Dictionary<string, string>();
@@ -390,16 +391,23 @@ namespace Saber.Vendors.Collector
                     }
                     if (words.Length <= 30)
                     {
+                        var bad = CountWordsInText(txt, Rules.badKeywords) +
+                            (CountWordsInText(txt, Rules.badTrailing) > 2 ? 1 : 0);
                         //check bad keywords
-                        index.UpdateCounter(ElementFlagCounters.badKeywords,
-                            CountWordsInText(txt, Rules.badKeywords) +
-                            (CountWordsInText(txt, Rules.badTrailing) > 2 ? 1 : 0));
+                        index.UpdateCounter(ElementFlagCounters.badKeywords, bad);
 
                         //check bad keywords for flagging parent element
                         if(CountWordsInText(txt, Rules.badKeywordsForParentElement) > 0)
                         {
                             index.hierarchy.Last().isContaminated = true;
                             RemoveAllChildIndexes(article, indexes, index);
+                            continue;
+                        }
+
+                        //check percentage of words that are bad
+                        if(words.Length > 0 && 100 / words.Length * bad > 30)
+                        {
+                            index.isBad = true;
                             continue;
                         }
                     }
@@ -443,7 +451,7 @@ namespace Saber.Vendors.Collector
                     //check element for bad class names
                     if (element.className != null && element.className.Count > 0)
                     {
-                        var bad = GetWordsInText(string.Join(' ', element.className), Rules.badClasses).ToList();
+                        var bad = GetWordsInText(string.Join(' ', element.className), Rules.badClasses, false).ToList();
                         if (bad.Count > 0)
                         {
                             bad = bad.Where(badclass =>
@@ -471,7 +479,19 @@ namespace Saber.Vendors.Collector
                     if (element.tagName == "a")
                     {
                         if (element.attribute.ContainsKey("href") &&
-                            Rules.badUrls.Where(a => element.attribute["href"].IndexOf(a) >= 0).Count() > 0)
+                            (Rules.badUrls.Where(a => element.attribute["href"].IndexOf(a) >= 0).Count() > 0 ||
+                            element.attribute["href"] == article.url))
+                        {
+                            index.AddFlag(ElementFlags.BadUrl);
+                            index.isBad = true;
+                        }
+                    }
+                    if (element.tagName == "img")
+                    {
+                        if ((element.attribute.ContainsKey("src") &&
+                            Rules.badUrls.Where(a => element.attribute["src"].IndexOf(a) >= 0).Count() > 0)
+                            || element.className.Any(a => a.IndexOf("thumb") >= 0)
+                            )
                         {
                             index.AddFlag(ElementFlags.BadUrl);
                             index.isBad = true;
@@ -845,16 +865,39 @@ namespace Saber.Vendors.Collector
             for (var x = 0; x < article.body.Count; x++)
             {
                 var elem = article.elements[article.body[x]];
-                if (elem.tagName == "img" && elem.attribute.ContainsKey("src"))
+                if (elem.tagName == "img"
+                    && (elem.attribute.ContainsKey("src") || elem.attribute.ContainsKey("src")))
                 {
+                    //first, try to get the highest-resolution image from srcset
+                    var url = "";
+                    if (elem.attribute.ContainsKey("srcset"))
+                    {
+                        var src = elem.attribute["srcset"].Split(",").Select(a =>
+                        {
+                            var parts = a.Trim().Split(" ");
+                            var key = 0;
+                            if (parts.Length > 1)
+                            {
+                                int.TryParse(parts[1].ReplaceAll("", new string[] { "w", "h", "x", "y" }), out key);
+                            }
+                            var kv = new KeyValuePair<int, string>(key, parts[0]);
+                            return kv;
+                        }).OrderByDescending(a => a.Key).Select(a => a.Value).ToList();
+                        url = src.FirstOrDefault();
+                    }
+                    else if(elem.attribute.ContainsKey("src"))
+                    {
+                        url = elem.attribute["src"];
+                    }
+
                     var img = new AnalyzedImage()
                     {
                         index = elem.index,
-                        url = elem.attribute["src"]
+                        url = url
                     };
 
-                    img.filename = img.url.GetFilename();
-                    img.extension = img.url.GetFileExtension().ToLower();
+                    img.filename = img.url.Split("?")[0].Split("#")[0].GetFilename();
+                    img.extension = img.filename.GetFileExtension().ToLower();
 
                     switch (img.extension)
                     {
@@ -890,12 +933,16 @@ namespace Saber.Vendors.Collector
             return GetWordsInText(text, words).Length;
         }
 
-        public static string[] GetWordsInText(string text, string[] words)
+        public static string[] GetWordsInText(string text, string[] words, bool matchStartOnly = true)
         {
-            return words.Where(word => text.IndexOf(word) == 0 || ( //first character in text,
-                text.IndexOf(word) > 0 &&                           //or beginning of word
-                text.Substring(text.IndexOf(word) - 1, 1).ToCharArray()[0].CheckChar(true, true) == false
-            )).ToArray();
+            if (matchStartOnly)
+            {
+                return words.Where(word => text.IndexOf(word) == 0 || ( //first character in text,
+                    text.IndexOf(word) > 0 &&                           //or beginning of word
+                    text.Substring(text.IndexOf(word) - 1, 1).ToCharArray()[0].CheckChar(true, true) == false //check to see if character before word in text is not alpha-numeric to ensure word is found at beginning of a word in the text
+                )).ToArray();
+            }
+            return words.Where(word => text.Contains(word)).ToArray();
         }
 
         public static List<string> GetTextFromElement(DomElement elem)

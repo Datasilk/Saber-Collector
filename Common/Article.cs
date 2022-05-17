@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Net;
 using System.ServiceModel;
 using Saber.Core.Extensions.Strings;
 using Utility.DOM;
@@ -35,23 +36,36 @@ namespace Saber.Vendors.Collector
 
         public static string Download(string url)
         {
-            var outpath = Saber.App.MapPath(storagePath + "browser/");
-            var outfile = Generate.NewId(5) + ".json";
-            if (!Directory.Exists(outpath))
-            {
-                Directory.CreateDirectory(outpath);
-            }
+            //first, try to get headers for the URL from the host
+            var request = WebRequest.Create(url);
+            request.Method = "HEAD";
+            var contentType = "";
+            long filesize = 0;
 
-            var binding = new BasicHttpBinding()
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             {
-                MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
-            };
-            var endpoint = new EndpointAddress(new Uri(browserEndpoint));
-            var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
-            var serviceClient = channelFactory.CreateChannel();
-            var result = serviceClient.Collect(url);
-            channelFactory.Close();
-            return result;
+                contentType = response.ContentType.Split(";")[0];
+                filesize = response.ContentLength;
+            }
+            if(contentType == "text/html")
+            {
+                //get JSON compressed HTML page from Charlotte windows service
+                var binding = new BasicHttpBinding()
+                {
+                    MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
+                };
+                var endpoint = new EndpointAddress(new Uri(browserEndpoint));
+                var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
+                var serviceClient = channelFactory.CreateChannel();
+                var result = serviceClient.Collect(url);
+                channelFactory.Close();
+                return result;
+            }
+            else
+            {
+                //handle all other files
+                return "file:" + contentType;
+            }
         }
 
         public static void FileSize(AnalyzedArticle article)
@@ -536,7 +550,7 @@ namespace Saber.Vendors.Collector
                                     if (url.IndexOf("javascript:") < 0)
                                     {
                                         part.title = elem.text;
-                                        part.value = url;
+                                        part.value = "?url=" + WebUtility.UrlEncode(url); //url;
                                         part.type.Add(TextType.anchorLink);
                                         break;
                                     }

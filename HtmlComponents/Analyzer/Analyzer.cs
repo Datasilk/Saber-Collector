@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Net;
 using Saber.Core;
 using Saber.Vendor;
 
@@ -46,6 +46,17 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
 
                         //render analyzer accordion
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/Analyzer/htmlcomponent.html");
+
+                        
+                        var url = "";
+                        if (!request.Parameters.ContainsKey("url"))
+                        {
+                            results.Add(new KeyValuePair<string, string>(prefix + key, Cache.LoadFile("/Vendors/Collector/HtmlComponents/Analyzer/no-url.html")));
+                            return results;
+                        }
+
+                        url = request.Parameters["url"];
+                        viewComponent["analyzer-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=0";
 
                         viewComponent["content"] = Components.Accordion.Render(
                             "Analyze Article: " + (request.Parameters.ContainsKey("url") ? request.Parameters["url"] : "???"),

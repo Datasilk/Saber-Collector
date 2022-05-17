@@ -47,9 +47,9 @@ namespace Query
             return Sql.Populate<Models.FeedCategory>("Feeds_Categories_GetList");
         }
 
-        public static List<Models.Feed> Check()
+        public static List<Models.Feed> Check(int feedId = 0)
         {
-            return Sql.Populate<Models.Feed>("Feeds_Check");
+            return Sql.Populate<Models.Feed>("Feeds_Check", new { feedId });
         }
     }
 }
