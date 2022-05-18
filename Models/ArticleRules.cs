@@ -50,7 +50,7 @@
             "social", "advert", "menu", "keyword", "twitter", "replies", "reply",
             "search", "trending", "footer", "logo", "disqus", "popular", "contacts",
             "bread", "callout", "masthead", "addthis", "-ad-", "ad-cont", "tags",
-            "banner", "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
+            "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "reading", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "related",
             "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", "label",

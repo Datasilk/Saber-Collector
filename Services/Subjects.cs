@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Saber.Core;
 using Saber.Vendor;
 
@@ -38,6 +40,13 @@ namespace Saber.Vendors.Collector.Services
         public string LoadSubjectsUI(int parentId = 0, bool getHierarchy = false, bool isFirst = false)
         {
             return JsonResponse(Subjects.RenderList(Query.Subjects.GetSubjectById(parentId)));
+        }
+
+
+        public string NavigateDropdown(int subjectId, bool parent)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            return Subjects.NavigateDropdown(subjectId, parent);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Saber.Vendors.Collector
             return result.ToString();
         }
 
-        public static string RenderOptions(List<Query.Models.FeedCategory> categories)
+        public static string RenderCategoryOptions(List<Query.Models.FeedCategory> categories)
         {
             var html = new StringBuilder();
             foreach (var cat in categories)

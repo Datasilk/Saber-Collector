@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="25px" height="25px" viewBox="0 0 25 25">
 <defs>
 <g id="icon_sourcecode_0_Layer1_0_FILL">
-<path fill="#FFFFFF" stroke="none" d="
+<path stroke="none" d="
 M 9.95 5.1
 Q 9.85 4.9 9.7 5.1
 L 2.25 11.25
@@ -22,7 +22,7 @@ Q 22.85 13.7 22.9 13.6 22.95 13.45 23 13.25 23 13.1 23 12.95 23 12.75 23 12.5 Z"
 </g>
 
 <g id="icon_sourcecode_0_Layer0_0_FILL">
-<path fill="#FFFFFF" fill-opacity="0" stroke="none" d="
+<path fill-opacity="0" stroke="none" d="
 M 0 17.15
 L 25 17.15 25 0 0 0 0 17.15
 M 25 17.15

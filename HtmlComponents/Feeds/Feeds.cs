@@ -26,7 +26,7 @@ namespace Saber.Vendors.Collector.HtmlComponents
                         //render feeds list
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/Feeds/htmlcomponent.html");
                         var categories = Query.Feeds.GetCategories();
-                        viewComponent["category-options"] = Collector.Feeds.RenderOptions(categories);
+                        viewComponent["category-options"] = Collector.Feeds.RenderCategoryOptions(categories);
                         viewComponent["content"] = Collector.Feeds.RenderList(categories);
                         if(viewComponent["content"] == "")
                         {

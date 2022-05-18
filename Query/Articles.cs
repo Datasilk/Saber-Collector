@@ -109,62 +109,23 @@ namespace Query
             Both = 2
         }
 
-        public static List<Models.ArticleDetails> GetList(int[] subjectId, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.oldest, int start = 1, int length = 50, bool bugsOnly = false)
+        public static List<Models.ArticleDetails> GetList(int[] subjectId, int feedId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.oldest, int start = 1, int length = 50, bool bugsOnly = false)
         {
             return Sql.Populate<Models.ArticleDetails>(
                 "Articles_GetList",
                 new {
                     subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
-                    search,
-                    isActive = (int)isActive,
-                    isDeleted,
-                    minImages,
-                    dateStart = dateStart == null ? "" : dateStart.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
-                    dateEnd = dateEnd == null ? "" : dateEnd.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
-                    orderby = (int)orderBy,
-                    start,
-                    length,
-                    bugsOnly
-                });
-        }
-
-        public static List<Models.ArticleDetails> GetListForFeeds(int[] subjectId, int feedId = -1, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.oldest, int start = 1, int length = 50, bool bugsOnly = false)
-        {
-            return Sql.Populate<Models.ArticleDetails>(
-                "Articles_GetListForFeeds",
-                new {
-                    subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
                     feedId,
+                    score,
                     search,
                     isActive = (int)isActive,
                     isDeleted,
                     minImages,
-                    dateStart = dateStart == null ? "" : dateStart.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
-                    dateEnd = dateEnd == null ? "" : dateEnd.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
+                    dateStart = dateStart,
+                    dateEnd = dateEnd,
                     orderby = (int)orderBy,
                     start,
                     length,
-                    bugsOnly
-                });
-        }
-
-        public static List<Models.ArticleDetails> GetListForSubjects(int[] subjectId, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.oldest, int start = 1, int length = 50, int subjectStart = 1, int subjectLength = 10, bool bugsOnly = false)
-        {
-            return Sql.Populate<Models.ArticleDetails>(
-                "Articles_GetListForSubjects",
-                new {
-                    subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
-                    search,
-                    isActive = (int)isActive,
-                    isDeleted,
-                    minImages,
-                    dateStart = dateStart == null ? "" : dateStart.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
-                    dateEnd = dateEnd == null ? "" : dateEnd.Value.ToString("dd/MM/yyyy hh:mm:ss tt"),
-                    orderby = (int)orderBy,
-                    start,
-                    length,
-                    subjectStart,
-                    subjectLength,
                     bugsOnly
                 });
         }

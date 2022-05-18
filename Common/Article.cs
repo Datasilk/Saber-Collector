@@ -131,7 +131,6 @@ namespace Saber.Vendors.Collector
             FileSize(article);
             article.url = articleInfo.url;
             article.id = articleInfo.articleId;
-            article.feedId = articleInfo.feedId ?? -1;
             article.domain = Web.GetDomainName(articleInfo.url);
             Html.GetArticleInfoFromDOM(article);
 

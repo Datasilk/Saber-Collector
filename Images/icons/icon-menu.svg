@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="64px" height="64px" viewBox="0 0 64 64">
 <defs>
 <g id="menu_0_Layer1_0_FILL">
-<path fill="#FFFFFF" stroke="none" d="
+<path stroke="none" d="
 M 62.8 48.15
 Q 61.65 47 60 47
 L 4 47
@@ -34,7 +34,7 @@ L 64 11 Z"/>
 </g>
 
 <g id="menu_0_Layer0_0_FILL">
-<path fill="#FFFFFF" fill-opacity="0" stroke="none" d="
+<path fill-opacity="0" stroke="none" d="
 M 64 64
 L 64 0 0 0 0 64 64 64 Z"/>
 </g>

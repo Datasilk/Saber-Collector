@@ -29,5 +29,10 @@ namespace Query
         {
             return Sql.Populate<Models.Subject>("Subjects_GetList", new { subjectIds , parentId });
         }
+
+        public static List<Models.Subject> GetByParentId(int parentId)
+        {
+            return Sql.Populate<Models.Subject>("Subjects_GetList", new { subjectIds = "", parentId });
+        }
     }
 }

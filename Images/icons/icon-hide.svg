@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="64px" height="64px" viewBox="0 0 64 64">
 <defs>
 <g id="iconHide_0_Layer1_0_FILL">
-<path fill="#FFFFFF" stroke="none" d="
+<path stroke="none" d="
 M 54.4 53.4
 Q 55.016015625 53.3947265625 55.45 52.95 55.8947265625 52.516015625 55.9 51.9 55.8947265625 51.283984375 55.45 50.85 55.016015625 50.4052734375 54.4 50.4
 L 48.4 50.4
@@ -66,7 +66,7 @@ Q 62.416015625 13.6947265625 62.85 13.25 63.2947265625 12.816015625 63.3 12.2 63
 </g>
 
 <g id="iconHide_0_Layer0_0_FILL">
-<path fill="#FFFFFF" fill-opacity="0" stroke="none" d="
+<path fill-opacity="0" stroke="none" d="
 M 64 0
 L 0 0 0 64 64 64 64 0 Z"/>
 </g>

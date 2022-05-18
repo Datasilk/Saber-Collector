@@ -8,31 +8,21 @@ namespace Saber.Vendors.Collector
 {
     public static class Articles
     {
-        public static string RenderList(int subjectId = -1, int feedId = -1, int start = 1, int length = 50, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.newest)
+        public static string RenderList(int subjectId = 0, int feedId = 0, int start = 1, int length = 50, int score = 0, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.newest)
         {
-            var item = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
-            var html = new StringBuilder();
-
-
             List<Query.Models.ArticleDetails> articles;
             var subjectIds = new List<int>();
-            if(subjectId > -1)
+            if(subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
+            articles = Query.Articles.GetList(subjectIds.ToArray(), feedId, score, search, Query.Articles.IsActive.Both, false, minImages, dateStart, dateEnd, orderBy, start, length);
 
-            if (feedId >= 0)
+            var item = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
+            var html = new StringBuilder();
+            if (articles != null)
             {
-                articles = Query.Articles.GetListForFeeds(subjectIds.ToArray(), feedId, search, Query.Articles.IsActive.Both, false, minImages, dateStart, dateEnd, orderBy, start, length);
-            }
-            else
-            {
-                articles = Query.Articles.GetList(subjectIds.ToArray(), search, Query.Articles.IsActive.Both, false, minImages, dateStart, dateEnd, orderBy, start, length);
-            }
-
-            if(articles != null)
-            {
-                foreach(var article in articles)
+                foreach (var article in articles)
                 {
                     //populate view with article info
                     item["title"] = article.title;

@@ -16,16 +16,12 @@ gulp.task('svg', function () {
     }))
       .pipe(svgstore({ filename: 'icons.svg' }))
     .pipe(replace('svg"><defs>', 'svg">\n\n\n' +
- //   '<style type="text/css">\n' +
- //   '    .editor path:not(.svg-nocolor){fill:currentColor}\n' +
- //   '    .editor use:not(.svg-nocolor):visited{color:currentColor}\n' +
- //   '    .editor use:not(.svg-nocolor):hover{color:currentColor}\n' +
- //   '    .editor use:not(.svg-nocolor):active{color:currentColor}\n' +
- //   '    .for-popup path:not(.svg-nocolor){fill:currentColor}\n' +
- //   '    .for-popup use:not(.svg-nocolor):visited{color:currentColor}\n' +
- //   '    .for-popup use:not(.svg-nocolor):hover{color:currentColor}\n' +
- //   '    .for-popup use:not(.svg-nocolor):active{color:currentColor}\n' +
- //   '</style>\n\n\n' + 
+    '<style type="text/css">\n' +
+    '    .box path:not(.svg-nocolor){fill:currentColor}\n' +
+    '    .box use:not(.svg-nocolor):visited{color:currentColor}\n' +
+    '    .box use:not(.svg-nocolor):hover{color:currentColor}\n' +
+    '    .box use:not(.svg-nocolor):active{color:currentColor}\n' +
+    '</style>\n\n\n' + 
     '<defs>'))
     .pipe(replace(' fill="#FFFFFF"', ''))
     .pipe(replace(' fill="#ffffff"', ''))

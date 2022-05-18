@@ -1,0 +1,24 @@
+﻿<form id="searchform">    
+    <div class="row">
+        <div class="col">
+            <input type="text" id="search" placeholder="Search article meta data" />
+        </div>
+        <div class="col pad-right subjects-breadcrumb"><span class="hide"></span></div>
+        <div class="col pad-right">
+            <select id="subjectId" oninput="S.articles.search.selectSubject()" >{{subjects}}</select>
+        </div>
+        <div class="col pad-right">
+            <select id="feedId" >{{feeds}}</select>
+        </div>
+        <div class="col pad-right search-article-score" title="Minimum Score (-9999 to 9999)">
+            <label>Score</label><input type="number" id="score" value="0" />
+        </div>
+        <div class="col icon btn-search pad-right">
+             <a onclick="S.articles.search.getResults()">
+                <svg viewBox="0 0 32 32">
+                    <use xlink:href="#icon-search" x="0" y="0" width="32" height="32"></use>
+                </svg>
+             </a>
+        </div>
+    </div>
+</form>

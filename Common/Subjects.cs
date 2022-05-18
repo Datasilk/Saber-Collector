@@ -67,5 +67,53 @@ namespace Saber.Vendors.Collector
             return inject;
         }
         #endregion
+
+        #region "Dropdown"
+        public static string NavigateDropdown(int subjectId, bool parent)
+        {
+            List<Query.Models.Subject> subjects = null;
+            var html = new StringBuilder();
+            var root = false;
+            if (subjectId == 0)
+            {
+                //root subjects only
+                subjects = Query.Subjects.GetList("", 0);
+                root = true;
+            }
+            else if (parent == true)
+            {
+                //get subjects for parent
+                var subject = Query.Subjects.GetSubjectById(subjectId);
+                if (subject.parentId.HasValue)
+                {
+                    //get parent subjects
+                    subjects = Query.Subjects.GetByParentId(subject.parentId.Value);
+                }
+                else
+                {
+                    //no parent ID, get root subjects
+                    subjects = Query.Subjects.GetList("", 0);
+                    root = true;
+                }
+            }
+            else
+            {
+                //get subjects
+                subjects = Query.Subjects.GetByParentId(subjectId);
+            }
+            html.Append("<option value=\"\" selected>Select a subject...</option>");
+            if (root == false)
+            {
+                var subject = Query.Subjects.GetSubjectById(subjectId);
+                html.Append("<option value=\"" + subject.parentId + "\"><< Parent Subject</option>");
+                html.Append("<option value=\"0\">All Subjects</option>");
+            }
+            foreach (var subject in subjects)
+            {
+                html.Append("<option value=\"" + subject.subjectId + "\"/>" + subject.title + "</option>");
+            }
+            return html.ToString();
+        }
+        #endregion
     }
 }

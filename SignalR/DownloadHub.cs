@@ -42,6 +42,7 @@ namespace Saber.Vendors.Collector.Hubs
                 try
                 {
                     article = Html.DeserializeArticle(result);
+                    article.feedId = queue.feedId;
                 }
                 catch (Exception)
                 {
@@ -131,8 +132,19 @@ namespace Saber.Vendors.Collector.Hubs
                             "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
                         "</span>");
                     
-                    //save article
+                    //save article to database
                     Article.Add(articleInfo);
+
+                    //save downloaded results to disk
+                    var relpath = Article.ContentPath(queue.url);
+                    var filepath = App.MapPath(relpath);
+                    var filename = articleInfo.articleId + ".html";
+                    if (!Directory.Exists(filepath))
+                    {
+                        //create folder for content
+                        Directory.CreateDirectory(filepath);
+                    }
+                    File.WriteAllText(filepath + filename, result);
 
                     //display article
                     await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));

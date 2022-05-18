@@ -29,7 +29,7 @@ namespace Saber.Vendors.Collector.Services
             {
                 Query.Feeds.AddCategory(title);
                 var categories = Query.Feeds.GetCategories();
-                return Feeds.RenderOptions(categories);
+                return Feeds.RenderCategoryOptions(categories);
             }
             catch (Exception ex)
             {

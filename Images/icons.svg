@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg">
 
 
+<style type="text/css">
+    .box path:not(.svg-nocolor){fill:currentColor}
+    .box use:not(.svg-nocolor):visited{color:currentColor}
+    .box use:not(.svg-nocolor):hover{color:currentColor}
+    .box use:not(.svg-nocolor):active{color:currentColor}
+</style>
+
+
 <defs>
 <g id="iconCheck_Fill">
 <path stroke="none" d="
@@ -194,6 +202,26 @@ Q 14.3 42.65 14.3 42.3 14.3 39.55 16.25 37.6 16.7 37.1 17.35 36.75
 L 42.45 15.2
 M 17.35 36.75
 Q 18.9 35.6 21.05 35.6 23.8 35.6 25.75 37.6 27.8 39.55 27.8 42.3 27.8 45 26.05 46.85 25.85 47 25.75 47.1 25.5 47.35 25.25 47.65"/>
+
+<g id="icon_search_0_Layer1_0_FILL">
+<path fill-opacity="0" stroke="none" d="
+M 25 0
+L 0 0 0 25 25 25 25 0 Z"/>
+</g>
+
+<g id="icon_search_0_Layer0_0_FILL">
+<path stroke="none" d="
+M 25 9.5
+Q 25 5.6 22.2 2.8 19.4 0 15.5 0 11.6 0 8.8 2.8 6 5.6 6 9.5 6 12.3 7.45 14.55
+L 0 22 2.8 24.85 10.25 17.4
+Q 12.55 19 15.5 19 19.4 19 22.2 16.25
+L 22.25 16.2
+Q 25 13.4 25 9.5
+M 23.05 9.5
+Q 23.05 12.65 20.8 14.8 18.65 17.05 15.5 17.05 12.4 17.05 10.15 14.8 8 12.65 8 9.5 8 6.45 10.15 4.2
+L 10.2 4.15
+Q 12.45 2 15.5 2 18.65 2 20.8 4.15 23.05 6.4 23.05 9.5 Z"/>
+</g>
 
 <g id="icon_settings_0_Layer1_0_FILL">
 <path fill-opacity="0" stroke="none" d="
@@ -479,6 +507,18 @@ L 35.5 51.05 Z"/>
 <use xlink:href="#iconPoster_0_Layer0_0_FILL"/>
 
 <use xlink:href="#iconPoster_0_Layer0_0_1_STROKES"/>
+</g>
+</g>
+</symbol><symbol id="icon-search" viewBox="0 0 25 25">
+
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#icon_search_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#icon_search_0_Layer0_0_FILL"/>
 </g>
 </g>
 </symbol><symbol id="icon-settings" viewBox="0 0 36 36">

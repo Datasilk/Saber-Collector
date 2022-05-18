@@ -24,7 +24,7 @@ namespace Saber.Vendors.Collector.HtmlComponents.Articles
                     {
                         var results = new List<KeyValuePair<string, string>>();
 
-                        //render downloads list
+                        //render articles list
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/Articles/htmlcomponent.html");
                         var viewArticle = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
                         var html = new StringBuilder();
