@@ -422,7 +422,7 @@ namespace Saber.Vendors.Collector
                         {
                             parts.Add(new ArticlePart()
                             {
-                                value = relpath + img.filename + "." + img.extension, //+ article.id + "/" + img.index + "." + img.extension,
+                                value = relpath + img.filename, //+ article.id + "/" + img.index + "." + img.extension,
                                 type = new List<TextType>() { TextType.image }
                             });
                         }
@@ -673,7 +673,7 @@ namespace Saber.Vendors.Collector
                 }
                 else if (part.value != "" && indent == 0)
                 {
-                    if (part.type.Where(a => a == TextType.header).Count() > 0)
+                    if (part.type.Where(a => a == TextType.header).Count() > 0 && part.value.Length > 1 )
                     {
                         paragraph = false;
                         html.Append("</p>");
@@ -800,7 +800,8 @@ namespace Saber.Vendors.Collector
                         ( //check for change in font size between two text elements
                             part.fontSize != lastFontsize && 
                             lastPart.type.Contains(TextType.text) && 
-                            part.type.Contains(TextType.text)
+                            part.type.Contains(TextType.text) &&
+                            part.value.Length > 1
                         )
                     )
                 )

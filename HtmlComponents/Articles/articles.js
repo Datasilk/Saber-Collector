@@ -1,11 +1,20 @@
 ﻿S.articles = {
     init: function () {
+        //button events
         $('#btnaddarticle').on('click', S.articles.add.show);
+
+        //submit search form events
         $('#searchform').on('submit', (e) => {
             S.articles.search.getResults();
             e.preventDefault();
             return false;
         })
+        $('#search, #subjectId, #feedId, #score').on('keypress', (e) => {
+            switch (e.key.toLowerCase()) {
+                case "enter":
+                    S.articles.search.getResults();
+            }
+        });
     },
 
     add: {

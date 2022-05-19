@@ -102,10 +102,14 @@
         //check for new downloads
         if (S.downloads.running == true) {
             if (downloaded == 0) {
+                S.downloads.update('check for new downloads in 10 seconds...');
                 setTimeout(S.downloads.check, 10 * 1000); //wait 10 seconds
             } else {
+                S.downloads.update('check for new downloads immediately');
                 S.downloads.check(); //check immediately
             }
+        } else {
+            S.downloads.update('S.downloads.running = false');
         }
     },
 

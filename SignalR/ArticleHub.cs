@@ -155,7 +155,7 @@ namespace Saber.Vendors.Collector.Hubs
                         {
                             //download each image
                             var img = article.images[x];
-                            var path = App.MapPath(imgpath + img.filename + "." + img.extension);
+                            var path = App.MapPath(imgpath + img.filename);
                             if (!File.Exists(path))
                             {
                                 try

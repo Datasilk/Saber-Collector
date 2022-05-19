@@ -59,9 +59,22 @@
     li > ul{padding-top:7px; padding-left:30px; padding-bottom:0px;}
     .image{text-align:center; box-sizing:border-box; padding:15px 0 10px 0;}
     img{max-width:100%;}
-    .small-img{float:left; margin-right:30px; margin-bottom:15px; clear:both;}
+    .small-img{float:left; margin-right:30px; margin-bottom:15px; max-width:30%;}
     .large-img{display:block; margin:0 auto; clear:both; padding:10px 0;}
     .img-description{text-align:center; width:100%; display:block; padding-bottom:20px;}
     blockquote{font-style:italic; margin:5px 0 15px 0px; padding:7px 7px 7px 20px; line-height:1.3 !important; background:rgba(255, 255, 255, 0.05);}
     pre{padding:10px; margin:0 0 15px 0; background:rgba(255, 255, 255, 0.05);}
+
+    @media (max-width:950px){
+        .article-text{
+            .small-img{max-width:48%;}
+        }
+    }
+
+    
+    @media (max-width:702px){
+        .article-text{
+            .small-img{max-width:100%;}
+        }
+    }
 }

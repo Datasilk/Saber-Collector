@@ -865,7 +865,7 @@ namespace Saber.Vendors.Collector
             {
                 var elem = article.elements[article.body[x]];
                 if (elem.tagName == "img"
-                    && (elem.attribute.ContainsKey("src") || elem.attribute.ContainsKey("src")))
+                    && (elem.attribute.ContainsKey("src") || elem.attribute.ContainsKey("srcset")))
                 {
                     //first, try to get the highest-resolution image from srcset
                     var url = "";

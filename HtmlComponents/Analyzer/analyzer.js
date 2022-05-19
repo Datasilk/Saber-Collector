@@ -54,15 +54,15 @@
             $('.analyzer').find('p').filter((i, a) => $(a).children().length == 0).remove();
 
             //find small images
+            var win = S.window.pos();
             $('.analyzer img').on('load', (e) => {
-                var win = S.window.pos();
                 var a = $(e.target);
                 var nextElem = $(a).parent().next();
                 var text = nextElem != null ? article.getText(nextElem) : [];
                 if (text == null) { text = []; }
                 var small = false;
 
-                if (100 / win.w * $(a).width() < 40) {
+                if (win.w > 900 && 100 / win.w * $(a).width() < 40) {
                     $(a).parent().addClass('small-img');
                     small = true;
                 } else {

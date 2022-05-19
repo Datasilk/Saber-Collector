@@ -55,9 +55,9 @@
             "poweredby", "powered-by", "invisible", "newsletter", "related",
             "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", "label",
             "embed", "hide", "hidden", "carousel", "overlay", "progress", "comment",
-            "guestbook", "free-trial", "rating", "message", "divid", 
+            "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
             "widget", "privacy", "popup", "pop-up", "captcha", "badge", "comment", "cancel",
-            "apply", "links", "skip", "premium", "dropdown", "drop-down", "truncated",
+            "apply", "links", "skip", "dropdown", "drop-down", "truncated",
             "editors-picks", "also", "categories", "notifi", "timer", "next", "previous",
             "signout", "sign-out", "player", "picker", "stories"
         };

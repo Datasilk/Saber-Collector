@@ -148,10 +148,7 @@ namespace Saber.Vendors.Collector.Hubs
 
                     //display article
                     await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
-
-                    //show console message
                     await Clients.Caller.SendAsync("checked", 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
-
                     return;
                 }
                 catch(Exception ex)
@@ -303,6 +300,7 @@ namespace Saber.Vendors.Collector.Hubs
                 Query.Feeds.UpdateLastChecked(feed.feedId);
             }
             await Clients.Caller.SendAsync("update", "Checked feeds.");
+            await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0);
         }
 
         public async Task Whitelist(string domain)
