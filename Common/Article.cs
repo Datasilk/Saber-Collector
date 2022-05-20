@@ -661,7 +661,6 @@ namespace Saber.Vendors.Collector
             foreach(var part in parts)
             {
                 closedParagraph = false;
-
                 //create paragraph tag (if neccessary)
                 if (paragraph == false && part.value != "" && indent == 0)
                 {
@@ -796,12 +795,13 @@ namespace Saber.Vendors.Collector
                 }
                 if (closedParagraph == false && 
                     (
-                        part.type.Where(a => a == TextType.lineBreak).Count() > 0 || 
-                        ( //check for change in font size between two text elements
+                        part.type.Where(a => a == TextType.lineBreak).Count() > 0
+                        || ( //check for change in font size between two text elements
                             part.fontSize != lastFontsize && 
                             lastPart.type.Contains(TextType.text) && 
                             part.type.Contains(TextType.text) &&
-                            part.value.Length > 1
+                            part.value.Length > 1 &&
+                            lastPart.value.Length > 1
                         )
                     )
                 )

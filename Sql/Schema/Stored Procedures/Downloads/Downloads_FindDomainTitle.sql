@@ -14,7 +14,7 @@ AS
 	)
 
 	INSERT INTO @articles 
-	SELECT top 10 a.title FROM Articles a
+	SELECT top 100 a.title FROM Articles a
 	WHERE a.domainId = @domainId
 
 	DECLARE @count int = 0
@@ -31,12 +31,12 @@ AS
 	FETCH NEXT FROM @cursor INTO @title
 	WHILE @@FETCH_STATUS = 0 BEGIN
 		--get all words & phrases from the title
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, ' ') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, '-') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, '|') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, ':') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, ';') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
-		INSERT INTO @words SELECT value FROM STRING_SPLIT(@title, '/') WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, ' ')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, '-')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, '|')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, ':')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, ';')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
+		INSERT INTO @words SELECT TRIM(value) FROM (SELECT * FROM STRING_SPLIT(@title, '/')) as tbl WHERE LEN(value) > 2 AND [value] NOT IN (SELECT * FROM @exclude)
 		FETCH NEXT FROM @cursor INTO @title
 	END
 	CLOSE @cursor
@@ -44,14 +44,31 @@ AS
 	SELECT @count = COUNT(*) FROM @words
 
 	--get count of all duplicate words & phrases
+	DECLARE @domain nvarchar(64), @domainpart nvarchar(64), @domainpart2 nvarchar(64)
+	DECLARE @domainparts TABLE (value nvarchar(64))
 	DECLARE @domainTitle nvarchar(128)
+	SELECT @domain = domain FROM DownloadDomains WHERE domainId=@domainId
+	INSERT INTO @domainparts SELECT * FROM STRING_SPLIT(@domain, '.')
+	SELECT TOP 1 @domainpart = REPLACE([value], '-', '') FROM @domainparts
+	SELECT @domainpart2 = STRING_AGG([value], '') FROM @domainparts
+	PRINT @domainpart2
 	SELECT TOP 1 @domainTitle = TRIM(word)
 	FROM (
-		SELECT word, COUNT(word) AS total, LEN(word) AS [length]
-		FROM @words
-		GROUP BY word
-		HAVING COUNT(word) > 1
+		SELECT b.score, w.word, COUNT(w.word) AS total, LEN(w.word) AS [length]
+		FROM @words w
+		CROSS APPLY (
+			SELECT CASE 
+			WHEN PATINDEX(@domainpart + '%', REPLACE(w.word, ' ', '')) > 0 THEN 50 
+			WHEN PATINDEX(@domainpart2 + '%', REPLACE(w.word, ' ', '')) > 0 THEN 100
+			ELSE 0 END AS score
+		) AS b
+		GROUP BY w.word, b.score
+		HAVING COUNT(w.word) > 1
 	) AS tbl
-	ORDER BY total DESC, [length] DESC
+	ORDER BY score DESC, [length] ASC, total DESC
+
+
+
+	PRINT @domainTitle
 
 	UPDATE DownloadDomains SET title=@domainTitle WHERE domainId=@domainId
