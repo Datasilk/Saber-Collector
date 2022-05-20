@@ -7,9 +7,15 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 	@feedId int = 0
 AS
 SELECT * INTO #urls FROM dbo.SplitArray(@urls, ',')
-DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid BIGINT, @count INT = 0
+DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid BIGINT, @count INT = 0, @title nvarchar(128)
 IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
-	SELECT @domainId = domainId FROM DownloadDomains WHERE domain=@domain
+	SELECT @domainId = domainId, @title = title FROM DownloadDomains WHERE domain=@domain
+	IF @title = '' BEGIN
+		IF (SELECT COUNT(*) FROM Articles WHERE domainId=@domainId) >= 10 BEGIN
+			--get common word found in all article titles
+			EXEC Downloads_FindDomainTitle @domainId=@domainId
+		END
+	END
 END ELSE BEGIN
 	SET @domainId = NEXT VALUE FOR SequenceDownloadDomains
 	INSERT INTO DownloadDomains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))

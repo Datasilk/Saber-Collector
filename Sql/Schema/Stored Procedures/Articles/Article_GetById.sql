@@ -4,5 +4,7 @@ GO
 CREATE PROCEDURE [dbo].[Article_GetById]
 	@articleId int
 AS
-	SELECT * FROM Articles WHERE articleId=@articleId
+	SELECT a.*, d.domain FROM Articles a
+	LEFT JOIN DownloadDomains d ON d.domainId = a.domainId
+	WHERE a.articleId=@articleId
 RETURN 0

@@ -23,6 +23,21 @@
             "september","october","november","december"
         };
 
+        //used to find URLs that may be used for advertisements or UI buttons
+        public static string[] badUrls = new string[] {
+            "/ads/", "/ad/", "/advert/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:",
+            "login", "/submit", "/job", "advertis", "/privacy/", "privacy-policy", "privacypolicy",
+            "/signup", "/signin", "/sign-up", "/sign-in", "/career", "/donate", "/newsletter", "/legal",
+            "doubleclick", "/subscribe", "/cookies/"
+        };
+
+        //used to identify page titles that disqualifies the page as an article
+        public static string[] badPageTitles = new string[]{
+            "terms of use", "terms & conditions", "terms and conditions", "our policies",
+            "privacy policy", "site map", "sitemap", "sign in", "sign up", "signin", "signup",
+            "subscribe", "cookie statement", "cookie policy"
+        };
+
         //used to identify various DOM elements that are used as titles
         public static string[] headerTags = new string[] { "h1", "h2", "h3", "h4", "h5", "h6" };
 
@@ -66,13 +81,6 @@
         public static string[] ignoreClasses = new string[]
         {
             "table"
-        };
-
-        //used to find URLs that may be used for advertisements or UI buttons
-        public static string[] badUrls = new string[] {
-            "/ads/", "/ad/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:", 
-            "login", "/submit", "/job", "advertiser", "/privacy", "/signup", "/signin", 
-            "/career", "/donate", "/newsletter", "/sign-up", "/sign-in", "/legal", "doubleclick"
         };
 
         //used to find anchor links with flagged words they may be UI links

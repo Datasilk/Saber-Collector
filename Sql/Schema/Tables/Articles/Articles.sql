@@ -5,6 +5,7 @@
         [feedId] INT NULL DEFAULT 0, 
 	    [subjects] SMALLINT NULL DEFAULT 0,
 	    [subjectId] INT NULL DEFAULT 0,
+	    [domainId] INT NULL DEFAULT 0,
 	    [score] SMALLINT NULL DEFAULT 0,
         [images] SMALLINT NULL DEFAULT 0, 
 	    [filesize] FLOAT NULL DEFAULT 0,
