@@ -9,6 +9,7 @@ AS
 SELECT * INTO #urls FROM dbo.SplitArray(@urls, ',')
 DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid BIGINT, @count INT = 0, @title nvarchar(128)
 IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
+	--get domain ID
 	SELECT @domainId = domainId, @title = title FROM DownloadDomains WHERE domain=@domain
 	IF @title = '' BEGIN
 		IF (SELECT COUNT(*) FROM Articles WHERE domainId=@domainId) >= 10 BEGIN
@@ -17,6 +18,7 @@ IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
 		END
 	END
 END ELSE BEGIN
+	--create domain ID
 	SET @domainId = NEXT VALUE FOR SequenceDownloadDomains
 	INSERT INTO DownloadDomains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
 END

@@ -110,7 +110,6 @@ namespace Saber.Vendors.Collector.Hubs
                 
                 await Clients.Caller.SendAsync("update", 1, "Parsed DOM tree (" + article.elements.Count + " elements)");
 
-                //Html.GetWordsFromDOM(article, textElements);
                 await Clients.Caller.SendAsync("update", 1, "Analyzing DOM...");
                 var elements = new List<AnalyzedElement>();
                 Html.GetBestElementIndexes(article, elements);
@@ -195,6 +194,20 @@ namespace Saber.Vendors.Collector.Hubs
                     //render article
                     html = Components.Accordion.Render("Article Text", "article-text", Article.RenderArticle(article), false);
                     await Clients.Caller.SendAsync("append", html);
+                }
+
+                //display list of words found
+                html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article), false);
+                await Clients.Caller.SendAsync("words", html);
+
+                //display list of phrases found
+                try
+                {
+                    html = Components.Accordion.Render("Phrases", "article-phrases", Article.RenderPhraseList(article), false);
+                    await Clients.Caller.SendAsync("phrases", html);
+                }catch(Exception ex)
+                {
+                    await Clients.Caller.SendAsync("update", 1, ex.Message);
                 }
 
                 //update article info in database

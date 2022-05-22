@@ -1,5 +1,6 @@
 ﻿namespace Saber.Vendors.Collector.Models.Article
 {
+
     public static class Rules
     {
         //-------------------------------------------------------------
@@ -11,10 +12,11 @@
         //-------------------------------------------------------------
 
         //various separators used when splitting a string into an array
-        public static string[] wordSeparators = new string[] { "(", ")", ".", ",", "?", "/", "\\", "|", "!", "\"", "'", ";", ":", "[", "]", "{", "}", "”", "“", "—", "_", "~", "…" };
-        public static string[] sentenceSeparators = new string[] { "(", ")", ".", ",", "?", "/", "\\", "|", "!", "\"", ";", ":", "[", "]", "{", "}", "”", "“", "—", "_", "~", "…" };
+        public static string[] wordSeparators = new string[] { "(", ")", ".", ",", "?", "/", "\\", "|", "!", "\"", "'", ";", ":", "[", "]", "{", "}", "”", "“", "_", "~", "…", "&" };
+        public static string[] sentenceSeparators = new string[] { "(", ")", ".", ",", "?", "/", "\\", "|", "!", "\"", ";", ":", "[", "]", "{", "}", "”", "“", "_", "~", "…", "&" };
         public static string[] separatorExceptions = new string[] { "'", "\"" };
         public static string[] scriptSeparators = new string[] { "{", "}", ";", "$", "=", "(", ")" };
+        public static string[] ofPhraseStartSeparators = new string[] { "the", "heard", "wary", "course", "in", "and", "at", "is", "has" };
 
         //used to identify words that may be a date
         public static string[] dateTriggers = new string[] {
@@ -60,6 +62,17 @@
             //, "small"
         };
 
+        //used for complex bad classname matching
+        public class BadClassOptions
+        {
+            public string Name { get; set; }
+            /// <summary>
+            /// if any exceptions are found in the element's className attribute, 
+            /// Collector will ignore this particular bad class for the specific element
+            /// </summary>
+            public string[] Exceptions { get; set; }
+        }
+
         //used to determine if a DOM element is used for advertisements or UI
         public static string[] badClasses = new string[] {
             "social", "advert", "menu", "keyword", "twitter", "replies", "reply",
@@ -68,7 +81,7 @@
             "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "reading", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "related",
-            "nav", "navi", "menu", "sidebar", "toolbar", "sidecontent", "tab", "label",
+            "nav", "navi", "menu", "toolbar", "sidecontent", "tab", "label",
             "embed", "hide", "hidden", "carousel", "overlay", "progress", "comment",
             "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
             "widget", "privacy", "popup", "pop-up", "captcha", "badge", "comment", "cancel",
@@ -174,5 +187,8 @@
             "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3",
             "h4", "h5", "h6", "header", "hr", "li", "main", "nav", "noscript", "ol",
             "output", "p", "pre", "section", "table", "tfoot", "ul" };
+
+        //common words stored in the database
+        public static string[] commonWords;
     }
 }

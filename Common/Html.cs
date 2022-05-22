@@ -665,6 +665,19 @@ namespace Saber.Vendors.Collector
             }
             bodyText.Sort();
             article.body = bodyText;
+
+            //get all words for article
+            article.words = SeparateWordsFromText(
+                string.Join(" ", article.body.Select(a => article.elements[a].text).Where(a => a != ""))
+                .Replace("\n", "").Replace("\r", "")).ToList();
+
+            //replace all non-alphanumeric characters
+            //article.words = words.Select(a => new string(Array.FindAll(a.ToCharArray(), c => char.IsLetterOrDigit(c)))).Where(a => a != "").ToList();
+        }
+
+        public static List<string> GetWordsOnly(AnalyzedArticle article)
+        {
+            return article.words.Select(a => new string(Array.FindAll(a.ToCharArray(), c => char.IsLetterOrDigit(c)))).Where(a => a != "").ToList();
         }
 
         public static string GetArticleText(AnalyzedArticle article)
@@ -681,7 +694,7 @@ namespace Saber.Vendors.Collector
                 }
                 text.Append(domText.text.Trim() + " ");
             }
-            return text.ToString();
+            return text.ToString().Trim();
         }
 
         public static List<string> GetSentences(string text)
@@ -917,9 +930,9 @@ namespace Saber.Vendors.Collector
             {
 
                 var ws = Rules.wordSeparators.Where(w => !exceptions.Contains(w)).ToArray();
-                return text.ReplaceAll(" {1} ", ws).Replace("  ", " ").Replace("  ", " ").Replace("  ", " ").Split(' ').Where(w => w != "").ToArray();
+                return text.ReplaceAll(" {1} ", ws).Split(' ').Where(w => w != "").ToArray();
             }
-            return text.ReplaceAll(" {1} ", Rules.wordSeparators).Replace("  ", " ").Replace("  ", " ").Replace("  ", " ").Split(' ').Where(w => w != "").ToArray();
+            return text.ReplaceAll(" {1} ", Rules.wordSeparators).Split(' ').Where(w => w != "").ToArray();
         }
 
         public static string[] CleanWords(string[] words)

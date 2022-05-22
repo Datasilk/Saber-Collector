@@ -60,6 +60,9 @@ namespace Saber.Vendors.Collector
                 {
                     Directory.CreateDirectory(Article.storagePath + "files");
                 }
+
+                //load common words
+                Models.Article.Rules.commonWords = Query.CommonWords.GetList().ToArray();
             }
             catch (Exception)
             {

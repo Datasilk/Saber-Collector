@@ -32,7 +32,7 @@ namespace Saber.Vendors.Collector.Models.Article
         public AnalyzedTags tags;
         public List<AnalyzedTag> tagNames;
         public List<AnalyzedParentIndex> parentIndexes;
-        public List<AnalyzedWord> words;
+        public List<string> words;
         public List<AnalyzedPhrase> phrases;
         public List<ArticleSubject> subjects;
         public List<AnalyzedImage> images;
@@ -76,7 +76,6 @@ namespace Saber.Vendors.Collector.Models.Article
             totalSentences = 0;
             totalWords = 0;
             this.url = url != "" ? Web.CleanUrl(url, true, false, Rules.commonQueryKeys) : "";
-            words = new List<AnalyzedWord>();
             yearEnd = 0;
             yearStart = 0;
             years = new List<int>();

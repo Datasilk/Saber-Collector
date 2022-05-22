@@ -1,8 +1,20 @@
 ﻿<div class="analyzer{{article-only}} article-only{{/article-only}}">
     <div class="messages"></div>
     <div class="row toolbar">
-        <div class="col right text show-analyzer">
-            <a href="{{analyzer-url}}">View Analyzer</a>
+        <div class="col right icon article-menu-btn">
+            <a onclick="article.menu.toggle()">
+                <svg viewBox="0 0 32 32">
+                    <use xlink:href="#icon-menu" x="0" y="0" width="32" height="32"></use>
+                </svg>
+             </a>
+        </div>
+        <div class="article-menu dropmenu" style="display:none;">
+            <ul>
+                {{view-analyzer}}<li><a href="{{analyzer-url}}">View Analyzer</a></li>{{/view-analyzer}}
+                {{view-articleonly}}<li><a href="{{articleonly-url}}">Article Only</a></li>{{/view-articleonly}}
+                <li class="hr"></li>
+                <li><a href="javascript:" onclick="article.delete({{article-id}})">Delete cached HTML file</a></li>
+            </ul>
         </div>
     </div>
     {{content}}

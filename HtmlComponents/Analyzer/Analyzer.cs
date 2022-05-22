@@ -46,7 +46,6 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
 
                         //render analyzer accordion
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/Analyzer/htmlcomponent.html");
-
                         
                         var url = "";
                         if (!request.Parameters.ContainsKey("url"))
@@ -54,9 +53,10 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                             results.Add(new KeyValuePair<string, string>(prefix + key, Cache.LoadFile("/Vendors/Collector/HtmlComponents/Analyzer/no-url.html")));
                             return results;
                         }
-
                         url = request.Parameters["url"];
-                        viewComponent["analyzer-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=0";
+                        var article = Query.Articles.GetByUrl(url);
+                        viewComponent["article-id"] = article.articleId.ToString();
+
 
                         viewComponent["content"] = Components.Accordion.Render(
                             "Analyze Article: " + (request.Parameters.ContainsKey("url") ? request.Parameters["url"] : "???"),
@@ -69,14 +69,18 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js", "collector_analyzer_js");
 
-                        if(request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0")
+                        if(!request.Parameters.ContainsKey("article-only") || (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0"))
                         {
+                            viewComponent["articleonly-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=1";
+                            viewComponent.Show("view-articleonly");
                             //do nothing
                         }else if((args.ContainsKey("article-only") && args["article-only"] == "1") ||
                             (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "1"))
                         {
                             //show article only (no console, no accordions, no buttons)
                             viewComponent.Show("article-only");
+                            viewComponent.Show("view-analyzer");
+                            viewComponent["analyzer-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=0";
                         }
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));

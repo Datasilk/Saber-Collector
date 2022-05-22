@@ -25,13 +25,23 @@ namespace Saber.Vendors.Collector
                 foreach (var article in articles)
                 {
                     //populate view with article info
+                    item.Clear();
                     item["title"] = article.title;
                     item["encoded-url"] = WebUtility.UrlEncode(article.url);
                     item["url"] = article.url;
 
-                    if (article.breadcrumb != null && article.breadcrumb.Length > 0)
+                    if (article.score > 0)
+                    {
+                        //show score
+                        item.Show("show-score");
+                        item["score"] = string.Format("{0:N0}", article.score);
+                    }
+
+
+                    if (article.breadcrumb != null)
                     {
                         //show breadcrumb
+                        item.Show("show-breadcrumb");
                         var bread = article.breadcrumb.Split('>');
                         var hier = article.hierarchy.Split('>');
                         var crumb = "";
@@ -45,81 +55,42 @@ namespace Saber.Vendors.Collector
                         {
                             crumb += (crumb != "" ? " > " : "") + "<a href=\"/subjects?id=" + subjectId + "\">" + article.subjectTitle + "</a>";
                         }
-                        item["show-breadcrumb"] = "1";
                         item["breadcrumb"] = crumb;
-                        item["score"] = string.Format("{0:N0}", article.score);
                     }
-                    else
-                    {
-                        //hide breadcrumb
-                        item["show-breadcrumb"] = "";
-                        item["breadcrumb"] = "";
-                        item["score"] = "";
-                    }
-                    
-                    if(article.filesize != null && article.filesize > 0)
+
+                    if (article.filesize != null && article.filesize > 0)
                     {
                         //show file size
-                        item["show-file-size"] = "1";
+                        item.Show("show-file-size");
                         item["file-size"] = Math.Round(article.filesize.Value, 2).ToString();
-                    }
-                    else
-                    {
-                        //hide file size
-                        item["show-file-size"] = "";
-                        item["file-size"] = "";
                     }
 
                     if (article.wordcount != null && article.wordcount > 0)
                     {
                         //show words
-                        item["show-words"] = "1";
+                        item.Show("show-words");
                         item["words"] = string.Format("{0:N0}", article.wordcount);
-                    }
-                    else
-                    {
-                        //hide words
-                        item["show-words"] = "";
-                        item["words"] = "";
                     }
 
                     if (article.sentencecount != null && article.sentencecount > 0)
                     {
                         //show sentences
-                        item["show-sentences"] = "1";
+                        item.Show("show-sentences");
                         item["sentences"] = string.Format("{0:N0}", article.sentencecount);
-                    }
-                    else
-                    {
-                        //hide sentences
-                        item["show-sentences"] = "";
-                        item["sentences"] = "";
                     }
 
                     if (article.importantcount != null && article.importantcount > 0)
                     {
                         //show important words
-                        item["show-important-words"] = "1";
+                        item.Show("show-important-words");
                         item["important-words"] = string.Format("{0:N0}", article.importantcount);
-                    }
-                    else
-                    {
-                        //hide important words
-                        item["show-important-words"] = "";
-                        item["important-words"] = "";
                     }
 
                     if (article.years != null && article.years != "")
                     {
                         //show words
-                        item["show-years"] = "1";
+                        item.Show("show-years");
                         item["years"] = article.years.Replace(",", ", ");
-                    }
-                    else
-                    {
-                        //hide words
-                        item["show-years"] = "";
-                        item["years"] = "";
                     }
 
                     html.Append(item.Render());

@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Net;
 using System.ServiceModel;
+using System.Text.RegularExpressions;
 using Saber.Core.Extensions.Strings;
 using Utility.DOM;
 using Saber.Vendors.Collector.Models.Article;
@@ -16,6 +17,8 @@ namespace Saber.Vendors.Collector
     {
         public static string storagePath { get; set; }
         public static string browserEndpoint { get; set; }
+
+        private static double _version { get; set; }
 
         #region "Get Article"
         public static string ContentPath(string url)
@@ -29,8 +32,13 @@ namespace Saber.Vendors.Collector
         {
             get
             {
-                var ver = Server.Version.Split('.');
-                return double.Parse(ver[0] + "." + string.Join("", ver.Skip(1)));
+                if(_version == 0)
+                {
+                    var info = new Info();
+                    var ver = info.Version;
+                    _version = double.Parse(ver.Major + "." + ver.Minor1 + ver.Minor2 + ver.Minor3);
+                }
+                return _version;
             }
         }
 
@@ -831,6 +839,111 @@ namespace Saber.Vendors.Collector
             }
 
             return html.ToString();
+        }
+
+        public static string RenderWordsList(AnalyzedArticle article)
+        {
+            var view = new View("Vendors/Collector/HtmlComponents/Analyzer/words.html");
+            var viewItem = new View("Vendors/Collector/HtmlComponents/Analyzer/word-item.html");
+
+            var words = Html.GetWordsOnly(article).Where(a => !Rules.commonWords.Contains(a.ToLower()));
+            var distinctWords = words.Distinct().ToArray();
+            var html = new StringBuilder();
+
+            foreach(var word in distinctWords)
+            {
+                viewItem.Clear();
+                viewItem["word"] = word;
+                viewItem["title"] = "Count: " + article.words.Where(a => a == word).Count();
+                html.Append(viewItem.Render());
+            }
+            view["content"] = html.ToString();
+            return view.Render();
+        }
+
+        public static string RenderPhraseList(AnalyzedArticle article)
+        {
+            var view = new View("Vendors/Collector/HtmlComponents/Analyzer/phrases.html");
+            var viewItem = new View("Vendors/Collector/HtmlComponents/Analyzer/phrase-item.html");
+            //get all words & symbols in article
+            var words = article.words;
+            var phrases = new List<string>();
+            var index = 0;
+            var lastindex = 0;
+            var startindex = 0;
+            var endindex = 0;
+            while(index >= 0)
+            {
+                lastindex = index;
+                startindex = 0;
+                endindex = 0;
+
+                index = words.FindIndex(index, a => a == "of");
+                if(index > lastindex)
+                {
+                    //find index where phrase begins
+                    var i = index - 1;
+                    while(i >= 0)
+                    {
+                        var word = words[i].ToLower();
+                        if(word.Length == 1 || Rules.wordSeparators.Contains(word) || Rules.ofPhraseStartSeparators.Contains(word) || Rules.commonWords.Contains(word))
+                        {
+                            //found beginning of phrase
+                            startindex = i + 1;
+                            break;
+                        }
+                        i--;
+                    }
+
+                    if(startindex > 0 && startindex != index)
+                    {
+                        //find end of phrase
+                        i = index + 1;
+                        while (i < words.Count)
+                        {
+                            var word = words[i].ToLower();
+                            if (word.Length == 1 || Rules.wordSeparators.Contains(word) || (i > index + 1 && Rules.commonWords.Contains(word)))
+                            {
+                                //found end of phrase
+                                endindex = i;
+                                break;
+                            }
+                            i++;
+                        }
+                    }
+                    if(endindex == 0){ index++; continue; }
+
+                    if(endindex > 0 && endindex > index + 1 && !Rules.commonWords.Contains(words[endindex - 1]))
+                    {
+                        //found valid "of" phrase (e.g. "knight of round table")
+                        var phrase = "";
+                        for(var x = startindex; x < endindex; x++)
+                        {
+                            phrase += words[x] + " ";
+                        }
+                        phrase = phrase.Trim();
+                        if (!phrases.Any(a => a == phrase))
+                        {
+                            phrases.Add(phrase);
+                        }
+                    }
+                }
+                else
+                {
+                    break;
+                }
+                index++;
+            }
+            var html = new StringBuilder();
+
+            foreach (var phrase in phrases)
+            {
+                viewItem.Clear();
+                viewItem["phrase"] = phrase;
+                html.Append(viewItem.Render());
+            }
+            view["content"] = html.ToString();
+            return view.Render();
         }
 
         #endregion

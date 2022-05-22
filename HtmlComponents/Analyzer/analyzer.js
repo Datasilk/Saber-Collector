@@ -9,6 +9,8 @@
         article.hub.on('update', article.analyze.update);
         article.hub.on('append', article.analyze.append);
         article.hub.on('rawhtml', article.rawHtml.load);
+        article.hub.on('words', article.words.load);
+        article.hub.on('phrases', article.phrases.load);
         article.hub.start().catch(article.analyze.error);
         if ($('.analyzer.article-only').length > 0) {
             $('.analyzer .article-text .box').removeClass('box');
@@ -289,6 +291,23 @@
         }
     },
 
+    menu: {
+        toggle: function () {
+            var menu = $('.article-menu');
+            if (menu.css('display') == 'none') {
+                menu.show();
+                $(document.body).on('click', (e) => {
+                    var target = $(e.target);
+                    if (target.parents('.article-menu').length > 0) { return; }
+                    article.menu.toggle();
+                });
+            } else {
+                $(document.body).off('click');
+                menu.hide();
+            }
+        }
+    },
+
     delete: function (articleId) {
         if (!confirm('Do you really want to delete the cached HTML file for this article? This cannot be undone.')) { return false; }
         S.ajax.post('CollectorArticles/DeleteJsonCachedHtmlFile', { articleId: articleId }, () => {
@@ -318,6 +337,105 @@
             }
         }
         return textNodes;
+    },
+
+    words: {
+        selected: [],
+
+        load: function (html) {
+            $('.website > .content').append(html);
+            $('.words .word').on('click', article.words.toggle);
+            S.accordion.load();
+        },
+
+        common: {
+            add: function () {
+                S.ajax.post('CollectorAnalyzer/AddCommonWords', { words: article.words.selected }, () => {
+                    //remove all selected words from list
+                    $('.words .selected').remove();
+                }, (err) => {
+                    S.message.show('.words .messages', 'error', err.responseText);
+                });
+            }
+        },
+        toggle: function (e) {
+            var target = $(e.target);
+            if (!target.hasClass('word')) {
+                target = target.parents('.word').first();
+            }
+            var word = target.html();
+            if (target.hasClass('selected')) {
+                //deselect
+                target.removeClass('selected');
+                article.words.selected.splice(article.words.selected.indexOf(word), 1);
+            } else {
+                //select
+                target.addClass('selected');
+                article.words.selected.push(word);
+            }
+            //toggle add phrase button
+            if ($('.words .selected').length > 1) {
+                $('.word-toolbar').find('.add-phrase').show();
+            } else {
+                $('.word-toolbar').find('.add-phrase').hide();
+            }
+            //toggle other buttons
+            if ($('.words .selected').length > 0) {
+                //show buttons
+                $('.word-toolbar').find('.add-common-word').show();
+            } else {
+                //hide buttons
+                $('.word-toolbar').find('.add-common-word, .add-phrase').hide();
+            }
+        }
+    },
+
+    phrases: {
+        selected: [],
+
+        load: function (html) {
+            $('.website > .content').append(html);
+            $('.phrases .phrase').on('click', article.phrases.toggle);
+            S.accordion.load();
+        },
+        toggle: function (e) {
+            var target = $(e.target);
+            if (!target.hasClass('phrase')) {
+                target = target.parents('.phrase').first();
+            }
+            var phrase = target.html();
+            if (target.hasClass('selected')) {
+                //deselect
+                target.removeClass('selected');
+                article.phrases.selected.splice(article.phrases.selected.indexOf(phrase), 1);
+            } else {
+                //select
+                target.addClass('selected');
+                article.phrases.selected.push(phrase);
+            }
+            //toggle buttons
+            if ($('.phrases .selected').length > 0) {
+                //show buttons
+                $('.phrase-toolbar').find('.add-to-subject').show();
+            } else {
+                //hide buttons
+                $('.phrase-toolbar').find('.add-to-subject').hide();
+            }
+        }
+    },
+
+    subjects: {
+        words: {
+            add: {
+                show: function (words) {
+
+                },
+
+                submit: function () {
+                    S.ajax.post("CollectorSubjects/AddWords", { words: words })
+                }
+            }
+        }
     }
 };
 
