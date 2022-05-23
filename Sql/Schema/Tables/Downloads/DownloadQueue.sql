@@ -5,7 +5,8 @@
         [feedId] INT NULL, 
         [domainId] INT NULL, 
         [status] INT NOT NULL DEFAULT 0, 
-	    [url] NVARCHAR(255) NOT NULL, 
+	    [url] NVARCHAR(255) NOT NULL,
+        [path] NVARCHAR(128) NOT NULL,
         [datecreated] DATETIME NULL
         
         CONSTRAINT [PK_DownloadQueue] PRIMARY KEY ([qid])

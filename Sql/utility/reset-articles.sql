@@ -4,7 +4,7 @@ DELETE FROM ArticleWords
 DELETE FROM ArticleBugs
 DELETE FROM ArticleDates
 DELETE FROM Articles
---DELETE FROM DownloadDomains
+--DELETE FROM Domains
 DELETE FROM DownloadQueue
 DELETE FROM FeedsCheckedLog
 --DELETE FROM Feeds
@@ -15,7 +15,7 @@ ALTER SEQUENCE SequenceArticles RESTART WITH 1
 ALTER SEQUENCE SequenceDownloadQueue RESTART WITH 1 
 
 SELECT * FROM DownloadQueue
-SELECT * FROM DownloadDomains
+SELECT * FROM Domains
 SELECT * FROM Feeds
 SELECT * FROM FeedsCheckedLog
 SELECT * FROM Blacklist_Domains

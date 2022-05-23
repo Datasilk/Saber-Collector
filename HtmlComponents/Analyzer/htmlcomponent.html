@@ -13,7 +13,7 @@
                 {{view-analyzer}}<li><a href="{{analyzer-url}}">View Analyzer</a></li>{{/view-analyzer}}
                 {{view-articleonly}}<li><a href="{{articleonly-url}}">Article Only</a></li>{{/view-articleonly}}
                 <li class="hr"></li>
-                <li><a href="javascript:" onclick="article.delete({{article-id}})">Delete cached HTML file</a></li>
+                {{delete-cache}}<li><a href="javascript:" onclick="article.delete({{article-id}})">Delete cached HTML file</a></li>{{/delete-cache}}
             </ul>
         </div>
     </div>

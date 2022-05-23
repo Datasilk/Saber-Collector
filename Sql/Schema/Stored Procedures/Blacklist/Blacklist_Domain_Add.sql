@@ -10,7 +10,7 @@ AS
 	END TRY
 	BEGIN CATCH
 	END CATCH
-	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
+	SELECT @domainId=domainId FROM Domains WHERE domain=@domain
 
 	-- delete all articles related to domain
 	DECLARE @cursor CURSOR, @articleId int
@@ -32,7 +32,7 @@ AS
 
 	--delete all download queue related to domain
 	DELETE FROM DownloadQueue WHERE domainId=@domainId
-	DELETE FROM DownloadDomains WHERE domainId=@domainId
+	DELETE FROM Domains WHERE domainId=@domainId
 
 	--delete whitelisted domains (if any)
 	DELETE FROM Whitelist_Domains WHERE domain=@domain

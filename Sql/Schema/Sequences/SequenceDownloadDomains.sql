@@ -1,5 +1,5 @@
 ﻿BEGIN TRY
-	CREATE SEQUENCE [dbo].[SequenceDownloadDomains]
+	CREATE SEQUENCE [dbo].[SequenceDomains]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1

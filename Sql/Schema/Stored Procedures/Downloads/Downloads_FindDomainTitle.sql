@@ -47,7 +47,7 @@ AS
 	DECLARE @domain nvarchar(64), @domainpart nvarchar(64), @domainpart2 nvarchar(64)
 	DECLARE @domainparts TABLE (value nvarchar(64))
 	DECLARE @domainTitle nvarchar(128)
-	SELECT @domain = domain FROM DownloadDomains WHERE domainId=@domainId
+	SELECT @domain = domain FROM Domains WHERE domainId=@domainId
 	INSERT INTO @domainparts SELECT * FROM STRING_SPLIT(@domain, '.')
 	SELECT TOP 1 @domainpart = REPLACE([value], '-', '') FROM @domainparts
 	SELECT @domainpart2 = STRING_AGG([value], '') FROM @domainparts
@@ -71,4 +71,4 @@ AS
 
 	PRINT @domainTitle
 
-	UPDATE DownloadDomains SET title=@domainTitle WHERE domainId=@domainId
+	UPDATE Domains SET title=@domainTitle WHERE domainId=@domainId

@@ -78,7 +78,7 @@ GO
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 BEGIN TRY
-	CREATE SEQUENCE [dbo].[SequenceDownloadDomains]
+	CREATE SEQUENCE [dbo].[SequenceDomains]
 		AS BIGINT
 		START WITH 1
 		INCREMENT BY 1
@@ -495,7 +495,7 @@ GO
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 BEGIN TRY
-    CREATE TABLE [dbo].[DownloadDomains]
+    CREATE TABLE [dbo].[Domains]
     (
 	    [domainId] INT NOT NULL PRIMARY KEY, 
         [domain] NVARCHAR(64) NOT NULL,
@@ -505,7 +505,7 @@ END TRY BEGIN CATCH END CATCH
     GO
 
 BEGIN TRY
-    CREATE INDEX [IX_DownloadDomains_Domain] ON [dbo].[DownloadDomains] ([domain])
+    CREATE INDEX [IX_Domains_Domain] ON [dbo].[Domains] ([domain])
 END TRY BEGIN CATCH END CATCH
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -703,7 +703,7 @@ AS
 	END TRY
 	BEGIN CATCH
 	END CATCH
-	SELECT @domainId=domainId FROM DownloadDomains WHERE domain=@domain
+	SELECT @domainId=domainId FROM Domains WHERE domain=@domain
 
 	-- delete all articles related to domain
 	DECLARE @cursor CURSOR, @articleId int
@@ -725,7 +725,7 @@ AS
 
 	--delete all download queue related to domain
 	DELETE FROM DownloadQueue WHERE domainId=@domainId
-	DELETE FROM DownloadDomains WHERE domainId=@domainId
+	DELETE FROM Domains WHERE domainId=@domainId
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -1600,11 +1600,11 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 AS
 SELECT * INTO #urls FROM dbo.SplitArray(@urls, ',')
 DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid INT, @count INT = 0
-IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
-	SELECT @domainId = domainId FROM DownloadDomains WHERE domain=@domain
+IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
+	SELECT @domainId = domainId FROM Domains WHERE domain=@domain
 END ELSE BEGIN
-	SET @domainId = NEXT VALUE FOR SequenceDownloadDomains
-	INSERT INTO DownloadDomains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
+	SET @domainId = NEXT VALUE FOR SequenceDomains
+	INSERT INTO Domains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
 END
 SET @cursor = CURSOR FOR
 SELECT [value] FROM #urls
@@ -1641,18 +1641,18 @@ AS
 	DECLARE @qid int, @domainId int
 	SELECT TOP 1 @qid = q.qid, @domainId = q.domainId
 	FROM DownloadQueue q
-	JOIN DownloadDomains d ON d.domainId = q.domainId
+	JOIN Domains d ON d.domainId = q.domainId
 	WHERE q.status = 0
 	AND d.lastchecked < DATEADD(MINUTE, 0 - @domaindelay, GETUTCDATE())
 
 	IF @qid > 0 BEGIN
 		UPDATE DownloadQueue SET status=1 WHERE qid=@qid
-		UPDATE DownloadDomains SET lastchecked = GETUTCDATE()
+		UPDATE Domains SET lastchecked = GETUTCDATE()
 		WHERE domainId = @domainId
 
 		SELECT q.*, d.domain 
 		FROM DownloadQueue q 
-		JOIN DownloadDomains d ON d.domainId = q.domainId
+		JOIN Domains d ON d.domainId = q.domainId
 		WHERE qid=@qid
 	END
 	

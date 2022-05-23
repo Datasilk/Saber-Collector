@@ -8,9 +8,9 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 AS
 SELECT * INTO #urls FROM dbo.SplitArray(@urls, ',')
 DECLARE @cursor CURSOR, @url nvarchar(MAX), @domainId INT, @qid BIGINT, @count INT = 0, @title nvarchar(128)
-IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
+IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 	--get domain ID
-	SELECT @domainId = domainId, @title = title FROM DownloadDomains WHERE domain=@domain
+	SELECT @domainId = domainId, @title = title FROM Domains WHERE domain=@domain
 	IF @title = '' BEGIN
 		IF (SELECT COUNT(*) FROM Articles WHERE domainId=@domainId) >= 10 BEGIN
 			--get common word found in all article titles
@@ -19,8 +19,8 @@ IF EXISTS(SELECT * FROM DownloadDomains WHERE domain=@domain) BEGIN
 	END
 END ELSE BEGIN
 	--create domain ID
-	SET @domainId = NEXT VALUE FOR SequenceDownloadDomains
-	INSERT INTO DownloadDomains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
+	SET @domainId = NEXT VALUE FOR SequenceDomains
+	INSERT INTO Domains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
 END
 SET @cursor = CURSOR FOR
 SELECT [value] FROM #urls
@@ -30,8 +30,8 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) BEGIN
 		IF NOT EXISTS(SELECT * FROM Articles WHERE url=@url) BEGIN
 			SET @qid = NEXT VALUE FOR SequenceDownloadQueue
-			INSERT INTO DownloadQueue (qid, url, feedId, domainId, [status], datecreated) 
-			VALUES (@qid, @url, @feedId, @domainId, 0, GETDATE())
+			INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
+			VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETDATE())
 			SET @count += 1
 		END
 	END

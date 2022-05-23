@@ -8,7 +8,7 @@ BEGIN TRY
 	DROP TABLE [dbo].[ArticleSentences]
 	DROP TABLE [dbo].[ArticleSubjects]
 	DROP TABLE [dbo].[ArticleWords]
-	DROP TABLE [dbo].[DownloadDomains]
+	DROP TABLE [dbo].[Domains]
 	DROP TABLE [dbo].[DownloadQueue]
 	DROP TABLE [dbo].[FeedCategories]
 	DROP TABLE [dbo].[Feeds]
@@ -24,7 +24,7 @@ END TRY BEGIN CATCH END CATCH
 BEGIN TRY
 	DROP SEQUENCE [dbo].[SequenceArticleBugs]
 	DROP SEQUENCE [dbo].[SequenceArticles]
-	DROP SEQUENCE [dbo].[SequenceDownloadDomains]
+	DROP SEQUENCE [dbo].[SequenceDomains]
 	DROP SEQUENCE [dbo].[SequenceDownloadQueue]
 	DROP SEQUENCE [dbo].[SequenceFeedCategories]
 	DROP SEQUENCE [dbo].[SequenceFeeds]

@@ -55,7 +55,11 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                         }
                         url = request.Parameters["url"];
                         var article = Query.Articles.GetByUrl(url);
-                        viewComponent["article-id"] = article.articleId.ToString();
+                        if(article != null)
+                        {
+                            viewComponent["article-id"] = article.articleId.ToString();
+                            viewComponent.Show("delete-cache");
+                        }
 
 
                         viewComponent["content"] = Components.Accordion.Render(

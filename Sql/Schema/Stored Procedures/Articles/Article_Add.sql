@@ -30,7 +30,7 @@ CREATE PROCEDURE [dbo].[Article_Add]
 AS
 	DECLARE @articleId int = NEXT VALUE FOR SequenceArticles
 	DECLARE @domainId int = 0
-	SELECT @domainId = domainId FROM DownloadDomains WHERE domain=@domain
+	SELECT @domainId = domainId FROM Domains WHERE domain=@domain
 
 	INSERT INTO Articles 
 	(articleId, feedId, subjects, subjectId, domainId, score, domain, url, title, summary, filesize, linkcount, linkwordcount, wordcount, sentencecount, paragraphcount, importantcount, analyzecount,
