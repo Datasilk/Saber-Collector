@@ -8,41 +8,40 @@ namespace Saber.Vendors.Collector.Models.Article
 {
     public class AnalyzedArticle
     {
-        public int id;
-        public int feedId;
-        public int fileSize;
-        public int relevance;
-        public int importance;
-        public int totalWords;
-        public int totalSentences;
-        public int totalParagraphs;
-        public int totalImportantWords;
-        public int totalBugsOpen;
-        public int totalBugsResolved;
-        public int yearStart;
-        public int yearEnd;
-        public List<int> years;
-        public bool fiction;
-        public string rawHtml;
-        public string url;
-        public string domain;
-        public string title;
-        public string summary;
-        public List<DomElement> elements;
-        public AnalyzedTags tags;
-        public List<AnalyzedTag> tagNames;
-        public List<AnalyzedParentIndex> parentIndexes;
-        public List<string> words;
-        public List<AnalyzedPhrase> phrases;
-        public List<ArticleSubject> subjects;
-        public List<AnalyzedImage> images;
-        public List<int> body;
-        public List<DomElement> bodyElements;
-        public List<string> sentences;
-        public AnalyzedAuthor author;
-        public DateTime publishDate;
-        public List<AnalyzedPerson> people;
-        
+        public int id { get; set; }
+        public int feedId { get; set; }
+        public int fileSize { get; set; }
+        public int relevance { get; set; }
+        public int importance { get; set; }
+        public int totalWords { get; set; }
+        public int totalSentences { get; set; }
+        public int totalParagraphs { get; set; }
+        public int totalImportantWords { get; set; }
+        public int totalBugsOpen { get; set; }
+        public int totalBugsResolved { get; set; }
+        public int yearStart { get; set; }
+        public int yearEnd { get; set; }
+        public List<int> years { get; set; }
+        public bool fiction { get; set; }
+        public string rawHtml { get; set; }
+        public string url { get; set; }
+        public string domain { get; set; }
+        public string title { get; set; }
+        public string summary { get; set; }
+        public List<DomElement> elements { get; set; }
+        public List<AnalyzedTag> tagNames { get; set; }
+        public List<AnalyzedParentIndex> parentIndexes { get; set; }
+        public List<string> words { get; set; }
+        public List<AnalyzedPhrase> phrases { get; set; }
+        public List<ArticleSubject> subjects { get; set; }
+        public List<AnalyzedImage> images { get; set; }
+        public List<int> body { get; set; }
+        public List<DomElement> bodyElements { get; set; }
+        public List<string> sentences { get; set; }
+        public AnalyzedAuthor author { get; set; }
+        public DateTime publishDate { get; set; }
+        public List<AnalyzedPerson> people { get; set; }
+
         public AnalyzedArticle(string url = "", string html = "")
         {
             author = new AnalyzedAuthor();
@@ -65,10 +64,6 @@ namespace Saber.Vendors.Collector.Models.Article
             sentences = new List<string>();
             subjects = new List<ArticleSubject>();
             tagNames = new List<AnalyzedTag>();
-            tags = new AnalyzedTags();
-            tags.anchorLinks = new List<int>();
-            tags.headers = new List<int>();
-            tags.text = new List<AnalyzedText>();
             title = "";
             summary = "";
             totalImportantWords = 0;
@@ -82,96 +77,68 @@ namespace Saber.Vendors.Collector.Models.Article
         }
     }
 
-    public class AnalyzedTags
+    public class AnalyzedWord
     {
-        public List<AnalyzedText> text;
-        public List<int> anchorLinks;
-        public List<int> headers;
+        public string word { get; set; }
+        public int subjectId { get; set; }
     }
 
     public class AnalyzedTag
     {
-        public string name;
-        public int count;
-        public int[] index;
-    }
-
-    public class AnalyzedText
-    {
-        public int index;
-        public List<AnalyzedWordInText> words;
-        public TextType type;
-        //public List<PossibleTextType> possibleTypes;
-    }
-
-    public class AnalyzedWord
-    {
-        public int id;
-        public string word;
-        public int count;
-        public int importance;
-        public bool suspicious;
-        public WordType type;
-        public WordCategory category;
-        public bool apostrophe;
+        public string name { get; set; }
+        public int count { get; set; }
+        public int[] index { get; set; }
     }
 
     public class AnalyzedPhrase
     {
-        public int id;
-        public string phrase;
-        public int[] words;
-        public int count;
-    }
-
-    public class AnalyzedWordInText
-    {
-        public string word;
-        public AnalyzedWord[] relations;
-        public int index;
+        public int id { get; set; }
+        public string phrase { get; set; }
+        public int[] words { get; set; }
+        public int count { get; set; }
     }
 
     public class AnalyzedImage
     {
-        public int index;
-        public string url;
-        public string filename;
-        public string extension;
-        public bool exists = false;
+        public int index { get; set; }
+        public string url { get; set; }
+        public string filename { get; set; }
+        public string extension { get; set; }
+        public bool exists { get; set; } = false;
     }
 
     public class AnalyzedAuthor
     {
-        public string name;
-        public AuthorSex sex;
+        public string name { get; set; }
+        public AuthorSex sex { get; set; }
     }
 
     public class AnalyzedFile
     {
-        public string filename;
-        public string fileType;
+        public string filename { get; set; }
+        public string fileType { get; set; }
     }
 
     public class AnalyzedParentIndex
     {
-        public List<int> elements;
-        public int index;
-        public int textLength;
+        public List<int> elements { get; set; }
+        public int index { get; set; }
+        public int textLength { get; set; }
     }
 
     public class AnalyzedElement
     {
-        public DomElement Element;
-        public int index;
-        public int depth; //node hierarchy depth
-        public int wordsInHierarchy;
-        public int badClasses;
-        public bool isBad = false;
-        public bool isContaminated = false; //if contaminated, ignore contaminated element & all child elements when querying parent elements
-        public List<ElementFlags> flags = new List<ElementFlags>();
-        public Dictionary<ElementFlagCounters, int> counters = new Dictionary<ElementFlagCounters, int>();
-        public List<string> badClassNames = new List<string>();
-        public List<AnalyzedElement> hierarchy = new List<AnalyzedElement>();
+        public DomElement Element { get; set; }
+        public int index { get; set; }
+        public int depth { get; set; } //node hierarchy depth
+        public int wordsInHierarchy { get; set; }
+        public int badClasses { get; set; }
+        public bool isBad { get; set; } = false;
+        public bool isContaminated { get; set; } = false; //if contaminated, ignore contaminated element & all child elements when querying parent elements
+        public List<ElementFlags> flags { get; set; } = new List<ElementFlags>();
+        public Dictionary<ElementFlagCounters, int> counters { get; set; } = new Dictionary<ElementFlagCounters, int>();
+        public List<string> badClassNames { get; set; } = new List<string>();
+        public List<AnalyzedElement> hierarchy { get; set; } = new List<AnalyzedElement>();
 
         public void AddFlag(ElementFlags flag)
         {
@@ -250,38 +217,38 @@ namespace Saber.Vendors.Collector.Models.Article
 
     public class PossibleTextType
     {
-        public TextType type;
-        public int count;
+        public TextType type { get; set; }
+        public int count { get; set; }
     }
 
     public class ArticleSubject
     {
-        public int id;
-        public int parentId;
-        public string title;
-        public WordType type;
-        public string[] breadcrumb;
-        public int[] hierarchy;
-        public List<int> parentIndexes;
-        public int count;
-        public int score;
+        public int id { get; set; }
+        public int parentId { get; set; }
+        public string title { get; set; }
+        public WordType type { get; set; }
+        public string[] breadcrumb { get; set; }
+        public int[] hierarchy { get; set; }
+        public List<int> parentIndexes { get; set; }
+        public int count { get; set; }
+        public int score { get; set; }
     }
 
     public class AnalyzedPerson
     {
-        public string fullName;
-        public string firstName;
-        public string middleName;
-        public string lastName;
-        public string surName;
-        public int[] references; //word indexes within article words (he, she, his, hers, him, her, he'd, she'd, he's, she's, etc...)
+        public string fullName { get; set; }
+        public string firstName { get; set; }
+        public string middleName { get; set; }
+        public string lastName { get; set; }
+        public string surName { get; set; }
+        public int[] references { get; set; } //word indexes within article words (he, she, his, hers, him, her, he'd, she'd, he's, she's, etc...)
     }
 
     public class ArticleHtmlList
     {
-        public string html;
-        public List<string> list;
-        public int id;
+        public string html { get; set; }
+        public List<string> list { get; set; }
+        public int id { get; set; }
     }
     
     public enum TextType
@@ -339,13 +306,13 @@ namespace Saber.Vendors.Collector.Models.Article
     
     public class ArticlePart
     {
-        public List<TextType> type = new List<TextType>();
-        public string title = "";
-        public string value = "";
-        public string classNames = "";
-        public int fontSize = 1;
-        public int indent = 0;
-        public int quote = 0;
-        public int listItem = 0;
+        public List<TextType> type { get; set; } = new List<TextType>();
+        public string title { get; set; } = "";
+        public string value { get; set; } = "";
+        public string classNames { get; set; } = "";
+        public int fontSize { get; set; } = 1;
+        public int indent { get; set; } = 0;
+        public int quote { get; set; } = 0;
+        public int listItem { get; set; } = 0;
     }
 }

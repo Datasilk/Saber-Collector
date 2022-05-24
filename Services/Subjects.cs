@@ -36,9 +36,19 @@ namespace Saber.Vendors.Collector.Services
                 return Error(ex.Message);
             }
         }
+
+        public string AddWords(int subjectId, List<string> words)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if(subjectId == 0) { return Error("No subject specified"); }
+            if (words.Count == 0) { return Error("No words specified"); }
+            Query.Words.BulkAdd(words.Select(a => a.Trim().ToLower()).ToArray(), subjectId);
+            return Success();
+        }
         
         public string LoadSubjectsUI(int parentId = 0, bool getHierarchy = false, bool isFirst = false)
         {
+            if (!CheckSecurity()) { return AccessDenied(); }
             return JsonResponse(Subjects.RenderList(Query.Subjects.GetSubjectById(parentId)));
         }
 

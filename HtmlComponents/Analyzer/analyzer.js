@@ -350,6 +350,7 @@
 
         common: {
             add: function () {
+                if (!confirm('Do you really want to convert these selected words into common words? They will no longer show up in your Article Analyzer > Words list')) { return;}
                 S.ajax.post('CollectorAnalyzer/AddCommonWords', { words: article.words.selected }, () => {
                     //remove all selected words from list
                     $('.words .selected').remove();
@@ -382,11 +383,18 @@
             //toggle other buttons
             if ($('.words .selected').length > 0) {
                 //show buttons
-                $('.word-toolbar').find('.add-common-word').show();
+                $('.word-toolbar').find('.add-common-words, .deselect-all-words').show();
             } else {
                 //hide buttons
-                $('.word-toolbar').find('.add-common-word, .add-phrase').hide();
+                $('.word-toolbar').find('.add-common-words, .add-phrase, .deselect-all-words').hide();
             }
+        },
+
+        deselectAll: function () {
+            $('.words .word.selected').removeClass('selected');
+            article.words.selected = [];
+                //hide buttons
+            $('.word-toolbar').find('.add-common-words, .add-phrase, .deselect-all-words').hide();
         }
     },
 
@@ -398,6 +406,13 @@
             $('.phrases .phrase').on('click', article.phrases.toggle);
             S.accordion.load();
         },
+
+        add: function (phrase) {
+            S.ajax.post('CollectorSubjects/AddWords', { subjectId: article.subjects.selectedSubjectId, words: [phrase] }, () => {
+                S.message.show('.words .messages', '', 'Phrase "' + phrase + '" added to subject "' + article.subjects.selectedSubject + '"');
+            });
+        },
+
         toggle: function (e) {
             var target = $(e.target);
             if (!target.hasClass('phrase')) {
@@ -425,18 +440,59 @@
     },
 
     subjects: {
-        words: {
-            add: {
-                show: function (words) {
+        selectedSubjectId: null,
+        selectedSubject: '',
 
-                },
-
-                submit: function () {
-                    S.ajax.post("CollectorSubjects/AddWords", { words: words })
-                }
+        phrase: {
+            add: function (phrase) {
+                S.ajax.post("CollectorSubjects/AddWords", { subjectId: article.subjects.selectedSubjectId, words: [phrase] }, () => {
+                    S.message.show('.words .messages', '', 'Phrase "' + phrase + '" added to subject "' + article.subjects.selectedSubject + '"');
+                });
             }
+        },
+
+        words: {
+            add: function () {
+                S.ajax.post("CollectorSubjects/AddWords", { subjectId: article.subjects.selectedSubjectId, words: article.words.selected }, () => {
+                    S.message.show('.words .messages', '', article.words.selected.length + ' words added to subject "' + article.subjects.selectedSubject + '"');
+                });
+            }
+        },
+
+        select: function () {
+            var id = words_subjectId.value;
+            var breadcrumb = $('.words .subjects-breadcrumb > span');
+            var text = words_subjectId.options[words_subjectId.selectedIndex].text;
+            var parent = false;
+            if (text == "<< Parent Subject") {
+                //go back
+                var crumbs = breadcrumb.html().replace(/\&gt\;/g, '>').split(' > ');
+                crumbs.pop();
+                breadcrumb.html(crumbs.join(' > '));
+                if (crumbs.length == 0) {
+                    breadcrumb.addClass('hide');
+                    $('.words .subjects-buttons').hide();
+                }
+            } else if (id == '0') {
+                //go to root
+                breadcrumb.addClass('hide').html('');
+                $('.words .subjects-buttons').hide();
+                parent = true;
+            } else {
+                //select subject
+                breadcrumb.removeClass('hide');
+                breadcrumb.html(breadcrumb.html() + (breadcrumb.html().trim().length > 0 ? ' > ' : '') + text);
+                $('.words .subjects-buttons').show();
+            }
+
+            S.ajax.post('CollectorSubjects/NavigateDropdown', { subjectId: id, parent: parent }, (response) => {
+                words_subjectId.innerHTML = response;
+                article.subjects.selectedSubjectId = id;
+                article.subjects.selectedSubject = text;
+            });
         }
     }
+    
 };
 
 article.init();

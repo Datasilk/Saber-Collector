@@ -1,7 +1,15 @@
 ﻿<div class="words">
     <div class="row word-toolbar">
-        <button class="right add-common-word" onclick="article.words.common.add()">Add Common Words</button>
-        <button class="right add-phrase" onclick="article.words.common.add()">Add Phrase</button>
+        <div class="col input subjects pad-right">
+            <select id="words_subjectId" oninput="article.subjects.select()">{{subjects}}</select>
+        </div>
+        <div class="col input pad-right subjects-breadcrumb"><span class="hide"></span></div>
+        <div class="col pad-right subjects-buttons" style="display:none;">
+            <div class="col input pad-right"><button class="add-to-subject" onclick="article.subjects.words.add()">Add Selected Words</button></div>
+            <div class="col input pad-right"><button class="add-phrase" onclick="article.phrases.add(article.words.selected.join(' '))">Add Words As Phrase</button></div>
+        </div>
+        <div class="col input right deselect-all-words" style="display:none"><button onclick="article.words.deselectAll()">Deselect All</button></div>
+        <div class="col input right add-common-words" style="display:none"><button onclick="article.words.common.add()">Add Common Words</button></div>
     </div>
     <div class="messages"></div>
     <div class="wordlist">{{content}}</div>

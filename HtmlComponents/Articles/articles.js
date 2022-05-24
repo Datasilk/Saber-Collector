@@ -66,7 +66,7 @@
                 breadcrumb.html(breadcrumb.html() + (breadcrumb.html().trim().length > 0 ? ' > ' : '') + text);
             }
             
-            S.ajax.post('CollectorSubjects/NavigateDropdown', { subjectId: id, parent: parent, score: parseInt(score.value) }, (response) => {
+            S.ajax.post('CollectorSubjects/NavigateDropdown', { subjectId: id, parent: parent }, (response) => {
                 subjectId.innerHTML = response;
                 S.articles.search.selectedSubjectId = id;
             });

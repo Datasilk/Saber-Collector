@@ -70,11 +70,16 @@
 .words, .phrases{
     .word, .phrase{float:left; padding:7px 10px; margin:5px; border:2px solid #003d88; cursor:pointer;
         &.selected{border-color:#0057c1; background-color:#002c63;}
+        &.subject-word{border-color:#a00090;}
     }
     &:after{display:block; content:''; clear:both;}
 }
 .word-toolbar, .phrase-toolbar{padding-bottom:10px;
     button{margin-left:10px;}
+}
+
+.subjects-breadcrumb{padding-top:3px;
+    span{display:inline-block; background-color:#007ea0; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
 }
 
 @media (max-width:950px){

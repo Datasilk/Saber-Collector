@@ -69,6 +69,12 @@ namespace Saber.Vendors.Collector
         #endregion
 
         #region "Dropdown"
+        /// <summary>
+        /// Generate a list of subjects using HTML option elements
+        /// </summary>
+        /// <param name="subjectId"></param>
+        /// <param name="parent"></param>
+        /// <returns>A list of HTML option elements with a value attribute</returns>
         public static string NavigateDropdown(int subjectId, bool parent)
         {
             List<Query.Models.Subject> subjects = null;

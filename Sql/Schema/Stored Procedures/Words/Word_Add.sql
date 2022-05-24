@@ -2,7 +2,7 @@
 	DROP PROCEDURE [dbo].[Word_Add]
 GO
 CREATE PROCEDURE [dbo].[Word_Add]
-	@word nvarchar(50),
+	@word nvarchar(64),
 	@subjectId int = 0,
 	@grammartype int = 0,
 	@score int = 1

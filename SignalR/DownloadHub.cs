@@ -185,7 +185,8 @@ namespace Saber.Vendors.Collector.Hubs
         public async Task CheckFeeds(int feedId)
         {
             var feeds = Query.Feeds.Check(feedId);
-            foreach(var feed in feeds)
+            await Clients.Caller.SendAsync("update", "Checking " + feeds.Count + " feed" + (feeds.Count != 1 ? "s" : "") + "...");
+            foreach (var feed in feeds)
             {
                 if(feed.doctype == Query.Feeds.DocTypes.RSS)
                 {

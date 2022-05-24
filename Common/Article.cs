@@ -841,23 +841,30 @@ namespace Saber.Vendors.Collector
             return html.ToString();
         }
 
-        public static string RenderWordsList(AnalyzedArticle article)
+        public static string RenderWordsList(AnalyzedArticle article, List<Query.Models.Word> subjectWords)
         {
             var view = new View("Vendors/Collector/HtmlComponents/Analyzer/words.html");
             var viewItem = new View("Vendors/Collector/HtmlComponents/Analyzer/word-item.html");
 
             var words = Html.GetWordsOnly(article).Where(a => !Rules.commonWords.Contains(a.ToLower()));
-            var distinctWords = words.Distinct().ToArray();
+            var distinctWords = words.Select(a => new { word = a.ToLower(), subject = subjectWords.Where(b => b.word == a.ToLower()).FirstOrDefault() })
+                .Distinct().OrderByDescending(a => a.subject != null).ToArray();
             var html = new StringBuilder();
 
-            foreach(var word in distinctWords)
+            foreach(var distinct in distinctWords)
             {
                 viewItem.Clear();
-                viewItem["word"] = word;
-                viewItem["title"] = "Count: " + article.words.Where(a => a == word).Count();
+                viewItem["word"] = words.Where(a => a.ToLower() == distinct.word).FirstOrDefault();
+                viewItem["title"] = "Count: " + article.words.Where(a => a == distinct.word).Count();
+                if (distinct.subject != null)
+                {
+                    viewItem.Show("subject-word");
+                    viewItem["title"] += ", Subjects: " + distinct.subject.subjects;
+                }
                 html.Append(viewItem.Render());
             }
             view["content"] = html.ToString();
+            view["subjects"] = Subjects.NavigateDropdown(0, false);
             return view.Render();
         }
 

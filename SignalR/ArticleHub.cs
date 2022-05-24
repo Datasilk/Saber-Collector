@@ -197,7 +197,9 @@ namespace Saber.Vendors.Collector.Hubs
                 }
 
                 //display list of words found
-                html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article), false);
+                var words = Html.GetWordsOnly(article).Where(a => !Rules.commonWords.Contains(a.ToLower()));
+                var subjectWords = Query.Words.GetList(words.ToArray());
+                html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article, subjectWords), false);
                 await Clients.Caller.SendAsync("words", html);
 
                 //display list of phrases found
@@ -209,6 +211,7 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     await Clients.Caller.SendAsync("update", 1, ex.Message);
                 }
+
 
                 //update article info in database
                 await Clients.Caller.SendAsync("update", 1, "Updating database records...");
