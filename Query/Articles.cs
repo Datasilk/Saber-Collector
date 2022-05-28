@@ -58,6 +58,11 @@ namespace Query
             return Sql.Populate<Models.Article>("Article_GetById", new { articleId }).FirstOrDefault();
         }
 
+        public static void UpdateCache(int articleId, bool cached)
+        {
+            Sql.ExecuteNonQuery("Article_UpdateCache", new { articleId, cached });
+        }
+
         public static void Remove(int articleId)
         {
             Sql.ExecuteNonQuery("Article_Remove", new { articleId });

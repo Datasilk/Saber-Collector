@@ -3,6 +3,24 @@
     id: null,
     running: false,
 
+    console: {
+        visible: false,
+
+        show: function () {
+            $('.btn-view-console').hide();
+            $('.btn-hide-console').show();
+            $('.section-downloads').removeClass('hide');
+            S.downloads.console.visible = true;
+        },
+
+        hide: function () {
+            $('.btn-view-console').show();
+            $('.btn-hide-console').hide();
+            $('.section-downloads').addClass('hide');
+            S.downloads.console.visible = false;
+        }
+    },
+
     init: function () {
         $('.downloads .download > .button').on('click', S.downloads.start);
         $('.cancel-downloads button').on('click', S.downloads.stop);
@@ -11,6 +29,7 @@
         S.downloads.hub = new signalR.HubConnectionBuilder().withUrl('/downloadhub').build();
         S.downloads.hub.on('update', S.downloads.update);
         S.downloads.hub.on('checked', S.downloads.checked);
+        S.downloads.hub.on('feed', S.downloads.checkedfeed);
         S.downloads.hub.on('article', S.downloads.articles.found);
         S.downloads.hub.start().catch(S.downloads.error);
     },
@@ -21,6 +40,8 @@
         $('.cancel-downloads').show();
         $('.btn-download-start').addClass('hide');
         $('.btn-download-stop').removeClass('hide');
+        $('.btn-view-console').hide();
+        $('.btn-hide-console').hide();
         setTimeout(() => {
             S.downloads.check();
             S.downloads.checkFeeds();
@@ -33,6 +54,13 @@
         $('.cancel-downloads').hide();
         $('.btn-download-start').removeClass('hide');
         $('.btn-download-stop').addClass('hide');
+        if ($('.section-downloads').hasClass('hide')) {
+            $('.btn-view-console').show();
+            $('.btn-hide-console').hide();
+        } else {
+            $('.btn-view-console').hide();
+            $('.btn-hide-console').show();
+        }
         setTimeout(() => {
             S.downloads.hub.invoke('StopQueue', S.downloads.id);
         }, 10);
@@ -44,11 +72,13 @@
         var feedId = feedid ? parseInt(feedid.value) : 0;
         S.downloads.id = id;
         setTimeout(() => {
-            S.downloads.hub.invoke('CheckQueue', id, feedId);
+            S.downloads.hub.invoke('CheckQueue', id, feedId, S.downloads.console.visible);
         });
     },
 
     update: function (msg) {
+        $('.stat-log').html(msg);
+        if (S.downloads.console.visible == false) { return;}
         //receive command from SignalR
         var div = document.createElement('div');
         div.className = 'cli-line';
@@ -111,6 +141,19 @@
         } else {
             S.downloads.update('S.downloads.running = false');
         }
+    },
+
+    checkedfeed: function (links, msg) {
+        $('.stat-log').html(msg);
+        S.downloads.updateStat('links', links || 0);
+        if (S.downloads.console.visible == false) { return; }
+        //receive command from SignalR
+        var div = document.createElement('div');
+        div.className = 'cli-line';
+        div.innerHTML = '> ' + msg;
+        $('.downloads .console').append(div);
+        //var box = $('.downloads .accordion > .box')[0];
+        //box.scrollTop = box.scrollHeight;
     },
 
     updateStat: function (stat, increment) {

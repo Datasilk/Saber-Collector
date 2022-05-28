@@ -69,8 +69,8 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
 
 
                         viewComponent["content"] = Components.Accordion.Render("Statistics", "", viewStatistics.Render()) +
-                        Components.Accordion.Render("Downloads", "", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/console.html")) +
-                        Components.Accordion.Render("Articles Found", "", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/articles-found.html"));
+                        Components.Accordion.Render("Downloads", "section-downloads hide", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/console.html")) +
+                        Components.Accordion.Render("Articles Found", "section-articles hide", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/articles-found.html"));
 
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/downloads/downloads.css", "collector_downloads_css");

@@ -24,6 +24,7 @@ namespace Saber.Vendors.Collector.Models.Article
         public List<int> years { get; set; }
         public bool fiction { get; set; }
         public string rawHtml { get; set; }
+        public string rawText { get; set; }
         public string url { get; set; }
         public string domain { get; set; }
         public string title { get; set; }

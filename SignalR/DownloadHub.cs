@@ -16,7 +16,7 @@ namespace Saber.Vendors.Collector.Hubs
     {
         private List<string> StopQueues = new List<string>();
 
-        public async Task CheckQueue(string id, int feedId)
+        public async Task CheckQueue(string id, int feedId, bool console)
         {
             var queue = Query.Downloads.CheckQueue(feedId, 10); // 10 second delay for each download on a single domain
             if(queue != null)
@@ -50,83 +50,17 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("checked");
                     return;
                 }
-                if (CheckToStopQueue(id, Clients.Caller)) { return; }
-
-                //get URLs from all anchor links on page //////////////////////////////////
-                var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
-                var linkwords = new StringBuilder();
-                var links = article.elements.Where(a => a.tagName == "a" && a.attribute.ContainsKey("href"));
-                var viableDownloads = 0;
-                var addedLinks = 0;
-
-                foreach (var link in links)
-                {
-                    var url = link.attribute["href"];
-                    if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                    if (string.IsNullOrEmpty(url)) { continue; }
-                    var uri = Web.CleanUrl(url, false);
-                    var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item"}).Replace(uri, "");
-                    if (uri.StartsWith("mailto:")) { continue; }
-                    if (uri.StartsWith("javascript:")) { continue; }
-                    if(uri.Length > 255) { continue; }
-                    if(Rules.badUrls.Any(a => uri.Contains(a))) { continue; }
-
-                    var domain = uri.GetDomainName();
-                    if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-                    //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-                    if (!urls.ContainsKey(domain))
-                    {
-                        urls.Add(domain, new List<KeyValuePair<string, string>>());   
-                    }
-                    urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
-                    linkwords.Append(string.Join(" ", Html.GetTextFromElement(link)));
-                }
-                var linkwordcount = Html.CleanWords(Html.SeparateWordsFromText(linkwords.ToString())).Count();
-                foreach (var domain in urls.Keys)
-                {
-                    try
-                    {
-                        if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                        if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-                        var count = Query.Downloads.AddQueueItems(string.Join(",", urls[domain].Select(a => a.Key + a.Value)), domain, queue.feedId);
-                        if (count > 0)
-                        {
-                            addedLinks += count;
-                            await Clients.Caller.SendAsync("update",
-                                "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
-                                "<div class=\"col right\">" + 
-                                (
-                                    !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ? 
-                                    "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
-                                ) +
-                                "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                "</div>");
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" + 
-                            domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
-                    }
-                    
-                }
-
+                
                 //process article /////////////////////////////////////////////////////
                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
                 try
                 {
-                    var articleInfo = Article.AddFromAnalyzedArticle(Article.Create(queue.url), article);
-                    articleInfo.linkwordcount = linkwordcount;
-                    articleInfo.linkcount = links.Count();
-                    if(articleInfo.wordcount > 0)
-                    {
-                        articleInfo.score = (Int16)(100 - ((100.0 / articleInfo.wordcount) * (linkwordcount > 0 ? linkwordcount : 1)));
-                    }
+                    //merge analyzed article into Query Article
+                    var articleInfo = Article.Merge(Article.Create(queue.url), article);
 
-                    if (articleInfo.wordcount > 500 && articleInfo.score >= 66)
-                    {
-                        viableDownloads++;
-                    }
+                    //get article score
+                    Article.DetermineScore(article, articleInfo);
+
                     await Clients.Caller.SendAsync("update", "<span>" +
                             "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
                             "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
@@ -148,6 +82,67 @@ namespace Saber.Vendors.Collector.Hubs
 
                     //display article
                     await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
+
+                    //get URLs from all anchor links on page //////////////////////////////////
+                    var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
+                    var links = Article.GetLinks(article);
+                    var addedLinks = 0;
+
+                    foreach (var link in links)
+                    {
+                        var url = link.attribute["href"];
+                        if (CheckToStopQueue(id, Clients.Caller)) { return; }
+
+                        //validate link url
+                        if (string.IsNullOrEmpty(url)) { continue; }
+                        var uri = Web.CleanUrl(url, false);
+                        if (uri.StartsWith("mailto:")) { continue; }
+                        if (uri.StartsWith("javascript:")) { continue; }
+                        if (uri.Length > 255) { continue; }
+                        if (Rules.badUrls.Any(a => uri.Contains(a))) { continue; }
+                        var domain = uri.GetDomainName();
+                        if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+                        //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+
+                        if (!urls.ContainsKey(domain))
+                        {
+                            urls.Add(domain, new List<KeyValuePair<string, string>>());
+                        }
+                        var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item" }).Replace(uri, "");
+                        urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
+                    }
+
+                    //add all found links to the download queue
+                    foreach (var domain in urls.Keys)
+                    {
+                        try
+                        {
+                            if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                            if (urls[domain] == null || urls[domain].Count == 0) { continue; }
+                            var count = Query.Downloads.AddQueueItems(string.Join(",", urls[domain].Select(a => a.Key + a.Value)), domain, queue.feedId);
+                            if (count > 0)
+                            {
+                                addedLinks += count;
+                                await Clients.Caller.SendAsync("update",
+                                    "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
+                                    "<div class=\"col right\">" +
+                                    (
+                                        !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ?
+                                        "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
+                                    ) +
+                                    "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
+                                    "</div>");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
+                                domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
+                        }
+
+                    }
+
+                    //finished processing download
                     await Clients.Caller.SendAsync("checked", 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
                     return;
                 }
@@ -219,7 +214,8 @@ namespace Saber.Vendors.Collector.Hubs
                         }
                         if (count > 0)
                         {
-                            await Clients.Caller.SendAsync("update", "Added " + count + " URLs to the download queue from feed " + feed.url);
+                            await Clients.Caller.SendAsync("feed", count, "Added " + count + " URLs to the download queue from feed " + feed.url);
+
                         }
                     }
                 }
@@ -280,7 +276,7 @@ namespace Saber.Vendors.Collector.Hubs
                             var count = Query.Downloads.AddQueueItems(string.Join(",", urls[domain]), domain, feed.feedId);
                             if (count > 0)
                             {
-                                await Clients.Caller.SendAsync("update",
+                                await Clients.Caller.SendAsync("feed", count,
                                     "<span>Found " + count + " new link(s) for feed " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
                                     "<div class=\"col right\">" +
                                     (

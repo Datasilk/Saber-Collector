@@ -28,6 +28,7 @@ namespace Saber.Vendors.Collector.Services
                 try
                 {
                     File.Delete(filepath + filename);
+                    Query.Articles.UpdateCache(articleId, false);
                 }
                 catch(Exception ex)
                 {

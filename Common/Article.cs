@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
 using System.Net;
 using System.ServiceModel;
-using System.Text.RegularExpressions;
 using Saber.Core.Extensions.Strings;
 using Utility.DOM;
 using Saber.Vendors.Collector.Models.Article;
@@ -20,67 +18,7 @@ namespace Saber.Vendors.Collector
 
         private static double _version { get; set; }
 
-        #region "Get Article"
-        public static string ContentPath(string url)
-        {
-            //get content path for url
-            var domain = url.GetDomainName();
-            return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
-        }
-
-        public static double Version
-        {
-            get
-            {
-                if(_version == 0)
-                {
-                    var info = new Info();
-                    var ver = info.Version;
-                    _version = double.Parse(ver.Major + "." + ver.Minor1 + ver.Minor2 + ver.Minor3);
-                }
-                return _version;
-            }
-        }
-
-        public static string Download(string url)
-        {
-            //first, try to get headers for the URL from the host
-            var request = WebRequest.Create(url);
-            request.Method = "HEAD";
-            var contentType = "";
-            long filesize = 0;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                contentType = response.ContentType.Split(";")[0];
-                filesize = response.ContentLength;
-            }
-            if(contentType == "text/html")
-            {
-                //get JSON compressed HTML page from Charlotte windows service
-                var binding = new BasicHttpBinding()
-                {
-                    MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
-                };
-                var endpoint = new EndpointAddress(new Uri(browserEndpoint));
-                var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
-                var serviceClient = channelFactory.CreateChannel();
-                var result = serviceClient.Collect(url);
-                channelFactory.Close();
-                return result;
-            }
-            else
-            {
-                //handle all other files
-                return "file:" + contentType;
-            }
-        }
-
-        public static void FileSize(AnalyzedArticle article)
-        {
-            article.fileSize = int.Parse((Encoding.Unicode.GetByteCount(article.rawHtml) / 1024).ToString("c").Replace("$", "").Replace(",", "").Replace(".00", ""));
-        }
-
+        #region "Add Article"
         public static Query.Models.Article Create(string url)
         {
             return new Query.Models.Article()
@@ -127,13 +65,15 @@ namespace Saber.Vendors.Collector
             article.articleId = Query.Articles.Add(article);
             return article;
         }
+        #endregion
 
+        #region "Get Article"
         public static Query.Models.Article AddFromAnalyzedArticle(string url, AnalyzedArticle article)
         {
-            return AddFromAnalyzedArticle(Query.Articles.GetByUrl(url), article);
+            return Merge(Query.Articles.GetByUrl(url), article);
         }
 
-        public static Query.Models.Article AddFromAnalyzedArticle(Query.Models.Article articleInfo, AnalyzedArticle article)
+        public static Query.Models.Article Merge(Query.Models.Article articleInfo, AnalyzedArticle article)
         {
             //get filesize of article
             FileSize(article);
@@ -146,16 +86,16 @@ namespace Saber.Vendors.Collector
             var elements = new List<AnalyzedElement>();
             Html.GetBestElementIndexes(article, elements);
             Html.GetArticleElements(article, elements);
-            var text = Html.GetArticleText(article);
 
-            // too CPU intensive & large amount of data sent to SQL /////////////////////////
+            //get total words, sentences, and important words
+            var text = Html.GetArticleText(article);
             var words = Html.CleanWords(Html.SeparateWordsFromText(text));
-            article.totalWords = Html.CountWordsInText(text, words);
-            //article.totalSentences = Html.GetSentences(text).Count;
-            //var important = Query.Words.GetList(string.Join(",", words.Distinct()));
-            //article.totalImportantWords = important.Count;
-            /////////////////////////////////////////////////////////////////////////////////
-            ///
+            article.totalWords = words.Length;
+            article.totalSentences = Html.GetSentences(text).Count;
+            var important = Query.Words.GetList(words.Distinct().ToArray());
+            article.totalImportantWords = important.Count;
+
+            //copy info from Analyzed Article into Query Article
             articleInfo.title = article.title;
             articleInfo.analyzecount++;
             articleInfo.analyzed = Version;
@@ -191,6 +131,24 @@ namespace Saber.Vendors.Collector
             catch (Exception) { }
             Query.Articles.Update(articleInfo);
             return articleInfo;
+        }
+        
+        public static IEnumerable<DomElement> GetLinks(AnalyzedArticle article)
+        {
+            var links = article.bodyElements.Where(a => a.HasTagInHierarchy("a"))
+                .Select(a => article.elements[a.hierarchyIndexes[a.HierarchyTagIndex("a")]]).ToList();
+            return links;
+        }
+
+        public static int GetLinkWords(IEnumerable<DomElement> links)
+        {
+            var total = 0;
+            foreach (var link in links)
+            {
+
+                total += Html.CleanWords(Html.SeparateWordsFromText(string.Join(" ", Html.GetTextFromElement(link)))).Length;
+            }
+            return total;
         }
         #endregion
 
@@ -841,14 +799,15 @@ namespace Saber.Vendors.Collector
             return html.ToString();
         }
 
-        public static string RenderWordsList(AnalyzedArticle article, List<Query.Models.Word> subjectWords)
+        public static string RenderWordsList(AnalyzedArticle article, List<string> words, List<Query.Models.Word> subjectWords)
         {
             var view = new View("Vendors/Collector/HtmlComponents/Analyzer/words.html");
             var viewItem = new View("Vendors/Collector/HtmlComponents/Analyzer/word-item.html");
 
-            var words = Html.GetWordsOnly(article).Where(a => !Rules.commonWords.Contains(a.ToLower()));
-            var distinctWords = words.Select(a => new { word = a.ToLower(), subject = subjectWords.Where(b => b.word == a.ToLower()).FirstOrDefault() })
-                .Distinct().OrderByDescending(a => a.subject != null).ToArray();
+            var distinctWords = words.Select(a => {
+                    var word = a.ToLower();
+                    return new { word = word, subject = subjectWords.Where(b => b.word == word).FirstOrDefault() };
+                }).Distinct().OrderByDescending(a => a.subject != null).ToArray();
             var html = new StringBuilder();
 
             foreach(var distinct in distinctWords)
@@ -952,7 +911,117 @@ namespace Saber.Vendors.Collector
             view["content"] = html.ToString();
             return view.Render();
         }
+        #endregion
 
+        #region "Utility"
+        public static string ContentPath(string url)
+        {
+            //get content path for url
+            var domain = url.GetDomainName();
+            return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
+        }
+
+        public static double Version
+        {
+            get
+            {
+                if (_version == 0)
+                {
+                    var info = new Info();
+                    var ver = info.Version;
+                    _version = double.Parse(ver.Major + "." + ver.Minor1 + ver.Minor2 + ver.Minor3);
+                }
+                return _version;
+            }
+        }
+
+        public static string Download(string url)
+        {
+            //first, try to get headers for the URL from the host
+            var request = WebRequest.Create(url);
+            request.Method = "HEAD";
+            var contentType = "";
+            long filesize = 0;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                contentType = response.ContentType.Split(";")[0];
+                filesize = response.ContentLength;
+            }
+            if (contentType == "text/html")
+            {
+                //get JSON compressed HTML page from Charlotte windows service
+                var binding = new BasicHttpBinding()
+                {
+                    MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
+                };
+                var endpoint = new EndpointAddress(new Uri(browserEndpoint));
+                var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
+                var serviceClient = channelFactory.CreateChannel();
+                var result = serviceClient.Collect(url);
+                channelFactory.Close();
+                return result;
+            }
+            else
+            {
+                //handle all other files
+                return "file:" + contentType;
+            }
+        }
+
+        public static void FileSize(AnalyzedArticle article)
+        {
+            article.fileSize = int.Parse((Encoding.Unicode.GetByteCount(article.rawHtml) / 1024).ToString("c").Replace("$", "").Replace(",", "").Replace(".00", ""));
+        }
+
+        public class ScoreInfo
+        {
+            public short score { get; set; }
+            public double quality { get; set; }
+            public int linkWordCount { get; set; }
+            public double linkRatio { get; set; }
+        }
+
+        /// <summary>
+        /// Scoring system based on the balance between total article words and total article anchor link words (too many links or less than 500 words will result in a lower score) 
+        /// </summary>
+        /// <param name="article"></param>
+        /// <param name="articleInfo"></param>
+        /// <returns></returns>
+        public static ScoreInfo DetermineScore(AnalyzedArticle article, Query.Models.Article articleInfo)
+        {
+            //get all items that determine the quality of the article
+            var qualityWords = (75.0 / 500.0) * (double)(articleInfo.wordcount > 500 ? 500.0 : articleInfo.wordcount.Value);
+            if(article.body.Count > 0 && article.images.Count == 0)
+            {
+                Html.GetImages(article);
+            }
+            //one or more images = 25% of the quality score
+            var qualityImages = article.images.Count > 0 ? 25 : 0;
+
+
+            //set up score info
+            articleInfo.linkwordcount = GetLinkWords(GetLinks(article));
+            var info = new ScoreInfo()
+            {
+                //too many words inside of anchor links will lower score
+                linkWordCount = articleInfo.linkwordcount.Value > 0 ? articleInfo.linkwordcount.Value : 1 
+            };
+
+
+            //determine quality of article content
+            info.quality = qualityWords + qualityImages;
+
+            if (articleInfo.wordcount > 0)
+            {
+                info.linkRatio = Math.Clamp((info.quality / articleInfo.wordcount.Value) * info.linkWordCount, 0, info.quality);
+
+                //final score
+                articleInfo.score = (Int16)(info.quality - info.linkRatio);
+                info.score = articleInfo.score.Value;
+            }
+            return info;
+        }
         #endregion
     }
 }

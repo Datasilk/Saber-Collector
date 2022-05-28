@@ -96,6 +96,7 @@ namespace Saber.Vendors.Collector.Hubs
                     }
 
                     File.WriteAllText(filepath + filename, result);
+                    Query.Articles.UpdateCache(articleInfo.articleId, true);
                     await Clients.Caller.SendAsync("update", 1, "Downloaded URL (" + article.fileSize + " KB" + "): <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
                     await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
                         "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
@@ -197,9 +198,10 @@ namespace Saber.Vendors.Collector.Hubs
                 }
 
                 //display list of words found
-                var words = Html.GetWordsOnly(article).Where(a => !Rules.commonWords.Contains(a.ToLower()));
-                var subjectWords = Query.Words.GetList(words.ToArray());
-                html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article, subjectWords), false);
+                var allwords = Html.GetWordsOnly(article);
+                var uniqueWords = allwords.Where(a => a.Length > 1 && !Rules.commonWords.Contains(a.ToLower())).ToList();
+                var subjectWords = Query.Words.GetList(uniqueWords.ToArray());
+                html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article, uniqueWords, subjectWords), false);
                 await Clients.Caller.SendAsync("words", html);
 
                 //display list of phrases found
@@ -212,7 +214,6 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("update", 1, ex.Message);
                 }
 
-
                 //update article info in database
                 await Clients.Caller.SendAsync("update", 1, "Updating database records...");
 
@@ -222,6 +223,7 @@ namespace Saber.Vendors.Collector.Hubs
                 articleInfo.cached = true;
                 articleInfo.domain = article.domain;
                 articleInfo.feedId = article.feedId;
+                articleInfo.summary = article.summary;
                 articleInfo.fiction = (short)(article.fiction == true ? 1 : 0);
                 articleInfo.filesize = article.fileSize + imgTotalSize;
                 articleInfo.images = Convert.ToByte(imgCount);
@@ -240,9 +242,6 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                 }
                 catch (Exception) { }
-                articleInfo.sentencecount = (short)article.totalSentences;
-                articleInfo.summary = article.summary;
-                articleInfo.wordcount = article.totalWords;
                 articleInfo.yearstart = (short)article.yearStart;
                 articleInfo.yearend = (short)article.yearEnd;
                 try
@@ -250,6 +249,23 @@ namespace Saber.Vendors.Collector.Hubs
                     articleInfo.years = string.Join(",", article.years.ToArray());
                 }
                 catch (Exception) { }
+
+                var text = article.rawText.Replace("\n", "").Replace("\r", "");
+                var words = Html.CleanWords(Html.SeparateWordsFromText(text));
+                article.totalWords = words.Length;
+                article.totalSentences = Html.GetSentences(text).Count;
+                article.totalImportantWords = subjectWords.Count;
+
+                articleInfo.sentencecount = (short)article.totalSentences;
+                articleInfo.wordcount = article.totalWords;
+                await Clients.Caller.SendAsync("update", 1, "Word Count: " + articleInfo.wordcount);
+                await Clients.Caller.SendAsync("update", 1, "Important Words: " + articleInfo.importantcount);
+
+                //get article score
+                var scoreInfo = Article.DetermineScore(article, articleInfo);
+                await Clients.Caller.SendAsync("update", 1, "Article Score: <b>" + scoreInfo.score + "</b> of 100 possible points &nbsp;&nbsp;&nbsp;&nbsp;(" + Math.Round(scoreInfo.quality, 1) + "% \"quality content\"" +
+                    " / " + articleInfo.wordcount + " \"total words\" * " + scoreInfo.linkWordCount + " \"link words\") = " + (Math.Round(scoreInfo.linkRatio, 1) + "% \"link ratio\"") + ")");
+
                 Query.Articles.Update(articleInfo);
 
                 //finished
