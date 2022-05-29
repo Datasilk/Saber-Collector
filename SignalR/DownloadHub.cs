@@ -233,7 +233,14 @@ namespace Saber.Vendors.Collector.Hubs
                         Console.WriteLine(ex.Message);
                         Console.WriteLine(ex.StackTrace);
                         Query.Feeds.UpdateLastChecked(feed.feedId); //mark feed as checked (since it was attempted to be downloaded)
-                        await Clients.Caller.SendAsync("update", "Error downloading " + feed.url + "!");
+                        if (ex.Message.IndexOf("405") > 0)
+                        {
+                            await Clients.Caller.SendAsync("update", "405 Error downloading " + feed.url + "!");
+                        }
+                        else
+                        {
+                            await Clients.Caller.SendAsync("update", "Error downloading " + feed.url + "!");
+                        }
                         continue;
                     }
                     try

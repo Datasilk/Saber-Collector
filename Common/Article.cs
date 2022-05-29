@@ -941,19 +941,24 @@ namespace Saber.Vendors.Collector
             var request = WebRequest.Create(url);
             request.Method = "HEAD";
             var contentType = "";
-            long filesize = 0;
+            //long filesize = 0;
 
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            try
             {
-                contentType = response.ContentType.Split(";")[0];
-                filesize = response.ContentLength;
+                //try downloading head first to see if the request is actually html or a file
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    contentType = response.ContentType.Split(";")[0];
+                    //filesize = response.ContentLength;
+                }
             }
-            if (contentType == "text/html")
+            catch(Exception){ }
+            if (contentType == "text/html" || contentType == "")
             {
                 //get JSON compressed HTML page from Charlotte windows service
                 var binding = new BasicHttpBinding()
                 {
-                    MaxReceivedMessageSize = 50 * 1024 * 1024 //50 MB
+                    MaxReceivedMessageSize = 5 * 1024 * 1024 //5 MB
                 };
                 var endpoint = new EndpointAddress(new Uri(browserEndpoint));
                 var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);

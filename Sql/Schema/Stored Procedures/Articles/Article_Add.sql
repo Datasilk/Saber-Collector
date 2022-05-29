@@ -39,4 +39,9 @@ AS
 	(@articleId, @feedId, @subjects, @subjectId, @domainId, @score, @domain, @url, @title, @summary, @filesize, @linkcount, @linkwordcount, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
 	@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
 
+	--move related Download Queue record into Downloads table
+	INSERT INTO Downloads ([id], [feedId], [domainId], [status], [tries], [url], [path], [datecreated]) 
+	SELECT * FROM DownloadQueue WHERE [url]=@url
+	DELETE FROM DownloadQueue WHERE [url] = @url
+
 	SELECT @articleId

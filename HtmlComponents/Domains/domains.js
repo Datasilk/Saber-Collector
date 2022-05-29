@@ -1,6 +1,6 @@
 ﻿S.domains = {
     init: function () {
-//submit search form events
+        //submit search form events
         $('#searchform').on('submit', (e) => {
             S.domains.search.getResults();
             e.preventDefault();
@@ -49,15 +49,15 @@
         getResults: function (start, length) {
             var data = {
                 subjectId: S.domains.search.selectedSubjectId,
-                feedId: feedId.value,
-                score: parseInt(score.value),
+                type: domaintype.value,
+                sort: sort.value,
                 search: search.value,
                 start: start == null ? 1 : start,
                 length: length == null ? 50 : length
             }
             console.log(data);
             S.ajax.post('CollectorDomains/Search', data, (response) => {
-                $('.domains .accordion .contents').html(response);
+                $('.accordion.domains .contents').html(response);
             });
 
         },

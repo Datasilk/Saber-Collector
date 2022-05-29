@@ -32,6 +32,7 @@ AS
 
 	--delete all download queue related to domain
 	DELETE FROM DownloadQueue WHERE domainId=@domainId
+	DELETE FROM Downloads WHERE domainId=@domainId
 	DELETE FROM Domains WHERE domainId=@domainId
 
 	--delete whitelisted domains (if any)

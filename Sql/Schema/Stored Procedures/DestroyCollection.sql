@@ -14,6 +14,7 @@ AS
 		DELETE FROM ArticleSubjects
 		DELETE FROM ArticleWords
 		DELETE FROM DownloadQueue
+		DELETE FROM Downloads
 		DELETE FROM FeedsCheckedLog
 	END
 

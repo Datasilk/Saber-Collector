@@ -1,0 +1,43 @@
+﻿<form id="searchform">    
+    <div class="row">
+        <div class="col pad-right pad-bottom-sm">
+            <input type="text" id="search" placeholder="Search for domains" />
+        </div>
+        <div class="col pad-right pad-bottom-sm">
+            <div class="row nowrap">
+                <div class="col">
+                    <select id="subjectId" oninput="S.domains.search.selectSubject()" >{{subjects}}</select>
+                </div>
+                <div class="col subjects-breadcrumb"><span class="hide margin-left"></span></div>
+            </div>
+        </div>
+        <div class="col pad-right pad-bottom-sm">
+            <select id="domaintype">
+                <option value="0">All Domains</option>
+                <option value="1">Whitelisted</option>
+                <option value="2">Blacklisted</option>
+                <option value="3">Newest</option>
+            </select>
+        </div>
+        <div class="col pad-right pad-bottom-sm">
+            <div class="row nowrap">
+                <div class="col pad-right pad-bottom-sm">
+                    <select id="sort">
+                        <option value="0">A - Z</option>
+                        <option value="1">Z - A</option>
+                        <option value="2">Most Articles</option>
+                        <option value="3">Newest</option>
+                        <option value="4">Oldest</option>
+                    </select>
+                </div>
+                <div class="col icon btn-search">
+                     <a onclick="S.domains.search.getResults()">
+                        <svg viewBox="0 0 32 32">
+                            <use xlink:href="#icon-search" x="0" y="0" width="32" height="32"></use>
+                        </svg>
+                     </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

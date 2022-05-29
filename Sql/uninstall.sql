@@ -10,6 +10,7 @@ BEGIN TRY
 	DROP TABLE [dbo].[ArticleWords]
 	DROP TABLE [dbo].[Domains]
 	DROP TABLE [dbo].[DownloadQueue]
+	DROP TABLE [dbo].[Downloads]
 	DROP TABLE [dbo].[FeedCategories]
 	DROP TABLE [dbo].[Feeds]
 	DROP TABLE [dbo].[FeedsCheckedLog]
