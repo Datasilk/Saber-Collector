@@ -8,7 +8,7 @@ namespace Saber.Vendors.Collector
 {
     public static class Articles
     {
-        public static string RenderList(int subjectId = 0, int feedId = 0, int start = 1, int length = 50, int score = 0, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.newest)
+        public static string RenderList(int subjectId = 0, int feedId = 0, int start = 1, int length = 50, int score = 0, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.BestScore)
         {
             List<Query.Models.ArticleDetails> articles;
             var subjectIds = new List<int>();

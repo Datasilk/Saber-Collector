@@ -76,7 +76,11 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/downloads/downloads.css", "collector_downloads_css");
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/downloads/downloads.js", "collector_downloads_js");
-
+                        if (request.Parameters.ContainsKey("run"))
+                        {
+                            //auto-run the download queue
+                            request.AddScriptBlock("setTimeout(S.downloads.start, 1000);");
+                        }
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;
                     })

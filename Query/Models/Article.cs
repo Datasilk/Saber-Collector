@@ -31,6 +31,7 @@ namespace Query.Models
         public string title { get; set; }
         public string summary { get; set; }
         public double? analyzed { get; set; }
+        public int visited { get; set; }
         public bool? cached { get; set; }
         public bool? active { get; set; }
         public bool? deleted { get; set; }

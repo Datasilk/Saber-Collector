@@ -76,6 +76,7 @@
             var data = {
                 subjectId: S.articles.search.selectedSubjectId,
                 feedId: feedId.value,
+                sort: sort.value,
                 score: parseInt(score.value),
                 search: search.value,
                 start: start == null ? 1 : start,

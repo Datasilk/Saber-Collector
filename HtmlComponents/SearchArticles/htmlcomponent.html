@@ -10,6 +10,17 @@
         <div class="col pad-right">
             <select id="feedId" >{{feeds}}</select>
         </div>
+        <div class="col pad-right">
+            <select id="sort">
+                <option value="0">A-Z</option>
+                <option value="1">Z-A</option>
+                <option value="2" selected>Best Score</option>
+                <option value="3">Worst Score</option>
+                <option value="4">Newest</option>
+                <option value="5">Oldest</option>
+                <option value="6">Most Popular</option>
+            </select>
+        </div>
         <div class="col pad-right search-article-score" title="Minimum Score (-9999 to 9999)">
             <label>Score</label><input type="number" id="score" value="0" />
         </div>

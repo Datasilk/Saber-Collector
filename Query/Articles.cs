@@ -6,6 +6,25 @@ namespace Query
 {
     public static class Articles
     {
+
+        public enum SortBy
+        {
+            Ascending = 0,
+            Descending = 1,
+            BestScore = 2,
+            WorstScore = 3,
+            Newest = 4,
+            Oldest = 5,
+            Popular = 6
+        }
+
+        public enum IsActive
+        {
+            notActive = 0,
+            Active = 1,
+            Both = 2
+        }
+
         public static int Add(Models.Article article)
         {
             return Sql.ExecuteScalar<int>("Article_Add", new { 
@@ -48,6 +67,28 @@ namespace Query
             return Sql.ExecuteScalar<int>("Article_Exists", new { url }) > 0;
         }
 
+        public static List<Models.ArticleDetails> GetList(int[] subjectId, int feedId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.BestScore, int start = 1, int length = 50, bool bugsOnly = false)
+        {
+            return Sql.Populate<Models.ArticleDetails>(
+                "Articles_GetList",
+                new
+                {
+                    subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
+                    feedId,
+                    score,
+                    search,
+                    isActive = (int)isActive,
+                    isDeleted,
+                    minImages,
+                    dateStart = dateStart,
+                    dateEnd = dateEnd,
+                    orderby = (int)orderBy,
+                    start,
+                    length,
+                    bugsOnly
+                });
+        }
+
         public static Models.Article GetByUrl(string url)
         {
             return Sql.Populate<Models.Article>("Article_GetByUrl", new { url }).FirstOrDefault();
@@ -56,11 +97,6 @@ namespace Query
         public static Models.Article GetById(int articleId)
         {
             return Sql.Populate<Models.Article>("Article_GetById", new { articleId }).FirstOrDefault();
-        }
-
-        public static void UpdateCache(int articleId, bool cached)
-        {
-            Sql.ExecuteNonQuery("Article_UpdateCache", new { articleId, cached });
         }
 
         public static void Remove(int articleId)
@@ -94,45 +130,21 @@ namespace Query
                 });
         }
 
+        public static void UpdateCache(int articleId, bool cached)
+        {
+            Sql.ExecuteNonQuery("Article_UpdateCache", new { articleId, cached });
+        }
+
+        public static void Visited(int articleId)
+        {
+            Sql.ExecuteNonQuery("Article_Visited", new { articleId });
+        }
+
+        #region "Dates, sentences, subjects, words, etc"
+
         public static void AddDate(int articleId, DateTime date, bool hasYear, bool hasMonth, bool hasDay)
         {
-            Sql.ExecuteNonQuery("ArticleDate_Add", new { articleId, date, hasYear, hasMonth, hasDay }); 
-        }
-
-        public enum SortBy
-        {
-            oldest = 1,
-            newest = 2,
-            lowestScore = 3,
-            highestScore = 4
-        }
-
-        public enum IsActive
-        {
-            notActive = 0,
-            Active = 1,
-            Both = 2
-        }
-
-        public static List<Models.ArticleDetails> GetList(int[] subjectId, int feedId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.oldest, int start = 1, int length = 50, bool bugsOnly = false)
-        {
-            return Sql.Populate<Models.ArticleDetails>(
-                "Articles_GetList",
-                new {
-                    subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
-                    feedId,
-                    score,
-                    search,
-                    isActive = (int)isActive,
-                    isDeleted,
-                    minImages,
-                    dateStart = dateStart,
-                    dateEnd = dateEnd,
-                    orderby = (int)orderBy,
-                    start,
-                    length,
-                    bugsOnly
-                });
+            Sql.ExecuteNonQuery("ArticleDate_Add", new { articleId, date, hasYear, hasMonth, hasDay });
         }
 
         public static void AddSentence(int articleId, int index, string sentence)
@@ -164,5 +176,7 @@ namespace Query
         {
             Sql.ExecuteNonQuery("ArticleWords_Remove", new { articleId, word });
         }
+
+        #endregion
     }
 }

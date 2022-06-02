@@ -31,7 +31,10 @@
             $('.analyze-article > .box').css({ height: 400 });
 
             //send command via SignalR
-            article.hub.invoke('AnalyzeArticle', url);
+            if (typeof articleOnly == 'undefined') {
+                window.articleOnly = false;
+            }
+            article.hub.invoke('AnalyzeArticle', url, articleOnly === true);
         },
 
         update: function (code, msg) {

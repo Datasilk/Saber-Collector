@@ -45,4 +45,8 @@ AS
 			OR (@type = 2 AND bl.domain IS NOT NULL)
 			OR (@type = 3 AND wl.domain IS NULL AND bl.domain IS NULL)
 		)
+		AND (
+			(@sort = 2 AND a.articles > 0)
+			OR (@sort <> 2)
+		)
 	) AS tbl WHERE rownum >= @start AND rownum < @start + @length

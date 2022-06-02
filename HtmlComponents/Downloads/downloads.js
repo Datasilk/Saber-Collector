@@ -89,13 +89,16 @@
     },
 
     articles: {
+        visible: false,
         list: [],
 
         found: function (json) {
+            if (S.downloads.articles.visible == false) { return; }
             var article = JSON.parse(json);
             if (article == null || article.wordcount == null || article.wordcount == 0) { return; }
             $('.articles-list').append(S.downloads.articles.render(article));
             $('.no-articles').remove();
+            $('.btn-sort-articles').show();
             S.downloads.articles.list.push(article);
         },
 
@@ -112,6 +115,7 @@
         },
 
         sort: function () {
+            if (S.downloads.articles.visible == false) { return; }
             var list = $('.articles-list');
             list.html('');
             S.downloads.articles.list.sort((a, b) => a.score < b.score ? 1 : -1)

@@ -29,6 +29,7 @@
         [title] NVARCHAR(250) NULL DEFAULT '', 
         [summary] NVARCHAR(250) NULL DEFAULT '',
 	    [analyzed] FLOAT DEFAULT 0,
+        [visited] INT NOT NULL DEFAULT 0,
 	    [cached] BIT NULL DEFAULT 0, 
         [active] BIT NULL DEFAULT 0, 
         [deleted] BIT NULL DEFAULT 0

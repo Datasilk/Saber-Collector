@@ -85,6 +85,7 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                             viewComponent.Show("article-only");
                             viewComponent.Show("view-analyzer");
                             viewComponent["analyzer-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=0";
+                            request.AddScriptBlock("var articleOnly = true;");
                         }
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));

@@ -129,7 +129,6 @@ namespace Saber.Vendors.Collector
                 articleInfo.years = string.Join(",", article.years.ToArray());
             }
             catch (Exception) { }
-            Query.Articles.Update(articleInfo);
             return articleInfo;
         }
         

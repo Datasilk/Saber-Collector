@@ -264,6 +264,19 @@ namespace Saber.Vendors.Collector
                     }
                 }
             }
+            if(article.title == ""){
+                //try getting title from URL path if all else fails
+                var path = WebUtility.UrlDecode(article.url.Split("?")[0].Split("#")[0]);
+                path = path.Substring(path.IndexOf(article.domain) + article.domain.Length);
+                if(path.Substring(0, 1) == "/") { path = path.Substring(1); }
+                var ext = path.GetFileExtension();
+                if(ext != "")
+                {
+                    path = path.Replace(path.GetFilename(), "");
+                }
+                var paths = path.ReplaceAll(" ", new string[] {":", ";", "-", "_", "+", "=", ",", "  ", "  "}).Split("/").Select(a => a.Trim());
+                article.title = string.Join(" ", paths);
+            }
 
             //get page description
             var description = article.elements.Where(a => a.tagName == "meta" && a.attribute.ContainsKey("name") && a.attribute["name"].IndexOf("description") >= 0).FirstOrDefault();
