@@ -119,7 +119,7 @@ namespace Saber.Vendors.Collector.Hubs
                         {
                             if (CheckToStopQueue(id, Clients.Caller)) { return; }
                             if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-                            var count = Query.Downloads.AddQueueItems(string.Join(",", urls[domain].Select(a => a.Key + a.Value)), domain, queue.feedId);
+                            var count = Query.Downloads.AddQueueItems(urls[domain].Select(a => a.Key + a.Value).ToArray(), domain, queue.feedId);
                             if (count > 0)
                             {
                                 addedLinks += count;
@@ -181,8 +181,11 @@ namespace Saber.Vendors.Collector.Hubs
         {
             var feeds = Query.Feeds.Check(feedId);
             await Clients.Caller.SendAsync("update", "Checking " + feeds.Count + " feed" + (feeds.Count != 1 ? "s" : "") + "...");
+            var i = 0;
+            var len = feeds.Count;
             foreach (var feed in feeds)
             {
+                i++;
                 if(feed.doctype == Query.Feeds.DocTypes.RSS)
                 {
                     //Read RSS feed ///////////////////////////////////////////////////////////////////////////////
@@ -209,13 +212,18 @@ namespace Saber.Vendors.Collector.Hubs
                             var dlinks = domains[domain];
                             if (dlinks.Count > 0)
                             {
-                                count += Query.Downloads.AddQueueItems(string.Join(",", dlinks), domain);
+                                count += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain);
                             }
                         }
                         if (count > 0)
                         {
-                            await Clients.Caller.SendAsync("feed", count, "Added " + count + " URLs to the download queue from feed " + feed.url);
-
+                            await Clients.Caller.SendAsync("feed", count, 
+                                "<span>(" + i +" of " + len + ") Found " + count + "new link(s) from " + feed.title + ": <a href=\"" + feed.url + "\" target=\"_blank\">" + feed.url + "</a></span>");
+                        }
+                        else
+                        {
+                            await Clients.Caller.SendAsync("feed", count,
+                                "<span>(" + i + " of " + len + " feeds) No new links from " + feed.title);
                         }
                     }
                 }
@@ -265,6 +273,10 @@ namespace Saber.Vendors.Collector.Hubs
                         if (uri.StartsWith("mailto:")) { continue; }
                         if (uri.StartsWith("javascript:")) { continue; }
                         if (uri.Length > 255) { continue; }
+                        if (uri.Substring(uri.Length - 1, 1) == "/")
+                        {
+                            uri = uri.Substring(0, uri.Length - 1);
+                        }
 
                         var domain = uri.GetDomainName();
                         if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
@@ -280,18 +292,27 @@ namespace Saber.Vendors.Collector.Hubs
                         try
                         {
                             if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-                            var count = Query.Downloads.AddQueueItems(string.Join(",", urls[domain]), domain, feed.feedId);
+                            var count = Query.Downloads.AddQueueItems(urls[domain].ToArray(), domain, feed.feedId);
                             if (count > 0)
                             {
                                 await Clients.Caller.SendAsync("feed", count,
-                                    "<span>Found " + count + " new link(s) for feed " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
+                                    "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
                                     "<div class=\"col right\">" +
                                     (
-                                        !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ?
+                                        !Models.Whitelist.Domains.Any(a => domain.Contains(a)) ?
                                         "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
                                     ) +
-                                    "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                    "</div>");
+                                    (
+                                        !Models.Blacklist.Domains.Any(a => domain.Contains(a)) ?
+                                        "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
+                                        "</div>" : ""
+                                    )
+                                );
+                            }
+                            else
+                            {
+                                await Clients.Caller.SendAsync("feed", count,
+                                    "<span>(" + i + " of " + len + " feeds) No new links from " + feed.title + ": <a href=\"https://" + feed.url + "\" target=\"_blank\">" + feed.url + "</a></span>");
                             }
                         }
                         catch (Exception ex)

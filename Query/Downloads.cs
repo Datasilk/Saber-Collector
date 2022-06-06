@@ -16,9 +16,17 @@ namespace Query
             Sql.ExecuteNonQuery("Download_Update", new { qId , status = (int)status });
         }
 
-        public static int AddQueueItems(string urls, string domain, int feedId = 0)
+        public static int AddQueueItems(string[] urls, string domain, int feedId = 0)
         {
-            return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls, domain, feedId });
+            //clean urls
+            for(var x = 0; x < urls.Length; x++)
+            {
+                if(urls[x].Substring(urls[x].Length - 1, 1) == "/")
+                {
+                    urls[x] = urls[x].Substring(0, urls[x].Length - 1);
+                }
+            }
+            return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls = string.Join(",", urls), domain, feedId });
         }
 
         public static Models.DownloadQueue CheckQueue(int feedId = 0, int domaindelay = 60)
