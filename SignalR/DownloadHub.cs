@@ -96,10 +96,7 @@ namespace Saber.Vendors.Collector.Hubs
                         //validate link url
                         if (string.IsNullOrEmpty(url)) { continue; }
                         var uri = Web.CleanUrl(url, false);
-                        if (uri.StartsWith("mailto:")) { continue; }
-                        if (uri.StartsWith("javascript:")) { continue; }
-                        if (uri.Length > 255) { continue; }
-                        if (Rules.badUrls.Any(a => uri.Contains(a))) { continue; }
+                        if (!ValidateURL(uri)) { continue; }
                         var domain = uri.GetDomainName();
                         if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
                         //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
@@ -193,7 +190,7 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         var response = client.DownloadString(feed.url);
                         var content = Utility.Syndication.Read(response);
-                        var links = content.items.Select(a => a.link);
+                        var links = content.items.Select(a => a.link).Where(a => ValidateURL(a) == true);
                         var domains = new Dictionary<string, List<string>>();
                         //separate links by domain
                         foreach (var link in links)
@@ -263,16 +260,13 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", "Error parsing feed DOM for " + feed.url + "!");
                         continue;
                     }
-                    var links = article.elements.Where(a => a.tagName == "a" && a.attribute.ContainsKey("href")).Select(a => a.attribute["href"]);
+                    var links = article.elements.Where(a => a.tagName == "a" && a.attribute.ContainsKey("href"))
+                        .Select(a => a.attribute["href"]).Where(a => ValidateURL(a) == true);
                     var urls = new Dictionary<string, List<string>>();
 
                     foreach (var url in links)
                     {
-                        if (string.IsNullOrEmpty(url)) { continue; }
                         var uri = Web.CleanUrl(url);
-                        if (uri.StartsWith("mailto:")) { continue; }
-                        if (uri.StartsWith("javascript:")) { continue; }
-                        if (uri.Length > 255) { continue; }
                         if (uri.Substring(uri.Length - 1, 1) == "/")
                         {
                             uri = uri.Substring(0, uri.Length - 1);
@@ -357,6 +351,15 @@ namespace Saber.Vendors.Collector.Hubs
                 Models.Blacklist.Domains.Add(domain);
             }
             await Clients.Caller.SendAsync("update", "Blacklisted domain " + domain + " and removed all related articles");
+        }
+
+        private bool ValidateURL(string url)
+        {
+            if(url == "") { return false; }
+            if (url.IndexOf("http://") != 0 && url.IndexOf("https://") != 0) { return false; }
+            if (url.Length > 255) { return false; }
+            if (Rules.badUrls.Any(a => url.Contains(a))) { return false; }
+            return true;
         }
     }
 }

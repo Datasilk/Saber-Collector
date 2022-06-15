@@ -54,6 +54,7 @@ AS
 			OR (@search IS NOT NULL AND @search  <> '' AND (
 				a.title LIKE '%' + @search + '%'
 				OR a.summary LIKE '%' + @search + '%'
+				OR a.[url] LIKE '%' + @search + '%'
 			))
 			OR (@search IS NULL OR @search = '')
 		) 
