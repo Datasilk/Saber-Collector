@@ -5,6 +5,7 @@
         [domain] NVARCHAR(64) NOT NULL,
         [hastitle] BIT NOT NULL DEFAULT 0,
         [title] NVARCHAR(128) NOT NULL DEFAULT '',
+        [description] NVARCHAR(255) NOT NULL DEFAULT '',
         [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
         [lastchecked] DATETIME2 NOT NULL DEFAULT GETUTCDATE() -- last scraped a URL from the domain
     )

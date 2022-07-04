@@ -10,5 +10,10 @@ namespace Query
         {
             return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length });
         }
+
+        public static Models.Domain GetInfo(string domain)
+        {
+            return Sql.Populate<Models.Domain>("Domain_GetInfo", new { domain }).FirstOrDefault();
+        }
     }
 }

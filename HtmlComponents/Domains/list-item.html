@@ -1,9 +1,9 @@
-﻿<div class="domain-item">
+﻿<div class="domain-item" onclick="S.domain.details.show('{{domain}}')">
     <div class="title">
         <h4>{{title}}</h4>
     </div>
     <div class="url">
-        <a href="{{url}}" target="_blank">{{url}}</a>
+        <a href="{{url}}" onclick="event.cancelBubble = true" target="_blank">{{url}}</a>
     </div>
     <div class="info">
         {{whitelisted}}<span class="whitelisted">whitelisted</span>{{/whitelisted}}

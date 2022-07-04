@@ -7,6 +7,7 @@ namespace Query.Models
         public int domainId { get; set; }
         public string domain { get; set; }
         public string title { get; set; }
+        public string description { get; set; }
         public DateTime lastchecked { get; set; }
         public int articles { get; set; }
         public bool whitelisted { get; set; }
