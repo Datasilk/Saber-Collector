@@ -15,5 +15,22 @@ namespace Query
         {
             return Sql.Populate<Models.Domain>("Domain_GetInfo", new { domain }).FirstOrDefault();
         }
+
+        public static class AnalyzerRules
+        {
+            public static int Add(int domainId, string selector, bool rule)
+            {
+                return Sql.ExecuteScalar<int>("Domain_AnalyzerRule_Add", new { domainId, selector, rule });
+            }
+
+            public static List<Models.AnalyzerRule> GetList(int domainId)
+            {
+                return Sql.Populate<Models.AnalyzerRule>("Domain_AnalyzerRules_GetList", new { domainId });
+            }
+            public static void Remove(int ruleId)
+            {
+                Sql.ExecuteNonQuery("Domain_AnalyzerRule_Remove", new { ruleId });
+            }
+        }
     }
 }

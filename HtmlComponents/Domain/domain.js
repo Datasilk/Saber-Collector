@@ -32,6 +32,34 @@
             S.ajax.post('CollectorDomains/RenderAnalyzerRulesList', { domainId: S.domain.details.domainId }, (response) => {
                 $('.popup.show .content-rules').html(response);
             });
+        },
+
+        add: {
+            show: function () {
+                S.popup.show("Create Analyzer Rule", temp_new_rule.innerHTML, {
+                    width:450,
+                    backButton: true
+                });
+            },
+
+            submit: function () {
+                var data = {
+                    domainId: S.domain.details.domainId,
+                    selector: rule_selector.value,
+                    protect: rule_type.checked == true
+                };
+                S.ajax.post('CollectorDomains/AddAnalyzerRule', data, (response) => {
+                    S.popup.back();
+                    $('.popup.show .content-rules').html(response);
+                });
+            }
+        },
+
+        remove: function (ruleId) {
+            if (!confirm('Do you really want to remove this analyzer rule? This cannot be undone!')) { return;}
+            S.ajax.post('CollectorDomains/RemoveAnalyzerRule', { ruleId: ruleId }, () => {
+                $('.popup.show .rule-' + ruleId).remove();
+            });
         }
     }
 };

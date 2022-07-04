@@ -1,8 +1,9 @@
-﻿<div class="row hover rule">
-    <div class="col">{{info}}</div>
-    <div class="col right hover-only icon small close-btn">
+﻿<div class="row hover rule rule-{{ruleid}} {{rule}}">
+    <div class="col text">{{info}}</div>
+    <div class="col right hover-only icon small close-btn" onclick="S.domain.rules.remove({{ruleid}})">
         <svg viewBox="0 0 32 32">
             <use xlink:href="#icon-close" x="0" y="0" width="32" height="32"></use>
         </svg>
     </div>
+    <div class="col text right rule-type">{{rule}}</div>
 </div>

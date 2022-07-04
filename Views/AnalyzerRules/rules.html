@@ -1,8 +1,27 @@
 ﻿<div class="row">
     <div class="col right">
-        <button class="new-rule">New Rule</button>
+        <button class="new-rule" onclick="S.domain.rules.add.show()">New Rule</button>
     </div>
 </div>
-<div class="row pad-top">
+<div class="row analyzer-rules pad-top">
     {{rules}}
 </div>
+
+<script type="text/html" id="temp_new_rule">
+    <form onsubmit="S.domain.rules.add.submit(); return false">
+        <div class="messages"></div>
+        <div class="row hover">
+            <div class="col field long">CSS Selector</div>
+            <div class="col input"><input id="rule_selector" /></div>
+        </div>
+        <div class="row hover input">
+            <input type="checkbox" id="rule_type" />
+            <label for="rule_type">Show HTML Elements that match selector</label>
+        </div>
+        <div class="row buttons pad-top">
+            <div class="col right">
+                <button type="submit" class="apply">Create Analyzer Rule</button>
+            </div>
+        </div>
+    </form>
+</script>

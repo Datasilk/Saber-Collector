@@ -73,8 +73,11 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js", "collector_analyzer_js");
 
-                        if((args.ContainsKey("article-only") && args["article-only"] == "1") ||
-                            (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "1"))
+                        if(!(request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0") &&
+                        (
+                            (args.ContainsKey("article-only") && args["article-only"] == "1") ||
+                            (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "1")
+                        ))
                         {
                             //show article only (no console, no accordions, no buttons)
                             viewComponent.Show("article-only");
@@ -82,12 +85,16 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                             viewComponent["analyzer-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=0";
                             request.AddScriptBlock("var articleOnly = true;");
                         } 
-                        else if(!request.Parameters.ContainsKey("article-only") || (request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0"))
+                        else
                         {
                             //show analyzer
                             viewComponent["articleonly-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=1";
                             viewComponent.Show("view-articleonly");
                         }
+
+                        viewComponent["domainid"] = article.domainId.ToString();
+                        viewComponent["domain"] = article.domain;
+                        viewComponent["url"] = article.url;
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;

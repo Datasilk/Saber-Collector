@@ -10,6 +10,26 @@
 
 
 <defs>
+<g id="iconArrow_0_Layer1_0_FILL">
+<path stroke="none" d="
+M 62.55 27.95
+Q 61.1 26.5 59.1 26.5
+L 17.55 26.5 35.95 9.5 29.4 2.4 1.9 27.8
+Q 1.35 28.25 1 28.95
+L 0.8 29.3
+Q 0.65 29.6 0.55 29.95
+L 0.55 30.05 0.45 30.85
+Q 0.35 31.35 0.45 31.95 0.5 32.85 1 33.65 1.4 34.175 1.8 34.7
+L 29.25 62.55 36.1 55.8 16.75 36.15 59.1 36.15
+Q 61.1 36.15 62.55 34.75 63.95 33.3 63.95 31.3 63.95 29.35 62.55 27.95 Z"/>
+</g>
+
+<g id="iconArrow_0_Layer0_0_FILL">
+<path fill-opacity="0" stroke="none" d="
+M 64 0
+L 0 0 0 64 64 64 64 0 Z"/>
+</g>
+
 <g id="iconCheck_Fill">
 <path stroke="none" d="
 M 64 6
@@ -385,7 +405,19 @@ M 35.5 51.05
 Q 37.45 51.05 39.45 51 40.05 51 40.05 51.5 40 53.5 40.85 55.25 39.6 55.75 38.65 56.6 36.1 59 32.75 60.4 29.2 58.65 25.4 57.2 24.85 57 24.8 56.55 24.471875 53.8779296875 27.55 52.2
 L 35.5 51.05 Z"/>
 </g>
-</defs><symbol id="icon-check" viewBox="0 0 64 64">
+</defs><symbol id="icon-back" viewBox="0 0 64 64">
+
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#iconArrow_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#iconArrow_0_Layer0_0_FILL"/>
+</g>
+</g>
+</symbol><symbol id="icon-check" viewBox="0 0 64 64">
 
 
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">

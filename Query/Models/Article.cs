@@ -8,6 +8,7 @@ namespace Query.Models
         public int? feedId { get; set; }
         public short? subjects { get; set; }
         public int? subjectId { get; set; }
+        public int domainId { get; set; }
         public short? score { get; set; }
         public short? images { get; set; }
         public double? filesize { get; set; }
