@@ -220,6 +220,151 @@ namespace Saber.Vendors.Collector
             }
             return htms;
         }
+
+        /// <summary>
+        /// Use a CSS selector to find HTML elements within the DOM
+        /// </summary>
+        /// <param name="selector">CSS selector</param>
+        /// <param name="elems">A list of DOM elements to search through</param>
+        /// <returns></returns>
+        public static List<DomElement> FindElements(string selector, List<DomElement> elems)
+        {
+            var parts = selector.Split(' ', 2);
+
+            //find all element indexes for each part of the selector ////////////////////////
+            var newElems = elems;
+            var part = parts[0];
+
+            //find colon
+            var colon = part.IndexOf(':');
+            var afterColon = "";
+            if(colon > -1)
+            {
+                var parts2 = part.Split(':');
+                part = parts2[0];
+                afterColon = parts2[1];
+            }
+            //find attributes
+            var attrIndex = part.IndexOf('[');
+            var attrs = new List<string>();
+            while (attrIndex > -1)
+            {
+                var parts2 = part.Split('[');
+                var bracket = parts2[1].IndexOf("]");
+                if(bracket > 0)
+                {
+                    var attr = parts2[1].Substring(0, bracket);
+                    attrs.Add(attr);
+                    part = part.Replace(attr, "");
+                }
+                else
+                {
+                    part = parts2[0];
+                }
+                attrIndex = part.IndexOf('[');
+            }
+
+            //find element identifiers (classes, ids, tagnames)
+            var partIds = new List<string>();
+            var startIndex = 0;
+            while(startIndex >= 0)
+            {
+                var nextIndex = part.IndexOf('.', startIndex + 1);
+                if(nextIndex == -1)
+                {
+                    nextIndex = part.IndexOf("#", startIndex + 1);
+                }
+                if(nextIndex == -1)
+                {
+                    partIds.Add(part.Substring(startIndex));
+                }
+                else
+                {
+                    partIds.Add(part.Substring(startIndex, nextIndex - startIndex));
+                }
+                startIndex = nextIndex;
+            }
+            //.class1.class2 .class3
+            for (var x = 0; x < partIds.Count; x++)
+            {
+                var partId = partIds[x];
+
+                //narrow list by all part ids
+                if (partId[0] == '.')
+                {
+                    //class name
+                    var name = partId.Substring(1);
+                    newElems = newElems.Where(a => a.className != null && a.className.Contains(name)).ToList();
+
+                }
+                else if (partId[0] == '#')
+                {
+                    //id attribute
+                    var id = partId.Substring(1);
+                    newElems = newElems.Where(a => a.attribute.ContainsKey("id") && a.attribute["id"] == id).ToList();
+                }
+                else
+                {
+                    //tag name
+                    //id attribute
+                    var tag = partId;
+                    newElems = newElems.Where(a => a.tagName == tag).ToList();
+                }
+            }
+
+            //narrow results by attributes
+
+            //narrow results by keyword after colon
+
+            if(parts.Count() > 1)
+            {
+                var nextpart = parts[1].Split(' ')[0];
+                var children = new List<DomElement>();
+                if(nextpart == ">")
+                {
+                    foreach(var elem in newElems)
+                    {
+                        TraverseElements(elem, children, 1);
+                    }
+                    parts[1] = parts[1].Substring(2);
+                }
+                if (nextpart == "+")
+                {
+                    foreach (var elem in newElems)
+                    {
+                        var el = elem.NextSibling;
+                        if(el != null) { children.Add(el); }
+                    }
+                    parts[1] = parts[1].Substring(2);
+                }
+                else
+                {
+                    foreach (var elem in newElems)
+                    {
+                        TraverseElements(elem, children);
+                    }
+                }
+                newElems = FindElements(parts[1], children);
+            }
+            return newElems;
+        }
+
+
+        public static int TraverseElements(DomElement root, List<DomElement> children, int limitDepth = -1)
+        {
+            var childNodes = root.Children();
+            var maxDepth = 1;
+            for (var x = 0; x < childNodes.Count; x++)
+            {
+                children.Add(childNodes[x]);
+                if (limitDepth != 0)
+                {
+                    var depth = TraverseElements(childNodes[x], children, limitDepth -= 1);
+                    if (depth > maxDepth) { maxDepth = depth; }
+                }
+            }
+            return maxDepth;
+        }
         #endregion
 
         #region "Step #2: Get Article Info"
@@ -634,22 +779,29 @@ namespace Saber.Vendors.Collector
                 parentId = indexes[x].index;
                 isFound = false;
                 isEnd = false;
-                for (var y = parentId + 1; y < article.elements.Count; y++)
+                if(indexes[x].index == 49 || indexes[x].index == 164 || indexes[x].index == 180 || indexes[x].index == 302)
+                {
+
+                }
+                for (var y = parentId; y < article.elements.Count; y++)
                 {
                     elem = article.elements[y];
 
-                    if (elem.hierarchyIndexes.Contains(parentId))
+                    if (elem.hierarchyIndexes.Contains(parentId) || elem.index == parentId)
                     {
                         //check if index was already handled
                         if (checkedIndexes.Contains(elem.index)) { continue; }
                         checkedIndexes.Add(elem.index);
 
                         //check for bad indexes
-                        if (indexes.Where(a => (a.isBad == true || a.isContaminated == true) && 
-                            (a.index == elem.index || elem.hierarchyIndexes.Contains(a.index))
+                        if (!indexes.Any(a => 
+                                (a.index == elem.index || elem.hierarchyIndexes.Contains(a.index))
+                                && a.flags.Contains(ElementFlags.ProtectedAnalyzerRule)
+                            ) &&
+                                indexes.Where(a => (a.isBad == true || a.isContaminated == true) && 
+                                (a.index == elem.index || elem.hierarchyIndexes.Contains(a.index))
                             ).Count() > 0 
                         ) { break; }
-
 
                         //determine which elements to include in the results
                         if (elem.tagName == "#text")
@@ -677,7 +829,6 @@ namespace Saber.Vendors.Collector
                     {
                         //no longer part of parent id
                         isFound = true;
-                        break;
                     }
                     if (isFound == true || isEnd == true) { break; }
                 }
@@ -924,7 +1075,7 @@ namespace Saber.Vendors.Collector
                     switch (img.extension)
                     {
                         case "jpg": case "jpeg": case "png": case "gif": case "tiff":
-                        case "webp": case "bpg": case "flif": 
+                        case "webp": case "bpg": case "flif": case "svg":
                             //only add supported image types
                             article.images.Add(img);
                             break;

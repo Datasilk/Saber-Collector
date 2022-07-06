@@ -205,7 +205,9 @@ namespace Saber.Vendors.Collector.Models.Article
         IsArticleTitle = 9,
         IsArticleAuthor = 10,
         IsArticleDatePublished = 11,
-        BadHeaderMenu = 12
+        BadHeaderMenu = 12,
+        ExcludedAnalyzerRule = 13,
+        ProtectedAnalyzerRule = 14
     }
 
     public enum ElementFlagCounters

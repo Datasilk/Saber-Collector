@@ -46,7 +46,7 @@
                 var data = {
                     domainId: S.domain.details.domainId,
                     selector: rule_selector.value,
-                    protect: rule_type.checked == true
+                    protect: rule_type.value == '1'
                 };
                 S.ajax.post('CollectorDomains/AddAnalyzerRule', data, (response) => {
                     S.popup.back();

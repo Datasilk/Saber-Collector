@@ -63,6 +63,8 @@ namespace Saber.Vendors.Collector
         {
             var article = Create(url);
             article.articleId = Query.Articles.Add(article);
+            var info = Query.Articles.GetById(article.articleId);
+            article.domainId = info.domainId;
             return article;
         }
         #endregion
@@ -251,7 +253,9 @@ namespace Saber.Vendors.Collector
                         (index.Counter(ElementFlagCounters.badKeywords) > 0 ? ", bad keywords:" + index.Counter(ElementFlagCounters.badKeywords) : "") +
                         (index.HasFlag(ElementFlags.MenuItem) ? ", menu item" : "") +
                         (index.HasFlag(ElementFlags.BadHeaderMenu) ? ", bad header menu" : "") +
-                        (index.Counter(ElementFlagCounters.badLegalWords) > 0 ? ", legal words:" + index.Counter(ElementFlagCounters.badLegalWords) : "");
+                        (index.Counter(ElementFlagCounters.badLegalWords) > 0 ? ", legal words:" + index.Counter(ElementFlagCounters.badLegalWords) : "") +
+                        (index.HasFlag(ElementFlags.ProtectedAnalyzerRule) ? ", protected analyzer rule" : "") +
+                        (index.HasFlag(ElementFlags.ExcludedAnalyzerRule) ? ", excluded analyzer rule" : "");
                     if (index.isContaminated)
                     {
                         line.Append(
@@ -265,6 +269,15 @@ namespace Saber.Vendors.Collector
                     {
                         line.Append(
                         "<div class=\"element bad" +
+                        "\" title=\"[" + el.index + "]" +
+                        info +
+                        "\"" +
+                        ">");
+                    }
+                    else if (index.flags.Contains(ElementFlags.ProtectedAnalyzerRule))
+                    {
+                        line.Append(
+                        "<div class=\"element protected" +
                         "\" title=\"[" + el.index + "]" +
                         info +
                         "\"" +

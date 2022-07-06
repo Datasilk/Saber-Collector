@@ -14,9 +14,14 @@
             <div class="col field long">CSS Selector</div>
             <div class="col input"><input id="rule_selector" /></div>
         </div>
-        <div class="row hover input">
-            <input type="checkbox" id="rule_type" />
-            <label for="rule_type">Show HTML Elements that match selector</label>
+        <div class="row hover">
+            <div class="col field long">Rule</div>
+            <div class="col input">
+                <select id="rule_type">
+                    <option value="0">Hide matching HTML elements</option>
+                    <option value="1">Show matching HTML elements</option>
+                </select>
+            </div>
         </div>
         <div class="row buttons pad-top">
             <div class="col right">

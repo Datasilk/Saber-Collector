@@ -141,15 +141,82 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("update", 1, "Parsed DOM tree (" + article.elements.Count + " elements)");
                     await Clients.Caller.SendAsync("update", 1, "Analyzing DOM...");
                 }
-                
+
+                //find elements to protect/exclude based on domain-level analyzer rules
+                var rules = Query.Domains.AnalyzerRules.GetList(articleInfo.domainId);
+                var protectedIndexes = new List<int>();
+                var excludedIndexes = new List<int>();
+
+                foreach (var rule in rules)
+                {
+                    if(rule.rule == false)
+                    {
+                        //remove elements from article
+                        var elems = Html.FindElements(rule.selector, article.elements);
+                        foreach(var elem in elems)
+                        {
+                            excludedIndexes.Add(elem.index);
+                        }
+                    }
+                    else
+                    {
+                        //protect elements in article
+                        var elems = Html.FindElements(rule.selector, article.elements);
+                        foreach (var elem in elems)
+                        {
+                            protectedIndexes.Add(elem.index);
+                        }
+                    }
+                }
+
+                //get article elements
                 var elements = new List<AnalyzedElement>();
                 Html.GetBestElementIndexes(article, elements);
+
+                //mark best elements as protected or bad based on analyzer rules
+                foreach(var elem in elements)
+                {
+                    if (excludedIndexes.Contains(elem.index))
+                    {
+                        elem.isBad = true;
+                        elem.flags.Add(ElementFlags.ExcludedAnalyzerRule);
+                    }
+                    else if (protectedIndexes.Contains(elem.index))
+                    {
+                        elem.isBad = false;
+                        elem.isContaminated = false;
+                        elem.flags.Clear();
+                        elem.flags.Add(ElementFlags.ProtectedAnalyzerRule);
+                        elem.badClasses = 0;
+                        elem.badClassNames.Clear();
+                        elem.counters.Clear();
+                    }
+                }
+
+                //add any missing elements that are protected
+                foreach(var index in protectedIndexes.Where(a => !elements.Any(b => b.index == a)))
+                {
+                    elements.Add(new AnalyzedElement()
+                    {
+                        index = index,
+                        Element = article.elements.Where(a => a.index == index).FirstOrDefault(),
+                        flags = new List<ElementFlags>()
+                        {
+                            ElementFlags.ProtectedAnalyzerRule
+                        }
+                    });
+                }
+
+                //make sure elements are in the correct order
+                elements = elements.OrderBy(a => a.index).ToList();
+
+                //finally, get article text & images based on best DOM element indexes
                 Html.GetArticleElements(article, elements);
                 if (!published)
                 {
                     await Clients.Caller.SendAsync("update", 1, "Collected article contents from DOM");
                 }
-                    
+
                 //send accordion with raw HTML to client
                 var rawhtml = Article.RenderRawHTML(article, elements);
                 var html = Components.Accordion.Render("Raw HTML", "raw-html", "<div class=\"empty-top\"></div><div class=\"empty-bottom\"></div>", false);
