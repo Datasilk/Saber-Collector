@@ -221,6 +221,8 @@ namespace Saber.Vendors.Collector
             return htms;
         }
 
+        private static Char[] attrKeywords = new Char[] { '=', '*', '~', '^', '$' };
+
         /// <summary>
         /// Use a CSS selector to find HTML elements within the DOM
         /// </summary>
@@ -229,20 +231,45 @@ namespace Saber.Vendors.Collector
         /// <returns></returns>
         public static List<DomElement> FindElements(string selector, List<DomElement> elems)
         {
-            var parts = selector.Split(' ', 2);
+
+            var attrFlag = false;
+            var part = "";
+            var part2 = "";
+            for(var x = 0; x < selector.Length; x++)
+            {
+                if(attrFlag == true) {
+                    if (selector[x] == ']')
+                    {
+                        attrFlag = false;
+                    }
+                    continue;  
+                }
+                if(selector[x] == '[')
+                {
+                    attrFlag = true;
+                }
+                else if(selector[x] == ' ')
+                {
+                    part = selector.Substring(0, x);
+                    part2 = selector.Substring(x + 1);
+                }
+            }
+            if(part == "") 
+            { 
+                part = selector; 
+            }
 
             //find all element indexes for each part of the selector ////////////////////////
             var newElems = elems;
-            var part = parts[0];
 
             //find colon
             var colon = part.IndexOf(':');
             var afterColon = "";
             if(colon > -1)
             {
-                var parts2 = part.Split(':');
-                part = parts2[0];
-                afterColon = parts2[1];
+                var parts = part.Split(':');
+                part = parts[0];
+                afterColon = parts[1];
             }
             //find attributes
             var attrIndex = part.IndexOf('[');
@@ -265,60 +292,115 @@ namespace Saber.Vendors.Collector
             }
 
             //find element identifiers (classes, ids, tagnames)
-            var partIds = new List<string>();
-            var startIndex = 0;
-            while(startIndex >= 0)
+            if(part != "")
             {
-                var nextIndex = part.IndexOf('.', startIndex + 1);
-                if(nextIndex == -1)
+                var partIds = new List<string>();
+                var startIndex = 0;
+                while (startIndex >= 0)
                 {
-                    nextIndex = part.IndexOf("#", startIndex + 1);
+                    var nextIndex = part.IndexOf('.', startIndex + 1);
+                    if (nextIndex == -1)
+                    {
+                        nextIndex = part.IndexOf("#", startIndex + 1);
+                    }
+                    if (nextIndex == -1)
+                    {
+                        partIds.Add(part.Substring(startIndex));
+                    }
+                    else
+                    {
+                        partIds.Add(part.Substring(startIndex, nextIndex - startIndex));
+                    }
+                    startIndex = nextIndex;
                 }
-                if(nextIndex == -1)
-                {
-                    partIds.Add(part.Substring(startIndex));
-                }
-                else
-                {
-                    partIds.Add(part.Substring(startIndex, nextIndex - startIndex));
-                }
-                startIndex = nextIndex;
-            }
-            //.class1.class2 .class3
-            for (var x = 0; x < partIds.Count; x++)
-            {
-                var partId = partIds[x];
 
-                //narrow list by all part ids
-                if (partId[0] == '.')
+                for (var x = 0; x < partIds.Count; x++)
                 {
-                    //class name
-                    var name = partId.Substring(1);
-                    newElems = newElems.Where(a => a.className != null && a.className.Contains(name)).ToList();
+                    var partId = partIds[x];
 
-                }
-                else if (partId[0] == '#')
-                {
-                    //id attribute
-                    var id = partId.Substring(1);
-                    newElems = newElems.Where(a => a.attribute.ContainsKey("id") && a.attribute["id"] == id).ToList();
-                }
-                else
-                {
-                    //tag name
-                    //id attribute
-                    var tag = partId;
-                    newElems = newElems.Where(a => a.tagName == tag).ToList();
+                    //narrow list by all part ids
+                    if (partId[0] == '.')
+                    {
+                        //class name
+                        var name = partId.Substring(1);
+                        newElems = newElems.Where(a => a.className != null && a.className.Contains(name)).ToList();
+
+                    }
+                    else if (partId[0] == '#')
+                    {
+                        //id attribute
+                        var id = partId.Substring(1);
+                        newElems = newElems.Where(a => a.attribute.ContainsKey("id") && a.attribute["id"] == id).ToList();
+                    }
+                    else
+                    {
+                        //tag name
+                        //id attribute
+                        var tag = partId;
+                        newElems = newElems.Where(a => a.tagName == tag).ToList();
+                    }
                 }
             }
 
             //narrow results by attributes
+            foreach(var attr in attrs)
+            {
+                var attrName = "";
+                var attrKey = "";
+                var attrValue = "";
+                for (var x = 0; x < attr.Length; x++)
+                {
+                    if (attrKeywords.Any(a => a == attr[x]))
+                    {
+                        attrName = attr.Substring(0, x).Trim();
+                        attrKey = attr.Substring(x, 1);
+                        if (attr.Substring(x + 1, 1) == "=")
+                        {
+                            attrKey = attr.Substring(x, 2);
+                            attrValue = attr.Substring(x + 2).Trim();
+                        }
+                        break;
+                    }
+                }
+                if(attrName == "") { attrName = attr; };
+
+                if (attrName != "" && attrValue != "")
+                {
+                    attrValue = attrValue.Replace("\"", "");
+
+                    //narrow list based on attribute
+                    if (attrName == "#text")
+                    {
+                        newElems = newElems.Where(a => {
+                            if (a != null && a.text != null && a.text.Length > 0)
+                            {
+                                switch (attrKey)
+                                {
+                                    case "=":
+                                        return a.text == attrValue;
+                                    case "^=":
+                                        return a.text.IndexOf(attrValue) == 0;
+                                    case "$=":
+                                        return a.text.IndexOf(attrValue) == a.text.Length - attrValue.Length - 1;
+                                    case "*=":
+                                        return a.text.IndexOf(attrValue) >= 0;
+                                }
+                            }
+                            return false;
+                        }).ToList();
+                    }
+                }else if(attrName != "")
+                {
+                    //see if attribute exists
+                    newElems = newElems.Where(a => a.attribute != null && a.attribute.ContainsKey(attrName)).ToList();
+                }
+            }
 
             //narrow results by keyword after colon
 
-            if(parts.Count() > 1)
+            if(part2 != "")
             {
-                var nextpart = parts[1].Split(' ')[0];
+                var nextpart = part2.Split(' ')[0];
                 var children = new List<DomElement>();
                 if(nextpart == ">")
                 {
@@ -326,7 +408,7 @@ namespace Saber.Vendors.Collector
                     {
                         TraverseElements(elem, children, 1);
                     }
-                    parts[1] = parts[1].Substring(2);
+                    part2 = part2.Substring(2);
                 }
                 if (nextpart == "+")
                 {
@@ -335,7 +417,7 @@ namespace Saber.Vendors.Collector
                         var el = elem.NextSibling;
                         if(el != null) { children.Add(el); }
                     }
-                    parts[1] = parts[1].Substring(2);
+                    part2 = part2.Substring(2);
                 }
                 else
                 {
@@ -344,7 +426,7 @@ namespace Saber.Vendors.Collector
                         TraverseElements(elem, children);
                     }
                 }
-                newElems = FindElements(parts[1], children);
+                newElems = FindElements(part2, children);
             }
             return newElems;
         }
