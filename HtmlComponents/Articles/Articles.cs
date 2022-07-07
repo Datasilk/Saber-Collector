@@ -28,8 +28,9 @@ namespace Saber.Vendors.Collector.HtmlComponents.Articles
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/Articles/htmlcomponent.html");
                         var viewArticle = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
                         var html = new StringBuilder();
+                        var domainId = request.Parameters.ContainsKey("domainId") ? int.Parse(request.Parameters["domainId"]) : 0;
 
-                        viewComponent["content"] = Components.Accordion.Render("Articles", "", Collector.Articles.RenderList(orderBy: Query.Articles.SortBy.BestScore));
+                        viewComponent["content"] = Components.Accordion.Render("Articles", "", Collector.Articles.RenderList(domainId: domainId ,orderBy: Query.Articles.SortBy.BestScore));
 
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/Articles/articles.css", "collector_articles_css");

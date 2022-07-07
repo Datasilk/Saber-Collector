@@ -28,6 +28,7 @@ namespace Saber.Vendors.Collector.Services
             return JsonResponse(new { title, domainId = info.domainId, popup = view.Render() });
         }
 
+        #region "Analyzer Rules"
         public string RenderAnalyzerRulesList(int domainId)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
@@ -64,5 +65,59 @@ namespace Saber.Vendors.Collector.Services
             Query.Domains.AnalyzerRules.Remove(ruleId);
             return Success();
         }
+        #endregion
+
+        #region "Download Rules"
+
+
+        public string RenderDownloadRulesList(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/DownloadRules/rules.html");
+            var item = new View("/Vendors/Collector/Views/DownloadRules/list-item.html");
+            var rules = Query.Domains.DownloadRules.GetList(domainId);
+            var html = new StringBuilder();
+            foreach (var rule in rules)
+            {
+                item.Clear();
+                item["ruleid"] = rule.ruleId.ToString();
+                var info = new StringBuilder();
+                if(rule.url != "") 
+                {
+                    info.Append("URL: " + rule.url);
+                }
+                if (rule.title != "")
+                {
+                    info.Append("Title: " + rule.title);
+                }
+                if (rule.summary != "")
+                {
+                    info.Append("Summary: " + rule.summary);
+                }
+                item["info"] = string.Join(", ", info);
+                html.Append(item.Render());
+            }
+            view["rules"] = html.ToString();
+            return view.Render();
+        }
+
+        public string AddDownloadRule(int domainId, string url, string title, string summary)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (url == "" && title == "" && summary == "")
+            {
+                return Error("You must provide at least one regular expression (URL, title, or summary)");
+            }
+            Query.Domains.DownloadRules.Add(domainId, url, title, summary);
+            return RenderDownloadRulesList(domainId);
+        }
+
+        public string RemoveDownloadRule(int ruleId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.DownloadRules.Remove(ruleId);
+            return Success();
+        }
+        #endregion
     }
 }

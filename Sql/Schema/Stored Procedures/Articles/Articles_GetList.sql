@@ -5,6 +5,7 @@ CREATE PROCEDURE [dbo].[Articles_GetList]
 	@subjectIds nvarchar(MAX) = '',
 	@search nvarchar(MAX) = '',
 	@feedId int = 0,
+	@domainId int = 0,
 	@score int = -9999,
 	@isActive int = 2,
 	@isDeleted bit = 0,
@@ -61,6 +62,10 @@ AS
 		AND (
 			(@feedId > 0 AND a.feedId = @feedId)
 			OR @feedId = 0
+		)
+		AND (
+			(@domainId > 0 AND a.domainId = @domainId)
+			OR @domainId = 0
 		)
 		AND a.active = CASE WHEN @isActive = 2 THEN a.active ELSE @isActive END
 		AND a.deleted = @isDeleted

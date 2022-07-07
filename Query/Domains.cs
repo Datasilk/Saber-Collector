@@ -32,5 +32,22 @@ namespace Query
                 Sql.ExecuteNonQuery("Domain_AnalyzerRule_Remove", new { ruleId });
             }
         }
+
+        public static class DownloadRules
+        {
+            public static int Add(int domainId, string url, string title, string summary)
+            {
+                return Sql.ExecuteScalar<int>("Domain_DownloadRule_Add", new { domainId, url, title, summary });
+            }
+
+            public static List<Models.DownloadRule> GetList(int domainId)
+            {
+                return Sql.Populate<Models.DownloadRule>("Domain_DownloadRules_GetList", new { domainId });
+            }
+            public static void Remove(int ruleId)
+            {
+                Sql.ExecuteNonQuery("Domain_DownloadRule_Remove", new { ruleId });
+            }
+        }
     }
 }

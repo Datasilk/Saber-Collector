@@ -511,6 +511,7 @@ namespace Saber.Vendors.Collector
             {
                 article.summary = description.attribute["content"];
             }
+            article.summary = article.summary.Replace("&mdash;", " ").Replace("&mdash", " ");
         }
         #endregion
 

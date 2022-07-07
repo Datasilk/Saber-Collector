@@ -73,9 +73,11 @@
         },
 
         getResults: function (start, length) {
+            const params = new URLSearchParams(location.search);
             var data = {
                 subjectId: S.articles.search.selectedSubjectId,
                 feedId: feedId.value,
+                domainId: parseInt(params.get("domainId") || '0'),
                 sort: sort.value,
                 score: parseInt(score.value),
                 search: search.value,

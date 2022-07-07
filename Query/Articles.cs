@@ -67,7 +67,7 @@ namespace Query
             return Sql.ExecuteScalar<int>("Article_Exists", new { url }) > 0;
         }
 
-        public static List<Models.ArticleDetails> GetList(int[] subjectId, int feedId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.BestScore, int start = 1, int length = 50, bool bugsOnly = false)
+        public static List<Models.ArticleDetails> GetList(int[] subjectId, int feedId = 0, int domainId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, SortBy orderBy = SortBy.BestScore, int start = 1, int length = 50, bool bugsOnly = false)
         {
             return Sql.Populate<Models.ArticleDetails>(
                 "Articles_GetList",
@@ -75,6 +75,7 @@ namespace Query
                 {
                     subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
                     feedId,
+                    domainId,
                     score,
                     search,
                     isActive = (int)isActive,

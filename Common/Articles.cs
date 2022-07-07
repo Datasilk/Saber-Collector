@@ -8,7 +8,7 @@ namespace Saber.Vendors.Collector
 {
     public static class Articles
     {
-        public static string RenderList(int subjectId = 0, int feedId = 0, int start = 1, int length = 50, int score = 0, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.BestScore)
+        public static string RenderList(int subjectId = 0, int feedId = 0, int domainId = 0, int start = 1, int length = 50, int score = 0, string search = "", Query.Articles.IsActive isActive = Query.Articles.IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, Query.Articles.SortBy orderBy = Query.Articles.SortBy.BestScore)
         {
             List<Query.Models.ArticleDetails> articles;
             var subjectIds = new List<int>();
@@ -16,7 +16,7 @@ namespace Saber.Vendors.Collector
             {
                 subjectIds.Add(subjectId);
             }
-            articles = Query.Articles.GetList(subjectIds.ToArray(), feedId, score, search, Query.Articles.IsActive.Both, false, minImages, dateStart, dateEnd, orderBy, start, length);
+            articles = Query.Articles.GetList(subjectIds.ToArray(), feedId, domainId, score, search, Query.Articles.IsActive.Both, false, minImages, dateStart, dateEnd, orderBy, start, length);
 
             var item = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
             var html = new StringBuilder();
