@@ -93,6 +93,10 @@ namespace Saber.Vendors.Collector
                         item["years"] = article.years.Replace(",", ", ");
                     }
 
+                    //show domain
+                    item.Show("show-domain");
+                    item["domain"] = article.domain;
+
                     html.Append(item.Render());
                 }
             }

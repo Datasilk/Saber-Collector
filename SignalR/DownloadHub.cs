@@ -22,7 +22,24 @@ namespace Saber.Vendors.Collector.Hubs
             if(queue != null)
             {
                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
+
+                //first check download rules for queue
+                var downloadOnly = false;
+                foreach(var rule in queue.downloadRules)
+                {
+                    if(rule.rule == false && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
+                    {
+                        await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
+                        await Clients.Caller.SendAsync("checked");
+                        return;
+                    }else if(rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
+                    {
+                        downloadOnly = true;
+                    }
+                }
+
                 AnalyzedArticle article = new AnalyzedArticle();
+
                 await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
 
                 //download content //////////////////////////////////////////////////////
@@ -58,6 +75,15 @@ namespace Saber.Vendors.Collector.Hubs
                     //merge analyzed article into Query Article
                     var articleInfo = Article.Merge(Article.Create(queue.url), article);
 
+                    //check all download rules against article info
+                    foreach (var rule in queue.downloadRules)
+                    {
+                        if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                        {
+                            downloadOnly = true;
+                        }
+                    }
+
                     //get article score
                     Article.DetermineScore(article, articleInfo);
 
@@ -66,19 +92,22 @@ namespace Saber.Vendors.Collector.Hubs
                             "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
                         "</span>");
                     
-                    //save article to database
-                    Article.Add(articleInfo);
-
-                    //save downloaded results to disk
-                    var relpath = Article.ContentPath(queue.url);
-                    var filepath = App.MapPath(relpath);
-                    var filename = articleInfo.articleId + ".html";
-                    if (!Directory.Exists(filepath))
+                    if(downloadOnly == false)
                     {
-                        //create folder for content
-                        Directory.CreateDirectory(filepath);
+                        //save article to database
+                        Article.Add(articleInfo);
+
+                        //save downloaded results to disk
+                        var relpath = Article.ContentPath(queue.url);
+                        var filepath = App.MapPath(relpath);
+                        var filename = articleInfo.articleId + ".html";
+                        if (!Directory.Exists(filepath))
+                        {
+                            //create folder for content
+                            Directory.CreateDirectory(filepath);
+                        }
+                        File.WriteAllText(filepath + filename, result);
                     }
-                    File.WriteAllText(filepath + filename, result);
 
                     //display article
                     await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
@@ -109,14 +138,24 @@ namespace Saber.Vendors.Collector.Hubs
                         urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
                     }
 
+                    //get all download rules for all domains found on the page
+                    var downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
+
                     //add all found links to the download queue
                     foreach (var domain in urls.Keys)
                     {
                         try
                         {
+                            var rules = downloadRules.Where(b => b.domain == domain);
                             if (CheckToStopQueue(id, Clients.Caller)) { return; }
                             if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-                            var count = Query.Downloads.AddQueueItems(urls[domain].Select(a => a.Key + a.Value).ToArray(), domain, queue.feedId);
+
+                            //filter URLs that pass the download rules
+                            var urlsChecked = urls[domain].Select(a => a.Key + a.Value)
+                                .Where(a => rules.Any(b => b.rule == false && Domains.CheckDownloadRule(b.url, "", "", a, "", ""))).ToArray();
+
+                            //add filtered URLs to download queue
+                            var count = Query.Downloads.AddQueueItems(urlsChecked, domain, queue.feedId);
                             if (count > 0)
                             {
                                 addedLinks += count;

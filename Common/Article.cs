@@ -82,6 +82,8 @@ namespace Saber.Vendors.Collector
             article.url = articleInfo.url;
             article.id = articleInfo.articleId;
             article.domain = Web.GetDomainName(articleInfo.url);
+
+            //get article info
             Html.GetArticleInfoFromDOM(article);
 
             //get article contents

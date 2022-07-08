@@ -95,20 +95,21 @@ namespace Saber.Vendors.Collector.Services
                     info.Append("Summary: " + rule.summary);
                 }
                 item["info"] = string.Join(", ", info);
+                item["rule"] = rule.rule == true ? "Get links only" : "Do not download";
                 html.Append(item.Render());
             }
             view["rules"] = html.ToString();
             return view.Render();
         }
 
-        public string AddDownloadRule(int domainId, string url, string title, string summary)
+        public string AddDownloadRule(int domainId, bool rule, string url, string title, string summary)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             if (url == "" && title == "" && summary == "")
             {
                 return Error("You must provide at least one regular expression (URL, title, or summary)");
             }
-            Query.Domains.DownloadRules.Add(domainId, url, title, summary);
+            Query.Domains.DownloadRules.Add(domainId, rule, url, title, summary);
             return RenderDownloadRulesList(domainId);
         }
 
@@ -117,6 +118,27 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             Query.Domains.DownloadRules.Remove(ruleId);
             return Success();
+        }
+
+        public string RenderCleanupDownloads(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/DownloadRules/cleanup.html");
+            var viewArticle = new View("/Vendors/Collector/Views/DownloadRules/cleanup-article.html");
+            var info = Query.Domains.GetById(domainId);
+            var clean = Query.Domains.GetDownloadsToClean(domainId);
+            view["domain"] = info.domain;
+            view["total-articles"] = clean.totalArticles.ToString();
+            view["total-downloads"] = clean.totalDownloads.ToString();
+            var html = new StringBuilder();
+            foreach(var article in clean.articles)
+            {
+                viewArticle.Clear();
+                viewArticle["title"] = article.title;
+                html.Append(viewArticle.Render());
+            }
+            view["articles"] = html.ToString();
+            return view.Render();
         }
         #endregion
     }

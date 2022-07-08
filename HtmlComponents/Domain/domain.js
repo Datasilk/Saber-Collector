@@ -83,6 +83,7 @@
             submit: function () {
                 var data = {
                     domainId: S.domain.details.domainId,
+                    rule: download_rule.value == '1',
                     url: download_url.value,
                     title: download_title.value,
                     summary: download_summary.value,
@@ -99,6 +100,17 @@
             S.ajax.post('CollectorDomains/RemoveDownloadRule', { ruleId: ruleId }, () => {
                 $('.popup.show .content-download .rule-' + ruleId).remove();
             });
+        },
+
+        cleanup: {
+            show: function () {
+                S.ajax.post('CollectorDomains/RenderCleanupDownloads', { domainId: S.domain.details.domainId }, (response) => {
+                    S.popup.show("Clean Up Downloads", response, {
+                        width: 450,
+                        backButton: true
+                    });
+                });
+            },
         }
     }
 };

@@ -2,6 +2,9 @@
     <div class="col right">
         <button class="new-rule" onclick="S.domain.download.add.show()">New Rule</button>
     </div>
+    <div class="col right pad-right">
+        <button class="clean-up special" onclick="S.domain.download.cleanup.show()">Clean Up</button>
+    </div>
     <div class="col text"><h5>Download Rules</h5></div>
 </div>
 <div class="row download-rules pad-top">
@@ -13,10 +16,9 @@
         <div class="messages"></div>
         <div class="row pad-height note">
             <p>
-                Use regular expressions to match on the web page URL, title, or summary 
-                when downloading web pages via the Download section. All matches will
-                be used to determine if a web page should NOT be kept as an article and
-                instead used only to collect URL links from instead.
+                All matches will be used to determine if a web page 
+                should NOT be kept as an article and instead used to 
+                collect URL links from.
             </p>
         </div>
         <div class="row hover">
@@ -30,6 +32,15 @@
         <div class="row hover">
             <div class="col field long">Summary Match</div>
             <div class="col input"><input id="download_summary" /></div>
+        </div>
+        <div class="row hover">
+            <div class="col field long">Rule</div>
+            <div class="col input">
+                <select id="download_rule">
+                    <option value="0">Do not download</option>
+                    <option value="1">Collect links only</option>
+                </select>
+            </div>
         </div>
         <div class="row buttons pad-top">
             <div class="col right">

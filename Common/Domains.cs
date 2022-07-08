@@ -59,5 +59,20 @@ namespace Saber.Vendors.Collector
             }
             return html.ToString();
         }
+
+        public static bool CheckDownloadRule(string urlMatch, string titleMatch, string summaryMatch, string url, string title, string summary)
+        {
+            urlMatch = urlMatch.ToLower();
+            titleMatch = titleMatch.ToLower();
+            summaryMatch = summaryMatch.ToLower();
+            url = url.ToLower();
+            title = title.ToLower();
+            summary = summary.ToLower();
+            if (url.IndexOf(urlMatch) > -1 || title.IndexOf(titleMatch) > -1 || summary.IndexOf(summaryMatch) > -1)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

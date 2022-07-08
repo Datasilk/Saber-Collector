@@ -22,9 +22,13 @@ AS
 		UPDATE Domains SET lastchecked = GETUTCDATE()
 		WHERE domainId = @domainId
 
+		-- get next download in the queue
 		SELECT q.*, d.domain 
 		FROM DownloadQueue q 
 		JOIN Domains d ON d.domainId = q.domainId
 		WHERE qid=@qid
+
+		-- get list of download rules for domain that queue item belongs to
+		SELECT * FROM DownloadRules WHERE domainId = (SELECT domainId FROM DownloadQueue q WHERE qid=@qid)
 	END
 	

@@ -31,8 +31,16 @@ namespace Query
 
         public static Models.DownloadQueue CheckQueue(int feedId = 0, int domaindelay = 60)
         {
-            var list = Sql.Populate<Models.DownloadQueue>("DownloadQueue_Check", new { domaindelay, feedId });
-            return list.FirstOrDefault();
+            using(var conn = new Connection("DownloadQueue_Check", new { domaindelay, feedId }))
+            {
+                var results = conn.PopulateMultiple();
+                var queue = results.Read<Models.DownloadQueue>().FirstOrDefault();
+                if(queue != null)
+                {
+                    queue.downloadRules = results.Read<Models.DownloadRule>().ToList();
+                }
+                return queue;
+            }
         }
 
         public static int Count()

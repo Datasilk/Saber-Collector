@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Query.Models
 {
@@ -11,5 +12,6 @@ namespace Query.Models
         public string url { get; set; }
         public string domain { get; set; }
         public DateTime datecreated { get; set; }
+        public List<DownloadRule> downloadRules { get; set; }
     }
 }
