@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using Saber.Core.Extensions.Strings;
 
 namespace Saber.Vendors.Collector
@@ -62,17 +63,47 @@ namespace Saber.Vendors.Collector
 
         public static bool CheckDownloadRule(string urlMatch, string titleMatch, string summaryMatch, string url, string title, string summary)
         {
-            urlMatch = urlMatch.ToLower();
-            titleMatch = titleMatch.ToLower();
-            summaryMatch = summaryMatch.ToLower();
-            url = url.ToLower();
-            title = title.ToLower();
-            summary = summary.ToLower();
-            if (url.IndexOf(urlMatch) > -1 || title.IndexOf(titleMatch) > -1 || summary.IndexOf(summaryMatch) > -1)
+            if (urlMatch != "" && url != "")
+            {
+                urlMatch = urlMatch.ToLower();
+                url = url.ToLower();
+            }
+            if(titleMatch != "" && title != "")
+            {
+                titleMatch = titleMatch.ToLower();
+                title = title.ToLower();
+            }
+            if(summaryMatch != "" && summary != "")
+            {
+                summaryMatch = summaryMatch.ToLower();
+                summary = summary.ToLower();
+            }
+            if ((urlMatch != "" && url != "" && url.IndexOf(urlMatch) > -1) || 
+                (titleMatch != "" && title != "" && title.IndexOf(titleMatch) > -1) || 
+                (summaryMatch != "" && summary != "" && summary.IndexOf(summaryMatch) > -1))
             {
                 return true;
             }
             return false;
+        }
+
+        public static void CleanupDownloads(int domainId)
+        {
+            var clean = Query.Domains.GetDownloadsToClean(domainId);
+            foreach(var article in clean.articles)
+            {
+                var domain = article.url.GetDomainName();
+                var filename = "\\Content\\Collector\\articles\\" + domain.Substring(0, 2) + "\\" + domain + "\\" + article.articleId + ".html";
+                if (File.Exists(App.MapPath(filename)))
+                {
+                    try
+                    {
+                        File.Delete(App.MapPath(filename));
+                    }
+                    catch (Exception) { }
+                }
+            }
+            Query.Domains.CLeanDownloads(domainId);
         }
     }
 }

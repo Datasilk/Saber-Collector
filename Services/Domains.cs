@@ -126,19 +126,30 @@ namespace Saber.Vendors.Collector.Services
             var view = new View("/Vendors/Collector/Views/DownloadRules/cleanup.html");
             var viewArticle = new View("/Vendors/Collector/Views/DownloadRules/cleanup-article.html");
             var info = Query.Domains.GetById(domainId);
-            var clean = Query.Domains.GetDownloadsToClean(domainId);
+            var clean = Query.Domains.GetDownloadsToClean(domainId, true);
             view["domain"] = info.domain;
             view["total-articles"] = clean.totalArticles.ToString();
             view["total-downloads"] = clean.totalDownloads.ToString();
-            var html = new StringBuilder();
-            foreach(var article in clean.articles)
+            if(clean.totalArticles > 0)
             {
-                viewArticle.Clear();
-                viewArticle["title"] = article.title;
-                html.Append(viewArticle.Render());
+                var html = new StringBuilder();
+                foreach (var article in clean.articles)
+                {
+                    viewArticle.Clear();
+                    viewArticle["title"] = article.title;
+                    html.Append(viewArticle.Render());
+                }
+                view["articles"] = html.ToString();
+                view.Show("has-articles");
             }
-            view["articles"] = html.ToString();
             return view.Render();
+        }
+
+        public string CleanupDownloads(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Domains.CleanupDownloads(domainId);
+            return Success();
         }
         #endregion
     }

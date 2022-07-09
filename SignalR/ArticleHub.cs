@@ -318,7 +318,8 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     //display list of words found
                     var allwords = Html.GetWordsOnly(article);
-                    var uniqueWords = allwords.Where(a => a.Length > 1 && !Rules.commonWords.Contains(a.ToLower())).ToList();
+                    var uniqueWords = allwords.Where(a => a.Length > 1 && a.Substring(0, 1).IsNumeric() == false && 
+                        !Rules.commonWords.Contains(a.ToLower())).Select(a => a.ToLower()).Distinct().OrderBy(a => a).ToList();
                     var subjectWords = Query.Words.GetList(uniqueWords.ToArray());
                     html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article, uniqueWords, subjectWords), false);
                     await Clients.Caller.SendAsync("words", html);

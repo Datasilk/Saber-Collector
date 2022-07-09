@@ -8,5 +8,6 @@ namespace Query.Models
         public int totalArticles { get; set; }
         public int totalDownloads { get; set; }
         public List<Article> articles { get; set; }
+        public List<DownloadQueue> downloads { get; set; }
     }
 }

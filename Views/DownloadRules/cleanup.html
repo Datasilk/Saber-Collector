@@ -1,12 +1,24 @@
 ﻿<h5>for the domain "{{domain}}"</h5>
 
-<div class="row pad-top-lg">
-    <b>{{total-articles}}</b> Articles will be removed from the database
-</div>
-<div class="pad-top">
-    {{articles}}
+<div class="row hover cursor">
+    <div class="col text">
+        <b>{{total-articles}}</b> Articles will be removed from disk (*.json) and the database
+    </div>
 </div>
 
+<div class="row hover cursor">
+    <div class="col text">
+        <b>{{total-downloads}}</b> Downloads will be deleted from the database
+    </div>
+</div>
+{{has-articles}}
 <div class="row pad-top-lg">
-    <b>{{total-downloads}}</b> Downloads will be deleted from disk (*.json) and database
+    <h5>Preview of articles that will be deleted</h5>
+</div>
+<div class="cursor">
+    {{articles}}
+</div>
+{{/has-articles}}
+<div class="row buttons pad-top">
+    <button id="do_cleanup">Run Clean Up</button>
 </div>

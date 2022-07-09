@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Query
 {
@@ -29,17 +30,24 @@ namespace Query
             return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls = string.Join(",", urls), domain, feedId });
         }
 
-        public static Models.DownloadQueue CheckQueue(int feedId = 0, int domaindelay = 60)
+        public static Models.DownloadQueue CheckQueue(int feedId = 0, string domain = "", int domaindelay = 60)
         {
-            using(var conn = new Connection("DownloadQueue_Check", new { domaindelay, feedId }))
+            using(var conn = new Connection("DownloadQueue_Check", new { domaindelay, domain, feedId }))
             {
-                var results = conn.PopulateMultiple();
-                var queue = results.Read<Models.DownloadQueue>().FirstOrDefault();
-                if(queue != null)
+                try
                 {
-                    queue.downloadRules = results.Read<Models.DownloadRule>().ToList();
+                    var results = conn.PopulateMultiple();
+                    var queue = results.Read<Models.DownloadQueue>().FirstOrDefault();
+                    if (queue != null)
+                    {
+                        queue.downloadRules = results.Read<Models.DownloadRule>().ToList();
+                    }
+                    return queue;
                 }
-                return queue;
+                catch (Exception ex) 
+                { 
+                }
+                return null;
             }
         }
 

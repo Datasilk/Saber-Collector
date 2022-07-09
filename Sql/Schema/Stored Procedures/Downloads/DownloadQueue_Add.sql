@@ -31,7 +31,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 		IF NOT EXISTS(SELECT * FROM Articles WHERE url=@url) BEGIN
 			SET @qid = NEXT VALUE FOR SequenceDownloadQueue
 			INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
-			VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETDATE())
+			VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETUTCDATE())
 			SET @count += 1
 		END
 	END

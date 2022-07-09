@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Net;
@@ -16,183 +15,215 @@ namespace Saber.Vendors.Collector.Hubs
     {
         private List<string> StopQueues = new List<string>();
 
-        public async Task CheckQueue(string id, int feedId, bool console)
+        public async Task CheckQueue(string id, int feedId, string domainName, bool console)
         {
-            var queue = Query.Downloads.CheckQueue(feedId, 10); // 10 second delay for each download on a single domain
-            if(queue != null)
+            try
             {
-                if (CheckToStopQueue(id, Clients.Caller)) { return; }
 
-                //first check download rules for queue
-                var downloadOnly = false;
-                foreach(var rule in queue.downloadRules)
+                var queue = Query.Downloads.CheckQueue(feedId, domainName, domainName != "" ? 5 : 10); // 10 second delay for each download on a single domain
+                if (queue != null)
                 {
-                    if(rule.rule == false && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
-                    {
-                        await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
-                        await Clients.Caller.SendAsync("checked");
-                        return;
-                    }else if(rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
-                    {
-                        downloadOnly = true;
-                    }
-                }
+                    if (CheckToStopQueue(id, Clients.Caller)) { return; }
 
-                AnalyzedArticle article = new AnalyzedArticle();
-
-                await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
-
-                //download content //////////////////////////////////////////////////////
-                var result = Article.Download(queue.url);
-                if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                if (result == "")
-                {
-                    await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
-                    await Clients.Caller.SendAsync("checked");
-                    return;
-                }else if(result.Substring(0, 5) == "file:")
-                {
-                    await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
-                    await Clients.Caller.SendAsync("checked");
-                    return;
-                }
-                try
-                {
-                    article = Html.DeserializeArticle(result);
-                    article.feedId = queue.feedId;
-                }
-                catch (Exception)
-                {
-                    await Clients.Caller.SendAsync("update", "Error parsing DOM!");
-                    await Clients.Caller.SendAsync("checked");
-                    return;
-                }
-                
-                //process article /////////////////////////////////////////////////////
-                if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                try
-                {
-                    //merge analyzed article into Query Article
-                    var articleInfo = Article.Merge(Article.Create(queue.url), article);
-
-                    //check all download rules against article info
+                    //first check download rules for queue
+                    var downloadOnly = false;
                     foreach (var rule in queue.downloadRules)
                     {
-                        if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                        if (rule.rule == false && rule.url != "" && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
+                        {
+                            await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
+                            await Clients.Caller.SendAsync("checked", 1);
+                            return;
+                        }
+                        else if (rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
                         {
                             downloadOnly = true;
                         }
                     }
 
-                    //get article score
-                    Article.DetermineScore(article, articleInfo);
+                    AnalyzedArticle article = new AnalyzedArticle();
 
-                    await Clients.Caller.SendAsync("update", "<span>" +
-                            "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
-                            "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
-                        "</span>");
-                    
-                    if(downloadOnly == false)
+                    await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
+
+                    //download content //////////////////////////////////////////////////////
+                    var result = Article.Download(queue.url);
+                    if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                    if (result == "")
                     {
-                        //save article to database
-                        Article.Add(articleInfo);
-
-                        //save downloaded results to disk
-                        var relpath = Article.ContentPath(queue.url);
-                        var filepath = App.MapPath(relpath);
-                        var filename = articleInfo.articleId + ".html";
-                        if (!Directory.Exists(filepath))
-                        {
-                            //create folder for content
-                            Directory.CreateDirectory(filepath);
-                        }
-                        File.WriteAllText(filepath + filename, result);
+                        await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
+                        await Clients.Caller.SendAsync("checked", 1);
+                        return;
+                    }
+                    else if (result.Substring(0, 5) == "file:")
+                    {
+                        await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
+                        await Clients.Caller.SendAsync("checked", 1);
+                        return;
+                    }
+                    try
+                    {
+                        article = Html.DeserializeArticle(result);
+                        article.feedId = queue.feedId;
+                    }
+                    catch (Exception)
+                    {
+                        await Clients.Caller.SendAsync("update", "Error parsing DOM!");
+                        await Clients.Caller.SendAsync("checked", 1);
+                        return;
                     }
 
-                    //display article
-                    await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
-
-                    //get URLs from all anchor links on page //////////////////////////////////
-                    var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
-                    var links = Article.GetLinks(article);
-                    var addedLinks = 0;
-
-                    foreach (var link in links)
+                    //process article /////////////////////////////////////////////////////
+                    if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                    try
                     {
-                        var url = link.attribute["href"];
-                        if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                        //merge analyzed article into Query Article
+                        var articleInfo = Article.Merge(Article.Create(queue.url), article);
 
-                        //validate link url
-                        if (string.IsNullOrEmpty(url)) { continue; }
-                        var uri = Web.CleanUrl(url, false);
-                        if (!ValidateURL(uri)) { continue; }
-                        var domain = uri.GetDomainName();
-                        if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-                        //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-
-                        if (!urls.ContainsKey(domain))
+                        //check all download rules against article info
+                        foreach (var rule in queue.downloadRules)
                         {
-                            urls.Add(domain, new List<KeyValuePair<string, string>>());
-                        }
-                        var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item" }).Replace(uri, "");
-                        urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
-                    }
-
-                    //get all download rules for all domains found on the page
-                    var downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
-
-                    //add all found links to the download queue
-                    foreach (var domain in urls.Keys)
-                    {
-                        try
-                        {
-                            var rules = downloadRules.Where(b => b.domain == domain);
-                            if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                            if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-
-                            //filter URLs that pass the download rules
-                            var urlsChecked = urls[domain].Select(a => a.Key + a.Value)
-                                .Where(a => rules.Any(b => b.rule == false && Domains.CheckDownloadRule(b.url, "", "", a, "", ""))).ToArray();
-
-                            //add filtered URLs to download queue
-                            var count = Query.Downloads.AddQueueItems(urlsChecked, domain, queue.feedId);
-                            if (count > 0)
+                            if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
                             {
-                                addedLinks += count;
-                                await Clients.Caller.SendAsync("update",
-                                    "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
-                                    "<div class=\"col right\">" +
-                                    (
-                                        !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ?
-                                        "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
-                                    ) +
-                                    "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                    "</div>");
+                                downloadOnly = true;
+                                break;
                             }
                         }
-                        catch (Exception ex)
+
+                        //get article score
+                        Article.DetermineScore(article, articleInfo);
+
+                        await Clients.Caller.SendAsync("update", "<span>" +
+                                "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
+                                "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
+                            "</span>");
+
+                        if (downloadOnly == false)
                         {
-                            await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
-                                domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
+                            //save article to database
+                            Article.Add(articleInfo);
+
+                            //save downloaded results to disk
+                            var relpath = Article.ContentPath(queue.url);
+                            var filepath = App.MapPath(relpath);
+                            var filename = articleInfo.articleId + ".html";
+                            if (!Directory.Exists(filepath))
+                            {
+                                //create folder for content
+                                Directory.CreateDirectory(filepath);
+                            }
+                            File.WriteAllText(filepath + filename, result);
                         }
 
-                    }
+                        //display article
+                        await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
 
-                    //finished processing download
-                    await Clients.Caller.SendAsync("checked", 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
-                    return;
+                        //get URLs from all anchor links on page //////////////////////////////////
+                        var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
+                        var links = Article.GetLinks(article);
+                        var addedLinks = 0;
+
+                        foreach (var link in links)
+                        {
+                            var url = link.attribute.ContainsKey("href") ? link.attribute["href"] : "";
+                            if (CheckToStopQueue(id, Clients.Caller)) { return; }
+
+                            //validate link url
+                            if (string.IsNullOrEmpty(url)) { continue; }
+                            var uri = Web.CleanUrl(url, false);
+                            if (!ValidateURL(uri)) { continue; }
+                            var domain = uri.GetDomainName();
+                            if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+                            //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+
+                            if (!urls.ContainsKey(domain))
+                            {
+                                urls.Add(domain, new List<KeyValuePair<string, string>>());
+                            }
+                            var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item" }).Replace(uri, "");
+                            urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
+                        }
+
+                        //get all download rules for all domains found on the page
+                        var downloadRules = new List<Query.Models.DownloadRule>();
+                        if (urls.Keys.Count > 0)
+                        {
+                            downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
+                        }
+
+                        //add all found links to the download queue
+                        foreach (var domain in urls.Keys)
+                        {
+                            try
+                            {
+                                var rules = downloadRules.Where(b => b.domain == domain);
+                                if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                                if (urls[domain] == null || urls[domain].Count == 0) { continue; }
+
+                                //filter URLs that pass the download rules
+                                var urlsChecked = urls[domain].Select(a => a.Key + a.Value)
+                                    .Where(a =>
+                                    {
+                                        var domainIndex = a.IndexOf(domain);
+                                        if(domainIndex != -1 && domainIndex + domain.Length + 1 <= a.Length)
+                                        {
+                                            var path = a.Substring(domainIndex + domain.Length + 1);
+                                            if (path == "")
+                                            {
+                                                return true;
+                                            }
+                                            return !rules.Any(b => b.rule == false &&
+                                            Domains.CheckDownloadRule(b.url, "", "", path, "", ""));
+                                        }
+                                        return false;
+                                    }
+                                ).ToArray();
+
+                                //add filtered URLs to download queue
+                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked, domain, queue.feedId) : 0;
+                                if (count > 0)
+                                {
+                                    addedLinks += count;
+                                    await Clients.Caller.SendAsync("update",
+                                        "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
+                                        "<div class=\"col right\">" +
+                                        (
+                                            !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ?
+                                            "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
+                                        ) +
+                                        "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
+                                        "</div>");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
+                                    domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
+                            }
+
+                        }
+
+                        //finished processing download
+                        await Clients.Caller.SendAsync("checked", 0, 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace);
+                        await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0, 0);
+                        return;
+                    }
                 }
-                catch(Exception ex)
+                else
                 {
-                    await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace);
-                    await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0);
-                    return;
+                    await Clients.Caller.SendAsync("update", "No downloads queued at the moment...");
+                    await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0, 0);
                 }
             }
-            else
+            catch(Exception ex)
             {
-                await Clients.Caller.SendAsync("update", "No downloads queued at the moment...");
-                await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0);
+                await Clients.Caller.SendAsync("update", "An error occurred while checking the download queue");
+                await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0, 0);
+                Query.Logs.LogError(0, "", "DownloadHub", ex.Message, ex.StackTrace);
             }
         }
 

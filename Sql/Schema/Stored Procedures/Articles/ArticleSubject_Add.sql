@@ -9,5 +9,5 @@ CREATE PROCEDURE [dbo].[ArticleSubject_Add]
 AS
 	IF (SELECT COUNT(*) FROM ArticleSubjects WHERE articleId=@articleId AND subjectId=@subjectId) = 0 BEGIN
 		INSERT INTO ArticleSubjects (articleId, subjectId, datecreated, datepublished, score) 
-		VALUES (@articleId, @subjectId, GETDATE(), @datepublished, @score)
+		VALUES (@articleId, @subjectId, GETUTCDATE(), @datepublished, @score)
 	END

@@ -768,7 +768,7 @@ CREATE PROCEDURE [dbo].[ArticleBug_Add]
 AS
 	DECLARE @bugId int = NEXT VALUE FOR SequenceArticleBugs
 	INSERT INTO ArticleBugs (bugId, articleId, title, [description], datecreated, [status])
-	VALUES (@bugId, @articleId, @title, @description, GETDATE(), @status)
+	VALUES (@bugId, @articleId, @title, @description, GETUTCDATE(), @status)
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
@@ -890,7 +890,7 @@ CREATE PROCEDURE [dbo].[ArticleSubject_Add]
 AS
 	IF (SELECT COUNT(*) FROM ArticleSubjects WHERE articleId=@articleId AND subjectId=@subjectId) = 0 BEGIN
 		INSERT INTO ArticleSubjects (articleId, subjectId, datecreated, datepublished, score) 
-		VALUES (@articleId, @subjectId, GETDATE(), @datepublished, @score)
+		VALUES (@articleId, @subjectId, GETUTCDATE(), @datepublished, @score)
 	END
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */
@@ -916,8 +916,8 @@ CREATE PROCEDURE [dbo].[Articles_GetList]
 	@bugsonly bit = 0
 AS
 	/* set default dates */
-	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETDATE()) END
-	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETDATE()) END
+	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETUTCDATE()) END
+	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETUTCDATE()) END
 
 	/* get subjects from array */
 	SELECT * INTO #subjects FROM dbo.SplitArray(@subjectIds, ',')
@@ -1069,8 +1069,8 @@ AS
     @bugsresolved SMALLINT
 
 	/* set default dates */
-	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETDATE()) END
-	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETDATE()) END
+	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETUTCDATE()) END
+	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETUTCDATE()) END
 
 	/* get subjects from array */
 	SELECT * INTO #subjects FROM dbo.SplitArray(@subjectIds, ',')
@@ -1284,8 +1284,8 @@ AS
     @bugsresolved SMALLINT
 
 	/* set default dates */
-	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETDATE()) END
-	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETDATE()) END
+	IF (@dateStart IS NULL OR @dateStart = '') BEGIN SET @dateStart = DATEADD(YEAR, -100, GETUTCDATE()) END
+	IF (@dateEnd IS NULL OR @dateEnd = '') BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETUTCDATE()) END
 
 	/* get subjects from array */
 
@@ -1477,7 +1477,7 @@ GO
 		yearstart, yearend, years, images, datecreated, datepublished, relavance, importance, fiction, analyzed, active)
 		VALUES 
 		(@articleId, @feedId, @subjects, @subjectId, @score, @domain, @url, @title, @summary, @filesize, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
-		@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
+		@yearstart, @yearend, @years, @images, GETUTCDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
 
 		SELECT @articleId
 
@@ -1615,7 +1615,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 		IF (SELECT COUNT(*) FROM Articles WHERE url=@url) = 0 BEGIN
 			SET @qid = NEXT VALUE FOR SequenceDownloadQueue
 			INSERT INTO DownloadQueue (qid, url, feedId, domainId, [status], datecreated) 
-			VALUES (@qid, @url, @feedId, @domainId, 0, GETDATE())
+			VALUES (@qid, @url, @feedId, @domainId, 0, GETUTCDATE())
 			SET @count += 1
 		END
 	END
@@ -1858,8 +1858,8 @@ CREATE PROCEDURE [dbo].[FeedCheckedLog_Add]
 	@links int = 0
 AS
 	INSERT INTO FeedsCheckedLog (feedId, links, datechecked)
-	VALUES (@feedId, @links, GETDATE())
-	UPDATE Feeds SET lastChecked = GETDATE()
+	VALUES (@feedId, @links, GETUTCDATE())
+	UPDATE Feeds SET lastChecked = GETUTCDATE()
 /* ////////////////////////////////////////////////////////////////////////////////////// */
 
 GO
@@ -1872,7 +1872,7 @@ GO
 CREATE PROCEDURE [dbo].[Feed_Checked]
 	@feedId int = 0
 AS
-	UPDATE Feeds SET lastChecked=GETDATE() WHERE feedId=@feedId
+	UPDATE Feeds SET lastChecked=GETUTCDATE() WHERE feedId=@feedId
 RETURN 0
 
 /* ////////////////////////////////////////////////////////////////////////////////////// */

@@ -9,13 +9,15 @@ namespace Query
 
         public enum SortBy
         {
-            Ascending = 0,
-            Descending = 1,
-            BestScore = 2,
-            WorstScore = 3,
-            Newest = 4,
-            Oldest = 5,
-            Popular = 6
+            TitleAscending = 0,
+            TitleDescending = 1,
+            UrlAscending = 2,
+            UrlDescending = 3,
+            BestScore = 4,
+            WorstScore = 5,
+            Newest = 6,
+            Oldest = 7,
+            Popular = 8
         }
 
         public enum IsActive

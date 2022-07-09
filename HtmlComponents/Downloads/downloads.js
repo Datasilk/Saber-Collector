@@ -66,13 +66,20 @@
         }, 10);
     },
 
+    checkFeeds: function () {
+        var feedId = feedid ? parseInt(feedid.value) : 0;
+        S.downloads.hub.invoke('CheckFeeds', feedId);
+        setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
+    },
+
     check: function () {
         if (S.downloads.running === false) { return; }
         var id = S.math.rnd.guid(6);
         var feedId = feedid ? parseInt(feedid.value) : 0;
+        var domain = download_domain ? download_domain.value : '';
         S.downloads.id = id;
         setTimeout(() => {
-            S.downloads.hub.invoke('CheckQueue', id, feedId, S.downloads.console.visible);
+            S.downloads.hub.invoke('CheckQueue', id, feedId, domain, S.downloads.console.visible);
         });
     },
 
@@ -125,7 +132,7 @@
         }
     },
 
-    checked: function (downloaded, article, links, words, important) {
+    checked: function (skipped, downloaded, article, links, words, important) {
         //update stats
         S.downloads.updateStat('downloads', downloaded || 0);
         S.downloads.updateStat('articles', article || 0);
@@ -135,7 +142,7 @@
 
         //check for new downloads
         if (S.downloads.running == true) {
-            if (downloaded == 0) {
+            if (downloaded == 0 && skipped != 1) {
                 S.downloads.update('check for new downloads in 10 seconds...');
                 setTimeout(S.downloads.check, 10 * 1000); //wait 10 seconds
             } else {
@@ -164,12 +171,6 @@
         var elem = $('.accordion .stats .stat-' + stat + ' .number');
         var val = parseInt(elem.html()) + increment;
         elem.html(val);
-    },
-
-    checkFeeds: function () {
-        var feedId = feedid ? parseInt(feedid.value) : 0;
-        S.downloads.hub.invoke('CheckFeeds', feedId);
-        setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
     },
 
     error: function (err) {

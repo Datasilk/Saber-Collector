@@ -2,3 +2,7 @@
 	CREATE INDEX [IndexArticleUrl]
 		ON [dbo].Articles (url ASC)
 END TRY BEGIN CATCH END CATCH
+BEGIN TRY
+	CREATE INDEX [IndexArticleUrlDesc]
+		ON [dbo].Articles (url DESC)
+END TRY BEGIN CATCH END CATCH

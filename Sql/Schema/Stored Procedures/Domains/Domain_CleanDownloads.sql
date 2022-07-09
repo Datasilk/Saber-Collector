@@ -32,7 +32,7 @@ AS
 		JOIN DownloadRules r ON r.domainId = dq.domainId
 		WHERE dq.domainId=@domainId 
 		AND (
-			(LEN(r.[url]) > 0 AND dq.[url] LIKE '%' + r.[url] + '%')
+			(LEN(r.[url]) > 0 AND r.[rule]=0 AND dq.[url] LIKE '%' + r.[url] + '%')
 		)
 	)
 	
@@ -42,7 +42,7 @@ AS
 		JOIN DownloadRules r ON r.domainId = d.domainId
 		WHERE d.domainId=@domainId 
 		AND (
-			(LEN(r.[url]) > 0 AND d.[url] LIKE '%' + r.[url] + '%')
+			(LEN(r.[url]) > 0 AND r.[rule]=0 AND d.[url] LIKE '%' + r.[url] + '%')
 		)
 	)
 	

@@ -109,8 +109,17 @@
                         width: 450,
                         backButton: true
                     });
+                    $('#do_cleanup').on('click', S.domain.download.cleanup.submit);
                 });
             },
+
+            submit: function () {
+                if (!confirm('Do you really want to run this cleanup? This will permanently delete all affected articles, downloads, and associated files on disk.')) { return; }
+                S.ajax.post('CollectorDomains/CleanupDownloads', { domainId: S.domain.details.domainId }, () => {
+                    S.popup.back();
+
+                });
+            }
         }
     }
 };

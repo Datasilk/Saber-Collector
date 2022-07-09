@@ -37,7 +37,7 @@ AS
 	yearstart, yearend, years, images, datecreated, datepublished, relavance, importance, fiction, analyzed, active)
 	VALUES 
 	(@articleId, @feedId, @subjects, @subjectId, @domainId, @score, @domain, @url, @title, @summary, @filesize, @linkcount, @linkwordcount, @wordcount, @sentencecount, @paragraphcount, @importantcount, 1,
-	@yearstart, @yearend, @years, @images, GETDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
+	@yearstart, @yearend, @years, @images, GETUTCDATE(), @datepublished, @relavance, @importance, @fiction, @analyzed, @active)
 
 	--move related Download Queue record into Downloads table
 	INSERT INTO Downloads ([id], [feedId], [domainId], [status], [tries], [url], [path], [datecreated]) 

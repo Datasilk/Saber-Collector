@@ -30,7 +30,7 @@
             "/ads/", "/ad/", "/advert/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:",
             "login", "/submit", "/job", "advertis", "/privacy/", "privacy-policy", "privacypolicy",
             "/signup", "/signin", "/sign-up", "/sign-in", "/career", "/donate", "/newsletter", "/legal",
-            "doubleclick", "/subscribe", "/cookies/"
+            "doubleclick", "/subscribe", "/cookies/", ".ashx"
         };
 
         //used to identify page titles that disqualifies the page as an article

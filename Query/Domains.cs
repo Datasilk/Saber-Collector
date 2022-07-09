@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Query
@@ -71,6 +72,11 @@ namespace Query
                 clean.totalDownloads = results.Read<int>().FirstOrDefault();
                 return clean;
             }
+        }
+
+        public static void CLeanDownloads(int domainId)
+        {
+            Sql.ExecuteNonQuery("Domain_CleanDownloads", new { domainId});
         }
     }
 }

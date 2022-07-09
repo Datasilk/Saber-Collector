@@ -12,14 +12,14 @@ CREATE PROCEDURE [dbo].[Articles_GetList]
 	@minImages int = 0,
 	@dateStart datetime2(7) = NULL,
 	@dateEnd datetime2(7) = NULL,
-	@orderby int = 4,
+	@orderby int = 5,
 	@start int = 1,
 	@length int = 50,
 	@bugsonly bit = 0
 AS
 	/* set default dates */
-	IF (@dateStart IS NULL) BEGIN SET @dateStart = DATEADD(YEAR, -100, GETDATE()) END
-	IF (@dateEnd IS NULL) BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETDATE()) END
+	IF (@dateStart IS NULL) BEGIN SET @dateStart = DATEADD(YEAR, -100, GETUTCDATE()) END
+	IF (@dateEnd IS NULL) BEGIN SET @dateEnd = DATEADD(YEAR, 100, GETUTCDATE()) END
 	PRINT FORMAT(@dateStart, 'yyyy-MM-dd HH:mm:ss.fff')
 	PRINT FORMAT(@dateEnd, 'yyyy-MM-dd HH:mm:ss.fff')
 	/* get subjects from array */
@@ -39,11 +39,13 @@ AS
 		SELECT ROW_NUMBER() OVER(ORDER BY 
 			CASE WHEN @orderby = 0 THEN a.title END ASC,
 			CASE WHEN @orderby = 1 THEN a.title END DESC,
-			CASE WHEN @orderby = 2 THEN a.score END ASC,
-			CASE WHEN @orderby = 3 THEN a.score END DESC,
-			CASE WHEN @orderby = 4 THEN a.datecreated END DESC,
-			CASE WHEN @orderby = 5 THEN a.datecreated END,
-			CASE WHEN @orderby = 6 THEN a.visited END DESC
+			CASE WHEN @orderby = 2 THEN a.[url] END ASC,
+			CASE WHEN @orderby = 3 THEN a.[url] END DESC,
+			CASE WHEN @orderby = 4 THEN a.score END ASC,
+			CASE WHEN @orderby = 5 THEN a.score END DESC,
+			CASE WHEN @orderby = 6 THEN a.datecreated END DESC,
+			CASE WHEN @orderby = 7 THEN a.datecreated END,
+			CASE WHEN @orderby = 8 THEN a.visited END DESC
 		) AS rownum, a.*,
 		s.breadcrumb, s.hierarchy, s.title AS subjectTitle
 		FROM Articles a 
