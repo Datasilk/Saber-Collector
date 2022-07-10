@@ -92,6 +92,26 @@ namespace Query
                 });
         }
 
+        public static int GetCount(int[] subjectId, int feedId = 0, int domainId = 0, int score = 0, string search = "", IsActive isActive = IsActive.Both, bool isDeleted = false, int minImages = 0, DateTime? dateStart = null, DateTime? dateEnd = null, bool bugsOnly = false)
+        {
+            return Sql.ExecuteScalar<int>(
+                "Articles_GetCount",
+                new
+                {
+                    subjectIds = subjectId.Length == 0 ? "" : string.Join(",", subjectId),
+                    feedId,
+                    domainId,
+                    score,
+                    search,
+                    isActive = (int)isActive,
+                    isDeleted,
+                    minImages,
+                    dateStart = dateStart,
+                    dateEnd = dateEnd,
+                    bugsOnly
+                });
+        }
+
         public static Models.Article GetByUrl(string url)
         {
             return Sql.Populate<Models.Article>("Article_GetByUrl", new { url }).FirstOrDefault();

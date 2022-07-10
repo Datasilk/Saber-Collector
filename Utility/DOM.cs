@@ -162,6 +162,29 @@ namespace Utility.DOM
             }
             return tags;
         }
+
+        public List<DomElement> AllChildren(int limitDepth = -1)
+        {
+            var children = new List<DomElement>();
+            TraverseElements(this, children, limitDepth);
+            return children;
+        }
+
+        private int TraverseElements(DomElement root, List<DomElement> children, int limitDepth = -1)
+        {
+            var childNodes = root.Children();
+            var maxDepth = 1;
+            for (var x = 0; x < childNodes.Count; x++)
+            {
+                children.Add(childNodes[x]);
+                if (limitDepth != 0)
+                {
+                    var depth = TraverseElements(childNodes[x], children, limitDepth -= 1);
+                    if (depth > maxDepth) { maxDepth = depth; }
+                }
+            }
+            return maxDepth;
+        }
     }
 
     public class Parser

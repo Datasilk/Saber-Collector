@@ -497,7 +497,7 @@ namespace Saber.Vendors.Collector
                 path = path.Substring(path.IndexOf(article.domain) + article.domain.Length);
                 if(path.Substring(0, 1) == "/") { path = path.Substring(1); }
                 var ext = path.GetFileExtension();
-                if(ext != "")
+                if(ext != "" && path.Length > 0)
                 {
                     path = path.Replace(path.GetFilename(), "");
                 }

@@ -46,6 +46,7 @@ namespace Saber.Vendors.Collector
                     item["title"] = domain.title != "" ? domain.title : domain.domain.GetDomainName();
                     item["url"] = "https://" + domain.domain;
                     item["domain"] = domain.domain;
+                    item["domainid"] = domain.domainId.ToString();
                     if(domain.articles > 0)
                     {
                         item["total-articles"] = domain.articles.ToString();

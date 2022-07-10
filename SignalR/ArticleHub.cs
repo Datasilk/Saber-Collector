@@ -180,6 +180,19 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         elem.isBad = true;
                         elem.flags.Add(ElementFlags.ExcludedAnalyzerRule);
+                        //reset all child elements
+                        foreach (var elem2 in elements)
+                        {
+                            if (elem2.Element.hierarchyIndexes.Contains(elem.index))
+                            {
+                                elem2.flags = new List<ElementFlags>();
+                                elem2.isBad = true;
+                                elem2.badClasses = 0;
+                                elem2.badClassNames = new List<string>();
+                                elem2.isContaminated = true;
+                                elem2.wordsInHierarchy = 0;
+                            }
+                        }
                     }
                     else if (protectedIndexes.Contains(elem.index))
                     {

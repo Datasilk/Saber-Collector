@@ -26,7 +26,7 @@ namespace Saber.Vendors.Collector
                 {
                     //populate view with article info
                     item.Clear();
-                    item["title"] = article.title;
+                    item["title"] = article.title != "" ? article.title : "[No Article Title]";
                     item["encoded-url"] = WebUtility.UrlEncode(article.url);
                     item["url"] = article.url;
 

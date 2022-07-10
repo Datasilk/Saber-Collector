@@ -1,4 +1,15 @@
-﻿<div class="articles">{{content}}</div>
+﻿<div class="articles">
+    <div class="row pad-bottom">
+        {{domain-results}}
+        <div class="col">
+            <h5>Results for domain <a href="https://{{domain}}" target="_blank">{{domain}}</a></h5>
+        </div>
+        {{/domain-results}}
+        <div class="col right">Total results: {{total}}</div>
+    </div>
+
+    {{content}}
+</div>
 
 <script type="text/html" id="template_addarticle">
     <form>
