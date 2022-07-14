@@ -77,9 +77,10 @@
         var id = S.math.rnd.guid(6);
         var feedId = feedid ? parseInt(feedid.value) : 0;
         var domain = download_domain ? download_domain.value : '';
+        var sort = download_sort ? parseInt(download_sort.value) : 0;
         S.downloads.id = id;
         setTimeout(() => {
-            S.downloads.hub.invoke('CheckQueue', id, feedId, domain, S.downloads.console.visible);
+            S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
         });
     },
 
@@ -143,10 +144,10 @@
         //check for new downloads
         if (S.downloads.running == true) {
             if (downloaded == 0 && skipped != 1) {
-                S.downloads.update('check for new downloads in 10 seconds...');
+                S.downloads.update('get next URL in the queue after 10 seconds...');
                 setTimeout(S.downloads.check, 10 * 1000); //wait 10 seconds
             } else {
-                S.downloads.update('check for new downloads immediately');
+                S.downloads.update('getting next URL in the queue...');
                 S.downloads.check(); //check immediately
             }
         } else {

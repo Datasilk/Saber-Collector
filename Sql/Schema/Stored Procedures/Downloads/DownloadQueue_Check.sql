@@ -4,7 +4,8 @@ GO
 CREATE PROCEDURE [dbo].[DownloadQueue_Check]
 	@domaindelay int = 60, -- in seconds
 	@domain nvarchar(64) = '',
-	@feedId int = 0
+	@feedId int = 0,
+	@sort int = 0 -- 0 = newest, 1 = oldest
 AS
 	DECLARE @qid int, @domainId int
 
@@ -24,6 +25,8 @@ AS
 		(@feedId > 0 AND q.feedId = @feedId)
 		OR @feedId <= 0
 	)
+	ORDER BY 
+	CASE WHEN @sort = 0 THEN q.datecreated END DESC
 
 	IF @qid > 0 BEGIN
 		

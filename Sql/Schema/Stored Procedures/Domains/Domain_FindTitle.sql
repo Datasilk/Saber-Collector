@@ -1,7 +1,7 @@
-﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Downloads_FindDomainTitle')
-	DROP PROCEDURE [dbo].[Downloads_FindDomainTitle]
+﻿IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Domain_FindTitle')
+	DROP PROCEDURE [dbo].[Domain_FindTitle]
 GO
-CREATE PROCEDURE [dbo].[Downloads_FindDomainTitle]
+CREATE PROCEDURE [dbo].[Domain_FindTitle]
 	@domainId int = 0
 AS
 	SET NOCOUNT ON;
@@ -67,8 +67,6 @@ AS
 	) AS tbl
 	ORDER BY score DESC, [length] ASC, total DESC
 
-
-
-	PRINT @domainTitle
-
 	UPDATE Domains SET title=@domainTitle WHERE domainId=@domainId
+	
+	SELECT @domainTitle

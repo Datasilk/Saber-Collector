@@ -15,12 +15,12 @@ namespace Saber.Vendors.Collector.Hubs
     {
         private List<string> StopQueues = new List<string>();
 
-        public async Task CheckQueue(string id, int feedId, string domainName, bool console)
+        public async Task CheckQueue(string id, int feedId, string domainName, int sort)
         {
             try
             {
 
-                var queue = Query.Downloads.CheckQueue(feedId, domainName, domainName != "" ? 5 : 10); // 10 second delay for each download on a single domain
+                var queue = Query.Downloads.CheckQueue(feedId, domainName, domainName != "" ? 5 : 10, (Query.Downloads.QueueSort)sort); // 10 second delay for each download on a single domain
                 if (queue != null)
                 {
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
@@ -151,35 +151,23 @@ namespace Saber.Vendors.Collector.Hubs
                         }
 
                         //add all found links to the download queue
-                        foreach (var domain in urls.Keys)
+                        var keys = urls.Keys.ToArray();
+                        for(var x = 0; x < keys.Length; x++)
                         {
+                            var domain = keys[x];
+                        //foreach (var domain in urls.Keys.ToArray())
+                        //{
                             try
                             {
-                                var rules = downloadRules.Where(b => b.domain == domain);
                                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                                var rules = downloadRules.Where(b => b.domain == domain);
                                 if (urls[domain] == null || urls[domain].Count == 0) { continue; }
 
                                 //filter URLs that pass the download rules
-                                var urlsChecked = urls[domain].Select(a => a.Key + a.Value)
-                                    .Where(a =>
-                                    {
-                                        var domainIndex = a.IndexOf(domain);
-                                        if(domainIndex != -1 && domainIndex + domain.Length + 1 <= a.Length)
-                                        {
-                                            var path = a.Substring(domainIndex + domain.Length + 1);
-                                            if (path == "")
-                                            {
-                                                return true;
-                                            }
-                                            return !rules.Any(b => b.rule == false &&
-                                            Domains.CheckDownloadRule(b.url, "", "", path, "", ""));
-                                        }
-                                        return false;
-                                    }
-                                ).ToArray();
+                                ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
 
                                 //add filtered URLs to download queue
-                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked, domain, queue.feedId) : 0;
+                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked.ToArray(), domain, queue.feedId) : 0;
                                 if (count > 0)
                                 {
                                     addedLinks += count;
@@ -261,21 +249,50 @@ namespace Saber.Vendors.Collector.Hubs
                         var response = client.DownloadString(feed.url);
                         var content = Utility.Syndication.Read(response);
                         var links = content.items.Select(a => a.link).Where(a => ValidateURL(a) == true);
+
+                        var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
+
                         var domains = new Dictionary<string, List<string>>();
-                        //separate links by domain
-                        foreach (var link in links)
+
+
+                        //get all download rules for all domains found on the page
+                        var downloadRules = new List<Query.Models.DownloadRule>();
+                        if (urls.Keys.Count > 0)
                         {
-                            var domain = link.GetDomainName();
-                            if (!domains.ContainsKey(domain))
-                            {
-                                domains.Add(domain, new List<string>());
-                            }
-                            domains[domain].Add(link);
+                            downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
                         }
+
+                        //separate links by domain
+                        foreach (var url in links)
+                        {
+                            //validate link url
+                            if (string.IsNullOrEmpty(url)) { continue; }
+                            var uri = Web.CleanUrl(url, false);
+                            if (!ValidateURL(uri)) { continue; }
+                            var domain = uri.GetDomainName();
+                            if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+
+                            if (!urls.ContainsKey(domain))
+                            {
+                                urls.Add(domain, new List<KeyValuePair<string, string>>());
+                            }
+                            var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item" }).Replace(uri, "");
+                            urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
+                        }
+
+                        if (domains.Keys.Count > 0)
+                        {
+                            downloadRules = Query.Domains.DownloadRules.GetForDomains(domains.Keys.ToArray());
+                        }
+
                         //add all links for all domains to download queue
                         var count = 0;
                         foreach (var domain in domains.Keys)
                         {
+
+                            //filter URLs that pass the download rules
+                            ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
+
                             var dlinks = domains[domain];
                             if (dlinks.Count > 0)
                             {
@@ -389,7 +406,7 @@ namespace Saber.Vendors.Collector.Hubs
                 Query.Feeds.UpdateLastChecked(feed.feedId);
             }
             await Clients.Caller.SendAsync("update", "Checked feeds.");
-            await Clients.Caller.SendAsync("checked", 0, 0, 0, 0, 0);
+            await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0);
         }
 
         public async Task Whitelist(string domain)
@@ -429,6 +446,34 @@ namespace Saber.Vendors.Collector.Hubs
             if (url.IndexOf("http://") != 0 && url.IndexOf("https://") != 0) { return false; }
             if (url.Length > 255) { return false; }
             if (Rules.badUrls.Any(a => url.Contains(a))) { return false; }
+            return true;
+        }
+
+        private bool ValidateURLs(string domain, List<Query.Models.DownloadRule> downloadRules, Dictionary<string, List<KeyValuePair<string, string>>> urls, out List<string> urlsChecked) {
+            var rules = downloadRules.Where(b => b.domain == domain);
+            if (urls[domain] == null || urls[domain].Count == 0) { 
+                urlsChecked = new List<string>();
+                return false; 
+            }
+
+            //filter URLs that pass the download rules
+            urlsChecked = urls[domain].Select(a => a.Key + a.Value)
+                .Where(a =>
+                {
+                    var domainIndex = a.IndexOf(domain);
+                    if (domainIndex != -1 && domainIndex + domain.Length + 1 <= a.Length)
+                    {
+                        var path = a.Substring(domainIndex + domain.Length + 1);
+                        if (path == "")
+                        {
+                            return true;
+                        }
+                        return !rules.Any(b => b.rule == false &&
+                        Domains.CheckDownloadRule(b.url, "", "", path, "", ""));
+                    }
+                    return false;
+                }
+            ).Distinct().ToList();
             return true;
         }
     }

@@ -30,9 +30,15 @@ namespace Query
             return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls = string.Join(",", urls), domain, feedId });
         }
 
-        public static Models.DownloadQueue CheckQueue(int feedId = 0, string domain = "", int domaindelay = 60)
+        public enum QueueSort
         {
-            using(var conn = new Connection("DownloadQueue_Check", new { domaindelay, domain, feedId }))
+            Newest = 0,
+            Oldest = 1
+        }
+
+        public static Models.DownloadQueue CheckQueue(int feedId = 0, string domain = "", int domaindelay = 60, QueueSort sort = QueueSort.Newest)
+        {
+            using(var conn = new Connection("DownloadQueue_Check", new { domaindelay, domain, feedId, sort = (int)sort }))
             {
                 try
                 {

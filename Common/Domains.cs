@@ -14,7 +14,9 @@ namespace Saber.Vendors.Collector
             all = 0,
             whitelisted = 1,
             blacklisted = 2,
-            newest = 3
+            newest = 3,
+            paywall = 4,
+            free = 5
         };
         public enum Sort
         {
@@ -25,7 +27,7 @@ namespace Saber.Vendors.Collector
             Oldest = 4
         };
 
-        public static string RenderList(int subjectId = 0, Type type = 0, Sort sort = Sort.Ascending, int start = 1, int length = 50, string search = "")
+        public static string RenderList(int subjectId = 0, Type type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 50, string search = "")
         {
             List<Query.Models.Domain> domains;
             var subjectIds = new List<int>();
@@ -55,6 +57,14 @@ namespace Saber.Vendors.Collector
                     if(domain.whitelisted == true)
                     {
                         item.Show("whitelisted");
+                    }
+                    if (domain.paywall == true)
+                    {
+                        item.Show("paywall");
+                    }
+                    if (domain.free == true)
+                    {
+                        item.Show("free");
                     }
                     html.Append(item.Render());
                 }
@@ -104,7 +114,47 @@ namespace Saber.Vendors.Collector
                     catch (Exception) { }
                 }
             }
-            Query.Domains.CLeanDownloads(domainId);
+            Query.Domains.CleanDownloads(domainId);
+        }
+
+        public static void DeleteAllArticles(int domainId)
+        {
+            var domain = Query.Domains.GetById(domainId);
+            var folder = "\\Content\\Collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
+            try
+            {
+
+                if (Directory.Exists(App.MapPath(folder)))
+                {
+                    try
+                    {
+                        Directory.Delete(App.MapPath(folder), true);
+                    }
+                    catch (Exception) { }
+                }
+            }
+            catch(Exception ex)
+            {
+                Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
+            }
+
+            folder = "\\wwwroot\\content\\collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
+            try
+            {
+                if (Directory.Exists(App.MapPath(folder)))
+                {
+                    try
+                    {
+                        Directory.Delete(App.MapPath(folder), true);
+                    }
+                    catch (Exception) { }
+                }
+            }
+            catch (Exception ex)
+            {
+                Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
+            }
+            Query.Domains.DeleteAllArticles(domainId);
         }
     }
 }

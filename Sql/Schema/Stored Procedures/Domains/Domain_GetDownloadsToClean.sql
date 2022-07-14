@@ -12,10 +12,13 @@ AS
 	FROM Articles a
 	JOIN DownloadRules r ON r.domainId = a.domainId
 	WHERE a.domainId=@domainId 
-	AND (
-		(LEN(r.[url]) > 0 AND a.[url] LIKE '%' + r.[url] + '%')
-		OR (LEN(r.title) > 0 AND a.title LIKE '%' + r.title + '%')
-		OR (LEN(r.summary) > 0 AND a.summary LIKE '%' + r.summary + '%')
+	AND 
+	(
+		( -- download rules
+			(LEN(r.[url]) > 0 AND a.[url] LIKE '%' + r.[url] + '%')
+			OR (LEN(r.title) > 0 AND a.title LIKE '%' + r.title + '%')
+			OR (LEN(r.summary) > 0 AND a.summary LIKE '%' + r.summary + '%')
+		)
 	)
 
 	-- #1: count of all affected articles
@@ -50,3 +53,4 @@ AS
 
 	SELECT @a_total + @b_total AS total
 	
+	GO

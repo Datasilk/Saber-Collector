@@ -19,11 +19,22 @@
     .desc{color:#777777;}
     .article-title{font-size:20px;}
     .info{width:100%; padding:7px 0; overflow:hidden; font-size:13px;}
-    .info .col{float:left; padding:0 20px 0 5px; border-left:4px solid #009b75;}
+    .info > .col{height:16px; padding:0 20px 0 5px; border-left:4px solid #009b75;}
+    .info > .col.no-separator{border-left:none;}
+    .info .icon svg{width:16px; height:16px;}
     .info .val{color:#ddd;}
     .info .bugs{color:#ffaa34; font-weight:bold; border-radius: 20px; border: 2px solid #90590C; min-width: 19px; padding: 0px; display: inline-block; text-align: center; box-sizing: border-box; margin-bottom: -5px; margin-top: -2px;}
     .info .important{color:#00f7ff; font-weight:bold;}
+    .info .domain{
+        cursor:pointer;
+        use{fill:#fff !important; color:#fff;}
+        &:hover{
+            span{text-decoration:underline;}
+        }
+    }
 }
+#iconModal_0_Layer1_0_FILL path{fill:#fff;}
+#iconModal_0_Layer0_0_FILL path{fill:#fff;}
 .page-menu{
     #search{max-width:500px; width:100%;}
     .subjects-breadcrumb{padding-top:3px;

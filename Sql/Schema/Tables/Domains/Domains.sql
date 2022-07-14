@@ -4,6 +4,8 @@
 	    [domainId] INT NOT NULL PRIMARY KEY, 
         [domain] NVARCHAR(64) NOT NULL,
         [hastitle] BIT NOT NULL DEFAULT 0,
+        [paywall] BIT NOT NULL DEFAULT 0,
+        [free] BIT NOT NULL DEFAULT 0,
         [title] NVARCHAR(128) NOT NULL DEFAULT '',
         [description] NVARCHAR(255) NOT NULL DEFAULT '',
         [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),

@@ -10,6 +10,7 @@
                 $('.popup.show .tab-articles').on('click', S.domain.articles.show);
                 $('.popup.show .tab-rules').on('click', S.domain.rules.show);
                 $('.popup.show .tab-download').on('click', S.domain.download.show);
+                $('.popup.show .tab-advanced').on('click', S.domain.advanced.show);
             }, () => { }, true);
         },
 
@@ -18,6 +19,24 @@
             $('.popup.show .tab-' + id).addClass('selected');
             $('.popup.show .tab-content > div').hide();
             $('.popup.show .content-' + id).show();
+        }
+    },
+
+    info: {
+        requireSubscription: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                required: domain_subscription.checked == true
+            }
+            S.ajax.post('CollectorDomains/RequireSubscription', data, (response) => {});
+        },
+
+        hasFreeContent: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                free: domain_freecontent.checked == true
+            }
+            S.ajax.post('CollectorDomains/HasFreeContent', data, (response) => { });
         }
     },
 
@@ -120,6 +139,29 @@
 
                 });
             }
+        }
+    },
+
+    advanced: {
+        show: function () {
+            S.domain.details.tab('advanced');
+            S.ajax.post('CollectorDomains/RenderAdvanced', { domainId: S.domain.details.domainId }, (response) => {
+                $('.popup.show .content-advanced').html(response);
+            });
+        },
+
+        deleteAllArticles: function () {
+            if (!confirm('Do you really want to delete articles for this domain? This cannot be undone!')) { return; }
+            S.ajax.post('CollectorDomains/DeleteAllArticles', { domainId: S.domain.details.domainId }, (response) => {
+                S.message.show('.popup.show .messages', '', 'All articles were deleted for your domain');
+            });
+        },
+
+        getDomainTitle: function () {
+            S.ajax.post('CollectorDomains/GetDomainTitle', { domainId: S.domain.details.domainId }, (title) => {
+                S.message.show('.popup.show .messages', '', 'Found new title "' + title + '".');
+                $('.popup.show .title h6').html(title);
+            });
         }
     }
 };

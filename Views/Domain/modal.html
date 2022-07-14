@@ -2,15 +2,29 @@
     <a href="{{domain-url}}" target="_blank">{{domain-url}}</a>
 </div>
 <div class="row pad-bottom"><p>{{description}}</p></div>
+<div class="messages"></div>
 <div class="row tabs">
     <div class="col tab tab-info selected">Info</div>
     <div class="col tab tab-rules">Analyzer</div>
     <div class="col tab tab-download">Downloads</div>
+    <div class="col tab tab-advanced">Advanced</div>
 </div>
 <div class="row tab-content">
     <div class="content-info pad">
-        <p>There is no type of information collected for domains just yet.</p>
+        <div class="row hover input">
+            <input type="checkbox" id="domain_subscription" 
+                   {{subscription-required}}checked="checked"{{/subscription-required}} 
+                   oninput="S.domain.info.requireSubscription()" />
+            <label for="domain_subscription">Requires a <b>subscription</b> to consume content</label>
+        </div>
+        <div class="row hover input">
+            <input type="checkbox" id="domain_freecontent" 
+                   {{has-free-content}}checked="checked"{{/has-free-content}} 
+                   oninput="S.domain.info.hasFreeContent()" />
+            <label for="domain_freecontent">Includes <b>free</b> content</label>
+        </div>
     </div>
     <div class="content-rules pad-top"></div>
     <div class="content-download pad-top"></div>
+    <div class="content-advanced pad-top"></div>
 </div>

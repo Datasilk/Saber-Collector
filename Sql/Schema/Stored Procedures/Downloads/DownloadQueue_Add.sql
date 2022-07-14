@@ -14,7 +14,7 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 	IF @title = '' BEGIN
 		IF (SELECT COUNT(*) FROM Articles WHERE domainId=@domainId) >= 10 BEGIN
 			--get common word found in all article titles
-			EXEC Downloads_FindDomainTitle @domainId=@domainId
+			EXEC Domain_FindTitle @domainId=@domainId
 		END
 	END
 END ELSE BEGIN

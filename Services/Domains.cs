@@ -24,9 +24,29 @@ namespace Saber.Vendors.Collector.Services
             var info = Query.Domains.GetInfo(domain);
             view["description"] = info.description != "" ? info.description : "No description was found for this domain yet.";
             view["domain-url"] = "https://" + info.domain;
+            if (info.paywall)
+            {
+                view.Show("subscription-required");
+            }
             var title = info.title != "" ? info.title : info.domain.GetDomainName();
             return JsonResponse(new { title, domainId = info.domainId, popup = view.Render() });
         }
+
+        #region "Info"
+        public string RequireSubscription(int domainId, bool required)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.RequireSubscription(domainId, required);
+            return Success();
+        }
+
+        public string HasFreeContent(int domainId, bool free)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.HasFreeContent(domainId, free);
+            return Success();
+        }
+        #endregion
 
         #region "Analyzer Rules"
         public string RenderAnalyzerRulesList(int domainId)
@@ -68,8 +88,6 @@ namespace Saber.Vendors.Collector.Services
         #endregion
 
         #region "Download Rules"
-
-
         public string RenderDownloadRulesList(int domainId)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
@@ -150,6 +168,30 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             Domains.CleanupDownloads(domainId);
             return Success();
+        }
+        #endregion
+
+        #region "Advanced"
+
+        public string RenderAdvanced(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Domain/advanced.html");
+
+            return view.Render();
+        }
+
+        public string DeleteAllArticles(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Domains.DeleteAllArticles(domainId);
+            return Success();
+        }
+
+        public string GetDomainTitle(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            return Query.Domains.FindDomainTitle(domainId);
         }
         #endregion
     }

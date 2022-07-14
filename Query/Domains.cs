@@ -74,9 +74,29 @@ namespace Query
             }
         }
 
-        public static void CLeanDownloads(int domainId)
+        public static void CleanDownloads(int domainId)
         {
             Sql.ExecuteNonQuery("Domain_CleanDownloads", new { domainId});
+        }
+
+        public static void DeleteAllArticles(int domainId)
+        {
+            Sql.ExecuteNonQuery("Domain_DeleteAllArticles", new { domainId });
+        }
+
+        public static void RequireSubscription(int domainId, bool required)
+        {
+            Sql.ExecuteNonQuery("Domain_RequireSubscription", new { domainId, required });
+        }
+
+        public static void HasFreeContent(int domainId, bool free)
+        {
+            Sql.ExecuteNonQuery("Domain_HasFreeContent", new { domainId, free });
+        }
+
+        public static string FindDomainTitle(int domainId)
+        {
+            return Sql.ExecuteScalar<string>("Domain_FindTitle", new { domainId });
         }
     }
 }

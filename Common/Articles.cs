@@ -26,7 +26,7 @@ namespace Saber.Vendors.Collector
                 {
                     //populate view with article info
                     item.Clear();
-                    item["title"] = article.title != "" ? article.title : "[No Article Title]";
+                    item["title"] = article.title != null && article.title.Trim() != "" ? article.title : "[No Article Title]";
                     item["encoded-url"] = WebUtility.UrlEncode(article.url);
                     item["url"] = article.url;
 
@@ -92,6 +92,8 @@ namespace Saber.Vendors.Collector
                         item.Show("show-years");
                         item["years"] = article.years.Replace(",", ", ");
                     }
+
+                    item["datecreated"] = article.datecreated.Value.ToString("MM/dd/yyyy");
 
                     //show domain
                     item.Show("show-domain");

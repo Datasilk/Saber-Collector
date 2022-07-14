@@ -1,0 +1,51 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="64px" height="64px" viewBox="0 0 64 64">
+<defs>
+<g id="iconModal_0_Layer1_0_FILL">
+<path fill="#FFFFFF" stroke="none" d="
+M 64 6.4
+Q 64 0 57.55 0
+L 6.4 0
+Q 0 0 0 6.4
+L 0 57.6
+Q 0 64 6.4 64
+L 57.55 64
+Q 64 64 64 57.6
+L 64 6.4
+M 57.55 3
+Q 61 3 61 6.4
+L 61 57.6
+Q 61 61 57.55 61
+L 6.4 61
+Q 3 61 3 57.6
+L 3 6.4
+Q 3 3 6.4 3
+L 57.55 3
+M 44 33
+L 44 17
+Q 44 12 39 12
+L 25 12
+Q 20 12 20 17
+L 20 33
+Q 20 38 25 38
+L 39 38
+Q 44 38 44 33 Z"/>
+</g>
+
+<g id="iconModal_0_Layer0_0_FILL">
+<path fill="#FFFFFF" fill-opacity="0" stroke="none" d="
+M 64 0
+L 0 0 0 64 64 64 64 0 Z"/>
+</g>
+</defs>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#iconModal_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#iconModal_0_Layer0_0_FILL"/>
+</g>
+</g>
+</svg>
