@@ -28,6 +28,10 @@ namespace Saber.Vendors.Collector.Services
             {
                 view.Show("subscription-required");
             }
+            if (info.free)
+            {
+                view.Show("has-free-content");
+            }
             var title = info.title != "" ? info.title : info.domain.GetDomainName();
             return JsonResponse(new { title, domainId = info.domainId, popup = view.Render() });
         }
@@ -177,7 +181,23 @@ namespace Saber.Vendors.Collector.Services
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             var view = new View("/Vendors/Collector/Views/Domain/advanced.html");
-
+            var domain = Query.Domains.GetById(domainId);
+            if(domain.whitelisted == true)
+            {
+                view.Show("remove-whitelist");
+            }
+            else
+            {
+                view.Show("whitelist");
+            }
+            if (domain.blacklisted == true)
+            {
+                view.Show("remove-blacklist");
+            }
+            else
+            {
+                view.Show("blacklist");
+            }
             return view.Render();
         }
 
@@ -192,6 +212,40 @@ namespace Saber.Vendors.Collector.Services
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             return Query.Domains.FindDomainTitle(domainId);
+        }
+
+        public string Whitelist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == "") { return Error("No domain specified"); }
+            Query.Whitelists.Domains.Add(domain);
+            return Success();
+        }
+
+        public string RemoveWhitelist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == "") { return Error("No domain specified"); }
+            Query.Whitelists.Domains.Remove(domain);
+            return Success();
+        }
+
+        public string Blacklist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if(domain == "") { return Error("No domain specified"); }
+            var info = Query.Domains.GetInfo(domain);
+            Domains.DeleteAllArticles(info.domainId);
+            Query.Blacklists.Domains.Add(domain);
+            return Success();
+        }
+
+        public string RemoveBlacklist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == "") { return Error("No domain specified"); }
+            Query.Blacklists.Domains.Remove(domain);
+            return Success();
         }
         #endregion
     }

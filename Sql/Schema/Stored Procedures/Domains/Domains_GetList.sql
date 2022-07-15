@@ -4,7 +4,7 @@ GO
 CREATE PROCEDURE [dbo].[Domains_GetList]
 	@subjectIds nvarchar(MAX) = '',
 	@search nvarchar(MAX) = '',
-	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free
+	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free, 6 = unprocessed
 	@sort int = 0, -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest
 	@start int = 1,
 	@length int = 50
@@ -24,7 +24,9 @@ AS
 		CASE WHEN @sort = 2 THEN a.articles END DESC,
 		CASE WHEN @sort = 3 THEN d.datecreated END DESC,
 		CASE WHEN @sort = 4 THEN d.datecreated END ASC
-		) AS rownum, d.*, a.articles, (CASE WHEN wl.domain IS NOT NULL THEN 1 ELSE 0 END) AS whitelisted
+		) AS rownum, d.*, a.articles, 
+		(CASE WHEN wl.domain IS NOT NULL THEN 1 ELSE 0 END) AS whitelisted,
+		(CASE WHEN bl.domain IS NOT NULL THEN 1 ELSE 0 END) AS blacklisted
 		FROM [Domains] d
 		LEFT JOIN Whitelist_Domains wl ON wl.domain = d.domain
 		LEFT JOIN Blacklist_Domains bl ON bl.domain = d.domain
@@ -46,6 +48,7 @@ AS
 			OR (@type = 3 AND wl.domain IS NULL AND bl.domain IS NULL)
 			OR (@type = 4 AND d.paywall = 1)
 			OR (@type = 5 AND d.free = 1)
+			OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND bl.domain IS NULL AND wl.domain IS NULL)
 		)
 		AND (
 			(@sort = 2 AND a.articles > 0)

@@ -1,10 +1,12 @@
 ﻿S.domain = {
     details: {
         domainId: null,
+        domain: null,
 
         show: function (domain) {
             S.ajax.post('CollectorDomains/Details', { domain: domain }, (response) => {
                 S.domain.details.domainId = response.domainId;
+                S.domain.details.domain = domain;
                 S.popup.show(response.title, response.popup, { width: 450 });
                 $('.popup.show .tab-info').on('click', () => { S.domain.details.tab('info'); });
                 $('.popup.show .tab-articles').on('click', S.domain.articles.show);
@@ -162,6 +164,42 @@
                 S.message.show('.popup.show .messages', '', 'Found new title "' + title + '".');
                 $('.popup.show .title h6').html(title);
             });
+        },
+
+        whitelist: {
+            add: function () {
+                if (!confirm('Do you really want to add this domain to your whitelist? Articles may begin downloading from this domain immediately afterwards.')) { return; }
+                S.ajax.post('CollectorDomains/Whitelist', { domain: S.domain.details.domain }, (response) => {
+                    S.message.show('.popup.show .messages', '', 'This domain is now whitelisted.');
+                    S.domain.advanced.show();
+                });
+            },
+
+            remove: function () {
+                if (!confirm('Do you really want to remove this domain from your whitelist? You will no longer be able to download articles from this domain. All existing articles for this domain will be kept intact.')) { return; }
+                S.ajax.post('CollectorDomains/RemoveWhitelist', { domain: S.domain.details.domain }, (response) => {
+                    S.message.show('.popup.show .messages', '', 'This domain is now removed from the whitelist.');
+                    S.domain.advanced.show();
+                });
+            }
+        },
+
+        blacklist: {
+            add: function () {
+                if (!confirm('Do you really want to add this domain to your blacklist? All articles & downloads will be immediately deleted along with any information about this domain and no other downloads will be queued for this domain.')) { return; }
+                S.ajax.post('CollectorDomains/Blacklist', { domain: S.domain.details.domain }, (response) => {
+                    S.message.show('.popup.show .messages', '', 'This domain is now blacklisted.');
+                    S.popup.hide();
+                });
+            },
+
+            remove: function () {
+                if (!confirm('Do you really want to remove this domain from your blacklist? Any new links found for this domain will be added to the download queue.')) { return; }
+                S.ajax.post('CollectorDomains/RemoveBlacklist', { domain: S.domain.details.domain }, (response) => {
+                    S.message.show('.popup.show .messages', '', 'This domain is now removed from the blacklist');
+                    S.domain.advanced.show();
+                });
+            }
         }
     }
 };

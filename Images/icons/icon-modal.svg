@@ -1,51 +1,44 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="none" x="0px" y="0px" width="64px" height="64px" viewBox="0 0 64 64">
 <defs>
-<g id="iconModal_0_Layer1_0_FILL">
+<g id="iconModal_0_Layer2_0_FILL">
 <path fill="#FFFFFF" stroke="none" d="
-M 64 6.4
-Q 64 0 57.55 0
-L 6.4 0
-Q 0 0 0 6.4
-L 0 57.6
-Q 0 64 6.4 64
-L 57.55 64
-Q 64 64 64 57.6
-L 64 6.4
-M 57.55 3
-Q 61 3 61 6.4
-L 61 57.6
-Q 61 61 57.55 61
-L 6.4 61
-Q 3 61 3 57.6
-L 3 6.4
-Q 3 3 6.4 3
-L 57.55 3
-M 44 33
-L 44 17
-Q 44 12 39 12
-L 25 12
-Q 20 12 20 17
-L 20 33
-Q 20 38 25 38
-L 39 38
-Q 44 38 44 33 Z"/>
+M 52.5 20.1
+Q 52.5046875 10.5 42.85 10.5
+L 20.1 10.5
+Q 10.5 10.5 10.5 20.1
+L 10.5 45.95
+Q 10.4953125 55.5 20.1 55.5
+L 42.85 55.5
+Q 52.5091796875 55.5 52.5 45.95
+L 52.5 20.1
+M 49.5 20.1
+L 49.5 22 13.5 22 13.5 20.1
+Q 13.5 13.5 20.1 13.5
+L 42.85 13.5
+Q 49.4953125 13.5 49.5 20.1
+M 49.5 24
+L 49.5 45.95
+Q 49.4908203125 52.5 42.85 52.5
+L 20.1 52.5
+Q 13.5044921875 52.5 13.5 45.95
+L 13.5 24 49.5 24 Z"/>
 </g>
 
-<g id="iconModal_0_Layer0_0_FILL">
-<path fill="#FFFFFF" fill-opacity="0" stroke="none" d="
-M 64 0
-L 0 0 0 64 64 64 64 0 Z"/>
+<g id="iconModal_0_Layer1_0_FILL">
+<path fill="#FFFFFF" stroke="none" d="
+M 45.4 19.4
+Q 46 18.85 46 18 46 17.15 45.4 16.55 44.85 16 44 16 43.15 16 42.55 16.55 42 17.15 42 18 42 18.85 42.55 19.4 43.15 20 44 20 44.85 20 45.4 19.4 Z"/>
 </g>
 </defs>
 
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">
-<use xlink:href="#iconModal_0_Layer1_0_FILL"/>
+<use xlink:href="#iconModal_0_Layer2_0_FILL"/>
 </g>
 
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">
-<use xlink:href="#iconModal_0_Layer0_0_FILL"/>
+<use xlink:href="#iconModal_0_Layer1_0_FILL"/>
 </g>
 </g>
 </svg>

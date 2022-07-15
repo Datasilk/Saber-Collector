@@ -35,33 +35,33 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", 1, "Article exists in database");
                     }
                 }
-                else
-                {
-                    //create article in database
-                    articleInfo = Article.Add(url);
-                }
+
+
                 var relpath = Article.ContentPath(url);
                 var filepath = App.MapPath(relpath);
-                var filename = articleInfo.articleId + ".html";
-                
-                if (File.Exists(filepath + filename))
+                var filename = "";
+                if(articleInfo != null && articleInfo.articleId > 0)
                 {
-                    //open cached content from disk
-                    article = Html.DeserializeArticle(File.ReadAllText(filepath + filename));
-                    if (!published)
+                    filename = articleInfo.articleId + ".html";
+                    if (File.Exists(filepath + filename))
                     {
-                        await Clients.Caller.SendAsync("update", 1, "Loaded cached content for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
-                        await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
-                            "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
-                    }
+                        //open cached content from disk
+                        article = Html.DeserializeArticle(File.ReadAllText(filepath + filename));
+                        if (!published)
+                        {
+                            await Clients.Caller.SendAsync("update", 1, "Loaded cached content for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                            await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
+                                "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
+                        }
                         
-                    download = false;
-                    Article.FileSize(article);
-                }
-                else if (!Directory.Exists(filepath))
-                {
-                    //create folder for content
-                    Directory.CreateDirectory(filepath);
+                        download = false;
+                        Article.FileSize(article);
+                    }
+                    else if (!Directory.Exists(filepath))
+                    {
+                        //create folder for content
+                        Directory.CreateDirectory(filepath);
+                    }
                 }
 
                 if (download == true)
@@ -71,7 +71,46 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         await Clients.Caller.SendAsync("update", 1, "Downloading...");
                     }
-                    var result = Article.Download(url);
+                    var result = Article.Download(url, out var newurl);
+                    if(newurl != url)
+                    {
+                        //updated URL (was redirected)
+                        if(articleInfo != null)
+                        {
+                            //update existing article URL
+                            Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName());
+                            await Clients.Caller.SendAsync("update", 1, "Updated article URL from " + url + " to " + newurl);
+                        }
+                        await Clients.Caller.SendAsync("update-url", newurl);
+
+                        if(articleInfo == null)
+                        {
+                            var oldinfo = articleInfo;
+                            articleInfo = Query.Articles.GetByUrl(newurl);
+                            if(articleInfo != null)
+                            {
+                                filename = articleInfo.articleId + ".html";
+                                if (oldinfo == null || oldinfo.articleId != articleInfo.articleId)
+                                {
+                                    await Clients.Caller.SendAsync("update", 1, "Old articleId = " + (oldinfo != null ? oldinfo.articleId : "NULL") + ", new articleId = " + articleInfo.articleId);
+                                }
+                            }
+                        }
+                    }
+                    
+                    if(articleInfo == null)
+                    {
+                        //no article yet
+                        articleInfo = Article.Add(newurl);
+                        filename = articleInfo.articleId + ".html";
+                        await Clients.Caller.SendAsync("update", 1, "Created new record for article");
+                    }
+
+                    url = newurl;
+
+                    relpath = Article.ContentPath(url);
+                    filepath = App.MapPath(relpath);
+
                     if (result == "")
                     {
                         if (!published)

@@ -27,13 +27,13 @@ SELECT [value] FROM #urls
 OPEN @cursor
 FETCH NEXT FROM @cursor INTO @url
 WHILE @@FETCH_STATUS = 0 BEGIN
-	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) BEGIN
-		IF NOT EXISTS(SELECT * FROM Articles WHERE url=@url) BEGIN
-			SET @qid = NEXT VALUE FOR SequenceDownloadQueue
-			INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
-			VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETUTCDATE())
-			SET @count += 1
-		END
+	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) 
+	AND NOT EXISTS(SELECT * FROM Downloads WHERE url=@url)
+	AND NOT EXISTS(SELECT * FROM Articles WHERE url=@url) BEGIN
+		SET @qid = NEXT VALUE FOR SequenceDownloadQueue
+		INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
+		VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETUTCDATE())
+		SET @count += 1
 	END
 	FETCH NEXT FROM @cursor INTO @url
 END

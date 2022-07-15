@@ -58,6 +58,9 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                         if(article != null)
                         {
                             viewComponent["article-id"] = article.articleId.ToString();
+                            viewComponent["domainid"] = article.domainId.ToString();
+                            viewComponent["domain"] = article.domain;
+                            viewComponent["url"] = article.url;
                             viewComponent.Show("delete-cache");
                         }
 
@@ -91,10 +94,6 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
                             viewComponent["articleonly-url"] = request.Path + "?url=" +  WebUtility.UrlEncode(url) + "&article-only=1";
                             viewComponent.Show("view-articleonly");
                         }
-
-                        viewComponent["domainid"] = article.domainId.ToString();
-                        viewComponent["domain"] = article.domain;
-                        viewComponent["url"] = article.url;
 
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;

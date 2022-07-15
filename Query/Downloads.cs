@@ -12,9 +12,14 @@ namespace Query
             downloaded = 2
         }
 
-        public static void UpdateQueueItem(int qId, QueueStatus status = QueueStatus.downloaded)
+        public static void UpdateQueueItem(long qId, QueueStatus status = QueueStatus.downloaded)
         {
             Sql.ExecuteNonQuery("Download_Update", new { qId , status = (int)status });
+        }
+
+        public static void UpdateUrl(long qId, string url, string domain)
+        {
+            Sql.ExecuteNonQuery("Download_UpdateUrl", new { qId, url, domain });
         }
 
         public static int AddQueueItems(string[] urls, string domain, int feedId = 0)

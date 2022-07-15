@@ -2,6 +2,30 @@
     <div class="col field">Domain Title</div>
     <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.getDomainTitle()">Get Title</button></div>
 </div>
+{{whitelist}}
+<div class="row hover">
+    <div class="col field">Whitelist</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.whitelist.add()" title="Allow articles to be collected on this domain">Whitelist</button></div>
+</div>
+{{/whitelist}}
+{{remove-whitelist}}
+<div class="row hover">
+    <div class="col field">Whitelist</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.whitelist.remove()" title="Remove this domain from the whitelist">Remove Whitelist</button></div>
+</div>
+{{/remove-whitelist}}
+{{blacklist}}
+<div class="row hover">
+    <div class="col field">Blacklist</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.blacklist.add()" title="Prevent anything from being collected on this domain">Blacklist</button></div>
+</div>
+{{/blacklist}}
+{{remove-blacklist}}
+<div class="row hover">
+    <div class="col field">Blacklist</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.blacklist.remove()" title="Remove this domain from the blacklist">Blacklist</button></div>
+</div>
+{{/remove-blacklist}}
 <div class="row hover">
     <div class="col field">WARNING!</div>
     <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.deleteAllArticles()">Delete All Articles</button></div>

@@ -13,5 +13,10 @@ namespace Query.Blacklists
         {
             Sql.ExecuteNonQuery("Blacklist_Domain_Add", new { domain });
         }
+
+        public static void Remove(string domain)
+        {
+            Sql.ExecuteNonQuery("Blacklist_Domain_Remove", new { domain });
+        }
     }
 }

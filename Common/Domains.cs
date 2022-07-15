@@ -72,6 +72,68 @@ namespace Saber.Vendors.Collector
             return html.ToString();
         }
 
+        public class DownloadRuleMatch
+        {
+            public string Url { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string Summary { get; set; } = "";
+        }
+
+        //set of default download rules for downloads that will be kept and used only to collect URL links from
+        public static DownloadRuleMatch[] DefaultDownloadLinksOnlyRules = new DownloadRuleMatch[]
+        {
+            new DownloadRuleMatch(){Url = "/page/"},
+            new DownloadRuleMatch(){Url = "/category/"},
+            new DownloadRuleMatch(){Url = "/subject/"},
+            new DownloadRuleMatch(){Url = "/subjects/"},
+            new DownloadRuleMatch(){Url = "/sitemap/"},
+            new DownloadRuleMatch(){Url = "/tag/"},
+            new DownloadRuleMatch(){Url = "/tags"},
+            new DownloadRuleMatch(){Url = "/genre/"},
+            new DownloadRuleMatch(){Url = "/genres/"}
+        };
+
+        //set of default download rules for URLs that will not be downloaded or used as articles
+        public static DownloadRuleMatch[] DefaultDoNotDownloadRules = new DownloadRuleMatch[]
+        {
+            new DownloadRuleMatch(){Url = "/sponsor"},
+            new DownloadRuleMatch(){Url = "/metrics"},
+            new DownloadRuleMatch(){Url = ".jpg"},
+            new DownloadRuleMatch(){Url = "/cart"},
+            new DownloadRuleMatch(){Url = "/order/"},
+            new DownloadRuleMatch(){Url = "/shop/"},
+            new DownloadRuleMatch(){Title = "page not found"},
+            new DownloadRuleMatch(){Title = "file not found"},
+            new DownloadRuleMatch(){Title = "sign in"},
+            new DownloadRuleMatch(){Title = "log in"},
+            new DownloadRuleMatch(){Title = "access denied"},
+            new DownloadRuleMatch(){Title = "404"},
+        };
+
+        public static bool CheckDefaultDownloadLinksOnlyRules(string url, string title, string summary)
+        {
+            foreach(var rule in DefaultDownloadLinksOnlyRules)
+            {
+                if(CheckDownloadRule(rule.Url, rule.Title, rule.Summary, url, title, summary) == true)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool CheckDefaultDoNotDownloadRules(string url, string title, string summary)
+        {
+            foreach (var rule in DefaultDoNotDownloadRules)
+            {
+                if (CheckDownloadRule(rule.Url, rule.Title, rule.Summary, url, title, summary) == true)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static bool CheckDownloadRule(string urlMatch, string titleMatch, string summaryMatch, string url, string title, string summary)
         {
             if (urlMatch != "" && url != "")
@@ -98,6 +160,14 @@ namespace Saber.Vendors.Collector
             return false;
         }
 
+
+        public class RuleMatch
+        {
+            public string Url { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string Summary { get; set; } = "";
+        }
+
         public static void CleanupDownloads(int domainId)
         {
             var clean = Query.Domains.GetDownloadsToClean(domainId);
@@ -120,40 +190,44 @@ namespace Saber.Vendors.Collector
         public static void DeleteAllArticles(int domainId)
         {
             var domain = Query.Domains.GetById(domainId);
-            var folder = "\\Content\\Collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
-            try
+            if(domain.domain != "")
             {
-
-                if (Directory.Exists(App.MapPath(folder)))
+                var folder = "\\Content\\Collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
+                try
                 {
-                    try
+
+                    if (Directory.Exists(App.MapPath(folder)))
                     {
-                        Directory.Delete(App.MapPath(folder), true);
+                        try
+                        {
+                            Directory.Delete(App.MapPath(folder), true);
+                        }
+                        catch (Exception) { }
                     }
-                    catch (Exception) { }
+                }
+                catch(Exception ex)
+                {
+                    Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
+                }
+
+                folder = "\\wwwroot\\content\\collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
+                try
+                {
+                    if (Directory.Exists(App.MapPath(folder)))
+                    {
+                        try
+                        {
+                            Directory.Delete(App.MapPath(folder), true);
+                        }
+                        catch (Exception) { }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
                 }
             }
-            catch(Exception ex)
-            {
-                Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
-            }
-
-            folder = "\\wwwroot\\content\\collector\\articles\\" + domain.domain.Substring(0, 2) + "\\" + domain + "\\";
-            try
-            {
-                if (Directory.Exists(App.MapPath(folder)))
-                {
-                    try
-                    {
-                        Directory.Delete(App.MapPath(folder), true);
-                    }
-                    catch (Exception) { }
-                }
-            }
-            catch (Exception ex)
-            {
-                Query.Logs.LogError(0, "", "DeleteAllArticles", ex.Message, ex.StackTrace);
-            }
+            
             Query.Domains.DeleteAllArticles(domainId);
         }
     }

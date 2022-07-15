@@ -153,6 +153,14 @@ namespace Query
                 });
         }
 
+        public static void UpdateUrl(int articleId, string url, string domain)
+        {
+            Sql.ExecuteNonQuery("Article_UpdateUrl", new
+            {
+                articleId, url, domain
+            });
+        }
+
         public static void UpdateCache(int articleId, bool cached)
         {
             Sql.ExecuteNonQuery("Article_UpdateCache", new { articleId, cached });

@@ -46,7 +46,13 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
 
                     //download content //////////////////////////////////////////////////////
-                    var result = Article.Download(queue.url);
+                    var result = Article.Download(queue.url, out var newurl);
+                    if (newurl != queue.url)
+                    {
+                        //updated URL
+                        Query.Downloads.UpdateUrl(queue.qid, newurl, newurl.GetDomainName());
+                    }
+                    queue.url = newurl;
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
                     if (result == "")
                     {
@@ -80,14 +86,23 @@ namespace Saber.Vendors.Collector.Hubs
                         var articleInfo = Article.Merge(Article.Create(queue.url), article);
 
                         //check all download rules against article info
-                        foreach (var rule in queue.downloadRules)
+                        if(Domains.CheckDefaultDownloadLinksOnlyRules(queue.url, articleInfo.title, articleInfo.summary))
                         {
-                            if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                            downloadOnly = true;
+                        }
+                        else
+                        {
+                            //check domain-specific download rules
+                            foreach (var rule in queue.downloadRules)
                             {
-                                downloadOnly = true;
-                                break;
+                                if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                                {
+                                    downloadOnly = true;
+                                    break;
+                                }
                             }
                         }
+
 
                         //get article score
                         Article.DetermineScore(article, articleInfo);
@@ -249,18 +264,7 @@ namespace Saber.Vendors.Collector.Hubs
                         var response = client.DownloadString(feed.url);
                         var content = Utility.Syndication.Read(response);
                         var links = content.items.Select(a => a.link).Where(a => ValidateURL(a) == true);
-
                         var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
-
-                        var domains = new Dictionary<string, List<string>>();
-
-
-                        //get all download rules for all domains found on the page
-                        var downloadRules = new List<Query.Models.DownloadRule>();
-                        if (urls.Keys.Count > 0)
-                        {
-                            downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
-                        }
 
                         //separate links by domain
                         foreach (var url in links)
@@ -280,23 +284,25 @@ namespace Saber.Vendors.Collector.Hubs
                             urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
                         }
 
-                        if (domains.Keys.Count > 0)
+                        //get all download rules for all domains found on the page
+                        var downloadRules = new List<Query.Models.DownloadRule>();
+                        if (urls.Keys.Count > 0)
                         {
-                            downloadRules = Query.Domains.DownloadRules.GetForDomains(domains.Keys.ToArray());
+                            downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
                         }
 
                         //add all links for all domains to download queue
                         var count = 0;
-                        foreach (var domain in domains.Keys)
+                        foreach (var domain in urls.Keys)
                         {
 
                             //filter URLs that pass the download rules
                             ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
 
-                            var dlinks = domains[domain];
-                            if (dlinks.Count > 0)
+                            var dlinks = urls[domain].Select(a => a.Key + a.Value);
+                            if (dlinks.Count() > 0)
                             {
-                                count += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain);
+                                count += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
                             }
                         }
                         if (count > 0)
@@ -318,7 +324,8 @@ namespace Saber.Vendors.Collector.Hubs
                     string result;
                     try
                     {
-                        result = Article.Download(feed.url);
+                        result = Article.Download(feed.url, out var newurl);
+                        feed.url = newurl;
                     }
                     catch (Exception ex)
                     {
@@ -349,54 +356,66 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                     var links = article.elements.Where(a => a.tagName == "a" && a.attribute.ContainsKey("href"))
                         .Select(a => a.attribute["href"]).Where(a => ValidateURL(a) == true);
-                    var urls = new Dictionary<string, List<string>>();
 
+                    var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
+
+                    //separate links by domain
                     foreach (var url in links)
                     {
-                        var uri = Web.CleanUrl(url);
-                        if (uri.Substring(uri.Length - 1, 1) == "/")
-                        {
-                            uri = uri.Substring(0, uri.Length - 1);
-                        }
-
+                        //validate link url
+                        if (string.IsNullOrEmpty(url)) { continue; }
+                        var uri = Web.CleanUrl(url, false);
+                        if (!ValidateURL(uri)) { continue; }
                         var domain = uri.GetDomainName();
                         if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-                        //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
+
                         if (!urls.ContainsKey(domain))
                         {
-                            urls.Add(domain, new List<string>());
+                            urls.Add(domain, new List<KeyValuePair<string, string>>());
                         }
-                        urls[domain].Add(uri);
+                        var querystring = Web.CleanUrl(url, onlyKeepQueries: new string[] { "id=", "item" }).Replace(uri, "");
+                        urls[domain].Add(new KeyValuePair<string, string>(uri, querystring));
                     }
+
+                    //get all download rules for all domains found on the page
+                    var downloadRules = new List<Query.Models.DownloadRule>();
+                    if (urls.Keys.Count > 0)
+                    {
+                        downloadRules = Query.Domains.DownloadRules.GetForDomains(urls.Keys.ToArray());
+                    }
+
+                    //add all links for all domains to download queue
                     foreach (var domain in urls.Keys)
                     {
                         try
                         {
-                            if (urls[domain] == null || urls[domain].Count == 0) { continue; }
-                            var count = Query.Downloads.AddQueueItems(urls[domain].ToArray(), domain, feed.feedId);
-                            if (count > 0)
+                            //filter URLs that pass the download rules
+                            ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
+
+                            var dlinks = urls[domain].Select(a => a.Key + a.Value);
+                            if (dlinks.Count() > 0)
                             {
+                                var count = Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
                                 await Clients.Caller.SendAsync("feed", count,
-                                    "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
-                                    "<div class=\"col right\">" +
-                                    (
-                                        !Models.Whitelist.Domains.Any(a => domain.Contains(a)) ?
-                                        "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
-                                    ) +
-                                    (
-                                        !Models.Blacklist.Domains.Any(a => domain.Contains(a)) ?
-                                        "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                        "</div>" : ""
-                                    )
-                                );
+                                        "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
+                                        "<div class=\"col right\">" +
+                                        (
+                                            !Models.Whitelist.Domains.Any(a => domain.Contains(a)) ?
+                                            "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
+                                        ) +
+                                        (
+                                            !Models.Blacklist.Domains.Any(a => domain.Contains(a)) ?
+                                            "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
+                                            "</div>" : ""
+                                        )
+                                    );
                             }
                             else
                             {
-                                await Clients.Caller.SendAsync("feed", count,
-                                    "<span>(" + i + " of " + len + " feeds) No new links from " + feed.title + ": <a href=\"https://" + feed.url + "\" target=\"_blank\">" + feed.url + "</a></span>");
+                                //await Clients.Caller.SendAsync("feed", 0, "<span>(" + i + " of " + len + " feeds) No new links from " + feed.title + ": <a href=\"https://" + feed.url + "\" target=\"_blank\">" + feed.url + "</a></span>");
                             }
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
                             await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
                                 domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
@@ -469,6 +488,7 @@ namespace Saber.Vendors.Collector.Hubs
                             return true;
                         }
                         return !rules.Any(b => b.rule == false &&
+                        Domains.CheckDefaultDoNotDownloadRules(b.url, "", "") &&
                         Domains.CheckDownloadRule(b.url, "", "", path, "", ""));
                     }
                     return false;

@@ -100,7 +100,7 @@ namespace Saber.Vendors.Collector
             article.totalImportantWords = important.Count;
 
             //copy info from Analyzed Article into Query Article
-            articleInfo.title = article.title;
+            articleInfo.title = article.title != null ? article.title : "";
             articleInfo.analyzecount++;
             articleInfo.analyzed = Version;
             articleInfo.cached = true;
@@ -949,24 +949,105 @@ namespace Saber.Vendors.Collector
             }
         }
 
-        public static string Download(string url)
+        public static string Download(string url, out string newurl)
         {
             //first, try to get headers for the URL from the host
             var request = WebRequest.Create(url);
             request.Method = "HEAD";
             var contentType = "";
-            //long filesize = 0;
+            var status = 0;
+            var wasHttp = url.IndexOf("http://") >= 0;
 
-            try
+            if(wasHttp == true)
             {
-                //try downloading head first to see if the request is actually html or a file
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                //change to https protocol
+                url = url.Replace("http://", "https://");
+                request = WebRequest.Create(url);
+                request.Method = "HEAD";
+            }
+
+            //long filesize = 0;
+            while((status < 301 && status > 200) || status == 0)
+            {
+                try
                 {
+                    //try downloading head first to see if the request is actually html or a file
+                    HttpWebResponse response;
+                    var hasError = false;
+                    try
+                    {
+                        response = (HttpWebResponse)request.GetResponse();
+                    }
+                    catch(WebException ex)
+                    {
+                        hasError = true;
+                        response = (HttpWebResponse)ex.Response;
+                    }
+                    if(response == null && wasHttp == true)
+                    {
+                        //try going back to http protocol
+                        wasHttp = false;
+                        url = url.Replace("https://", "http://");
+                        request = WebRequest.Create(url);
+                        request.Method = "HEAD";
+                    }
+                    if (response == null && request.Method == "HEAD")
+                    {
+                        //try GET method instead
+                        status = 0;
+                        request = WebRequest.Create(url);
+                        request.Method = "GET";
+                        continue;
+                    }
+                    else if (response == null)
+                    {
+                        //if all else fails, don't get response
+                        break;
+                    }
                     contentType = response.ContentType.Split(";")[0];
-                    //filesize = response.ContentLength;
+                    status = (int)response.StatusCode;
+
+                    if (status >= 301 && status <= 303)
+                    {
+                        //url redirect
+                        url = response.Headers["location"].ToString();
+                        request = WebRequest.Create(url);
+                        request.Method = "HEAD";
+                        status = 0;
+                    }
+                    else if(hasError == true && response.ResponseUri.AbsoluteUri != url)
+                    {
+                        //server error & url redirect from server
+                        url = response.ResponseUri.AbsoluteUri;
+                        request = WebRequest.Create(url);
+                        request.Method = "HEAD";
+                        status = 0;
+                    }
+                }
+                catch (Exception)
+                {
+                    status = 500;
+                }
+                if(status >= 500 && request.Method == "HEAD")
+                {
+                    //try GET method instead
+                    status = 0;
+                    request = WebRequest.Create(url);
+                    request.Method = "GET";
+                }
+                else if(status > 303 && request.Method == "GET" && wasHttp == true)
+                {
+                    //try getting request after going back to http protocol
+                    url = url.Replace("https://", "http://");
+                    request = WebRequest.Create(url);
+                    request.Method = "HEAD";
+                    status = 0;
+                    wasHttp = false;
                 }
             }
-            catch(Exception){ }
+
+            newurl = url;
+            
             if (contentType == "text/html" || contentType == "")
             {
                 //get JSON compressed HTML page from Charlotte windows service
@@ -981,11 +1062,12 @@ namespace Saber.Vendors.Collector
                 channelFactory.Close();
                 return result;
             }
-            else
+            else if(contentType != "")
             {
                 //handle all other files
                 return "file:" + contentType;
             }
+            return "";
         }
 
         public static void FileSize(AnalyzedArticle article)
