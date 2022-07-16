@@ -98,5 +98,20 @@ namespace Query
         {
             return Sql.ExecuteScalar<string>("Domain_FindTitle", new { domainId });
         }
+
+        public static string FindDescription(int domainId)
+        {
+            return Sql.ExecuteScalar<string>("Domain_FindDescription", new { domainId });
+        }
+
+        public static void UpdateDescription(int domainId, string description)
+        {
+            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, description });
+        }
+
+        public static void UpdateDomainType(int domainId, Models.DomainType type)
+        {
+            Sql.ExecuteNonQuery("Domain_UpdateType", new { domainId, type = (int)type });
+        }
     }
 }

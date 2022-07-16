@@ -1,7 +1,7 @@
 ﻿<div class="row pad-top-sm pad-bottom">
     <a href="{{domain-url}}" target="_blank">{{domain-url}}</a>
 </div>
-<div class="row pad-bottom"><p>{{description}}</p></div>
+<div class="row pad-bottom description"><p>{{description}}</p></div>
 <div class="messages"></div>
 <div class="row tabs">
     <div class="col tab tab-info selected">Info</div>
@@ -11,6 +11,30 @@
 </div>
 <div class="row tab-content">
     <div class="content-info pad">
+        <div class="row hover">
+            <div class="col field">Type</div>
+            <div class="col input">
+                <select id="domain_type" oninput="S.domain.info.updateType()" data-value="{{domain-type}}">
+                    <option value="-1">[Not Set]</option>
+                    <option value="0">Unused</option>
+                    <option value="1">Website</option>
+                    <option value="2">E-Commerce</option>
+                    <option value="3">Wiki</option>
+                    <option value="4">Blog</option>
+                    <option value="5">Science Journal</option>
+                    <option value="6">SASS</option>
+                    <option value="7">Social Network</option>
+                    <option value="8">Advertiser</option>
+                    <option value="9">Search Engine</option>
+                    <option value="10">Portfolio</option>
+                    <option value="11">News</option>
+                    <option value="12">Travel</option>
+                    <option value="13">Aggregator</option>
+                    <option value="14">Government</option>
+                </select>
+            </div>
+        </div>
+        <hr/>
         <div class="row hover input">
             <input type="checkbox" id="domain_subscription" 
                    {{subscription-required}}checked="checked"{{/subscription-required}} 

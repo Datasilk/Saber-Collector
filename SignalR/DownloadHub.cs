@@ -25,6 +25,14 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
 
+                    if (!Domains.ValidateURL(queue.url))
+                    {
+                        Query.Downloads.Delete(queue.qid);
+                        await Clients.Caller.SendAsync("update", "Invalid URL");
+                        await Clients.Caller.SendAsync("checked", 1);
+                        return;
+                    }
+
                     //first check download rules for queue
                     var downloadOnly = false;
                     foreach (var rule in queue.downloadRules)
@@ -83,7 +91,15 @@ namespace Saber.Vendors.Collector.Hubs
                     try
                     {
                         //merge analyzed article into Query Article
-                        var articleInfo = Article.Merge(Article.Create(queue.url), article);
+                        var existingArticle = Query.Articles.GetByUrl(queue.url) ?? Article.Create(queue.url);
+                        var articleInfo = Article.Merge(existingArticle, article);
+
+                        if(articleInfo.url.Length >= queue.domain.Length + 7 && 
+                            articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 1)
+                        {
+                            //found home page
+                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.summary);
+                        }
 
                         //check all download rules against article info
                         if(Domains.CheckDefaultDownloadLinksOnlyRules(queue.url, articleInfo.title, articleInfo.summary))
@@ -115,7 +131,16 @@ namespace Saber.Vendors.Collector.Hubs
                         if (downloadOnly == false)
                         {
                             //save article to database
-                            Article.Add(articleInfo);
+                            if(articleInfo.articleId <= 0)
+                            {
+                                //add article (which also archives download)
+                                Article.Add(articleInfo);
+                            }
+                            else
+                            {
+                                //archive download
+                                Query.Downloads.Move(queue.qid);
+                            }
 
                             //save downloaded results to disk
                             var relpath = Article.ContentPath(queue.url);
@@ -146,6 +171,7 @@ namespace Saber.Vendors.Collector.Hubs
                             if (string.IsNullOrEmpty(url)) { continue; }
                             var uri = Web.CleanUrl(url, false);
                             if (!ValidateURL(uri)) { continue; }
+                            if (!Domains.ValidateURL(uri)) { continue; }
                             var domain = uri.GetDomainName();
                             if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
                             //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
@@ -273,6 +299,7 @@ namespace Saber.Vendors.Collector.Hubs
                             if (string.IsNullOrEmpty(url)) { continue; }
                             var uri = Web.CleanUrl(url, false);
                             if (!ValidateURL(uri)) { continue; }
+                            if (!Domains.ValidateURL(uri)) { continue; }
                             var domain = uri.GetDomainName();
                             if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
 
@@ -366,6 +393,7 @@ namespace Saber.Vendors.Collector.Hubs
                         if (string.IsNullOrEmpty(url)) { continue; }
                         var uri = Web.CleanUrl(url, false);
                         if (!ValidateURL(uri)) { continue; }
+                        if (!Domains.ValidateURL(uri)) { continue; }
                         var domain = uri.GetDomainName();
                         if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
 

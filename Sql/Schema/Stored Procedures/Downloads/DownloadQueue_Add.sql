@@ -23,7 +23,7 @@ END ELSE BEGIN
 	INSERT INTO Domains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
 END
 SET @cursor = CURSOR FOR
-SELECT [value] FROM #urls
+SELECT DISTINCT [value] FROM #urls
 OPEN @cursor
 FETCH NEXT FROM @cursor INTO @url
 WHILE @@FETCH_STATUS = 0 BEGIN

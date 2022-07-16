@@ -3,13 +3,15 @@
 }
 .domain-item{float:left; width:33%; padding:10px; border-bottom:1px solid #015e4a;
     &:hover{background-color:#00383c;}
-    .info{
+    .info{ height:36px;
         & > span{display:inline-blocck; padding:0 15px 5px 0;}
         .whitelisted{color:#88ff81 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
         .paywall{color:#e97b46 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
         .free{color:#39bbff !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block; text-transform:uppercase;}
         .articles .num{color:#49de00 !important;}
     }
+    p.summary{height:40px; text-overflow:ellipsis; overflow:hidden; white-space:normal; opacity:0.7; margin-top:5px;}
+    .domain-type{color:#eb86f4 !important;}
 }
 .page-menu{
     #search{max-width:500px; width:100%;}

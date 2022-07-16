@@ -5,7 +5,7 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Check]
 	@domaindelay int = 60, -- in seconds
 	@domain nvarchar(64) = '',
 	@feedId int = 0,
-	@sort int = 0 -- 0 = newest, 1 = oldest
+	@sort int = 0 -- 0 = newest, 1 = oldest, 2 = domain-level
 AS
 	DECLARE @qid int, @domainId int
 
@@ -25,8 +25,14 @@ AS
 		(@feedId > 0 AND q.feedId = @feedId)
 		OR @feedId <= 0
 	)
+	AND (
+		(@sort = 2 AND LEN(q.[url]) <= LEN(d.domain) + 9)
+		OR @sort != 2
+	)
 	ORDER BY 
-	CASE WHEN @sort = 0 THEN q.datecreated END DESC
+	CASE WHEN @sort = 0 THEN q.datecreated END DESC,
+	CASE WHEN @sort = 2 THEN LEN(q.url) END
+
 
 	IF @qid > 0 BEGIN
 		

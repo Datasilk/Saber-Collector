@@ -2,6 +2,15 @@
     <div class="col field">Domain Title</div>
     <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.getDomainTitle()">Get Title</button></div>
 </div>
+<div class="row hover hide">
+    <div class="col field">Description</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.getDescription()">Get Description</button></div>
+</div>
+<div class="row hover">
+    <div class="col field">Subjects</div>
+    <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.getDomainSubjects()">Get Subjects</button></div>
+</div>
+<hr class="margin-top-lg"/>
 {{whitelist}}
 <div class="row hover">
     <div class="col field">Whitelist</div>
@@ -26,6 +35,7 @@
     <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.blacklist.remove()" title="Remove this domain from the blacklist">Blacklist</button></div>
 </div>
 {{/remove-blacklist}}
+<hr/>
 <div class="row hover">
     <div class="col field">WARNING!</div>
     <div class="col input expand align-right"><button class="special" onclick="S.domain.advanced.deleteAllArticles()">Delete All Articles</button></div>

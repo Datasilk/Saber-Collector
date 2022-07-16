@@ -14,7 +14,7 @@ namespace Saber.Vendors.Collector.Services
         public string Search(int subjectId, int type, int sort, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            return Domains.RenderList(subjectId, (Domains.Type)type, (Domains.Sort)sort, start, length, search);
+            return Domains.RenderList(subjectId, (Domains.SearchType)type, (Domains.Sort)sort, start, length, search);
         }
 
         public string Details(string domain)
@@ -24,6 +24,7 @@ namespace Saber.Vendors.Collector.Services
             var info = Query.Domains.GetInfo(domain);
             view["description"] = info.description != "" ? info.description : "No description was found for this domain yet.";
             view["domain-url"] = "https://" + info.domain;
+            view["domain-type"] = ((int)info.type).ToString();
             if (info.paywall)
             {
                 view.Show("subscription-required");
@@ -48,6 +49,13 @@ namespace Saber.Vendors.Collector.Services
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             Query.Domains.HasFreeContent(domainId, free);
+            return Success();
+        }
+
+        public string UpdateDomainType(int domainId, int type)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.UpdateDomainType(domainId, (Query.Models.DomainType)type);
             return Success();
         }
         #endregion
@@ -201,17 +209,23 @@ namespace Saber.Vendors.Collector.Services
             return view.Render();
         }
 
-        public string DeleteAllArticles(int domainId)
-        {
-            if (!CheckSecurity()) { return AccessDenied(); }
-            Domains.DeleteAllArticles(domainId);
-            return Success();
-        }
-
         public string GetDomainTitle(int domainId)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             return Query.Domains.FindDomainTitle(domainId);
+        }
+
+        public string GetDescription(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            return Query.Domains.FindDescription(domainId);
+        }
+
+        public string GetDomainSubjects(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+
+            return "";
         }
 
         public string Whitelist(string domain)
@@ -245,6 +259,13 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             if (domain == "") { return Error("No domain specified"); }
             Query.Blacklists.Domains.Remove(domain);
+            return Success();
+        }
+
+        public string DeleteAllArticles(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Domains.DeleteAllArticles(domainId);
             return Success();
         }
         #endregion

@@ -66,5 +66,15 @@ namespace Query
         {
             return Sql.ExecuteScalar<int>("Downloads_GetCount");
         }
+
+        public static void Delete(long qid)
+        {
+            Sql.ExecuteNonQuery("Download_Delete", new { qid });
+        }
+
+        public static void Move(long qid)
+        {
+            Sql.ExecuteNonQuery("DownloadQueue_Move", new { qid });
+        }
     }
 }

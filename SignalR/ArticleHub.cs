@@ -20,6 +20,13 @@ namespace Saber.Vendors.Collector.Hubs
             
             await Clients.Caller.SendAsync("update", 1, "Collector v" + info.Version);
 
+            //first, validate URL
+            if (!Domains.ValidateURL(url))
+            {
+                await Clients.Caller.SendAsync("update", 1, "URL \"" + url + "\" is invalid");
+                return;
+            }
+
             // Get Article HTML Content //////////////////////////////////////////////////////////////////////////////////////////////////
             try
             {

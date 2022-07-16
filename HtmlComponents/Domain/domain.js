@@ -13,6 +13,10 @@
                 $('.popup.show .tab-rules').on('click', S.domain.rules.show);
                 $('.popup.show .tab-download').on('click', S.domain.download.show);
                 $('.popup.show .tab-advanced').on('click', S.domain.advanced.show);
+
+                //select correct domain type
+                var domaintype = $('.popup.show #domain_type').attr('data-value');
+                $('.popup.show #domain_type option[value="' + domaintype + '"]').attr("selected", "selected");
             }, () => { }, true);
         },
 
@@ -39,6 +43,14 @@
                 free: domain_freecontent.checked == true
             }
             S.ajax.post('CollectorDomains/HasFreeContent', data, (response) => { });
+        },
+
+        updateType: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                type: domain_type.value
+            }
+            S.ajax.post('CollectorDomains/UpdateDomainType', data, (response) => { });
         }
     },
 
@@ -161,8 +173,15 @@
 
         getDomainTitle: function () {
             S.ajax.post('CollectorDomains/GetDomainTitle', { domainId: S.domain.details.domainId }, (title) => {
-                S.message.show('.popup.show .messages', '', 'Found new title "' + title + '".');
+                S.message.show('.popup.show .messages', '', 'Found new domain title.');
                 $('.popup.show .title h6').html(title);
+            });
+        },
+
+        getDescription: function () {
+            S.ajax.post('CollectorDomains/GetDescription', { domainId: S.domain.details.domainId }, (description) => {
+                S.message.show('.popup.show .messages', '', 'Found new domain description.');
+                $('.popup.show .description p').html(description);
             });
         },
 

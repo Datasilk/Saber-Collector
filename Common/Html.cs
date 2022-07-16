@@ -506,7 +506,10 @@ namespace Saber.Vendors.Collector
             }
 
             //get page description
-            var description = article.elements.Where(a => a.tagName == "meta" && a.attribute.ContainsKey("name") && a.attribute["name"].IndexOf("description") >= 0).FirstOrDefault();
+            var description = article.elements.Where(a => a.tagName == "meta" && (
+                (a.attribute.ContainsKey("name") && a.attribute["name"].ToLower().IndexOf("description") >= 0) ||
+                (a.attribute.ContainsKey("property") && a.attribute["property"].ToLower().IndexOf("og:description") >= 0)
+                )).FirstOrDefault();
             if(description != null)
             {
                 article.summary = description.attribute["content"];

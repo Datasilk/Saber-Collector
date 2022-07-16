@@ -2,7 +2,7 @@
 	DROP PROCEDURE [dbo].[Download_Delete]
 GO
 CREATE PROCEDURE [dbo].[Download_Delete]
-	@qid int = 0
+	@qid bigint = 0
 AS
 	DECLARE @url nvarchar(250)
 	SELECT @url = [url] FROM DownloadQueue WHERE qid=@qid

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.IO;
 using Saber.Core.Extensions.Strings;
 
@@ -9,7 +10,7 @@ namespace Saber.Vendors.Collector
 {
     public static class Domains
     {
-        public enum Type
+        public enum SearchType
         {
             all = 0,
             whitelisted = 1,
@@ -27,7 +28,7 @@ namespace Saber.Vendors.Collector
             Oldest = 4
         };
 
-        public static string RenderList(int subjectId = 0, Type type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 50, string search = "")
+        public static string RenderList(int subjectId = 0, SearchType type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 50, string search = "")
         {
             List<Query.Models.Domain> domains;
             var subjectIds = new List<int>();
@@ -46,10 +47,59 @@ namespace Saber.Vendors.Collector
                     //populate view with domain info
                     item.Clear();
                     item["title"] = domain.title != "" ? domain.title : domain.domain.GetDomainName();
+                    //item["summary"] = domain.description.Length > 100 ? domain.description.Substring(0, 98) + "..." : domain.description;
                     item["url"] = "https://" + domain.domain;
                     item["domain"] = domain.domain;
                     item["domainid"] = domain.domainId.ToString();
-                    if(domain.articles > 0)
+                    if((int)domain.type > -1)
+                    {
+                        var domaintype = "";
+                        switch (domain.type)
+                        {
+                            case Query.Models.DomainType.unused:
+                                domaintype = "unused";
+                                break;
+                            case Query.Models.DomainType.website:
+                                domaintype = "website";
+                                break;
+                            case Query.Models.DomainType.ecommerce:
+                                domaintype = "e-commerce";
+                                break;
+                            case Query.Models.DomainType.wiki:
+                                domaintype = "wiki";
+                                break;
+                            case Query.Models.DomainType.blog:
+                                domaintype = "blog";
+                                break;
+                            case Query.Models.DomainType.science_journal:
+                                domaintype = "science journal";
+                                break;
+                            case Query.Models.DomainType.advertiser:
+                                domaintype = "advertiser";
+                                break;
+                            case Query.Models.DomainType.search_engine:
+                                domaintype = "search engine";
+                                break;
+                            case Query.Models.DomainType.portfolio:
+                                domaintype = "portfolio";
+                                break;
+                            case Query.Models.DomainType.news:
+                                domaintype = "news";
+                                break;
+                            case Query.Models.DomainType.travel:
+                                domaintype = "travel";
+                                break;
+                            case Query.Models.DomainType.aggregator:
+                                domaintype = "aggregator";
+                                break;
+                            case Query.Models.DomainType.government:
+                                domaintype = "government";
+                                break;
+                        }
+                        item.Show("has-domain-type");
+                        item["domain-type"] = domaintype;
+                    }
+                    if (domain.articles > 0)
                     {
                         item["total-articles"] = domain.articles.ToString();
                         item.Show("articles");
@@ -72,6 +122,7 @@ namespace Saber.Vendors.Collector
             return html.ToString();
         }
 
+        #region "Download Rules"
         public class DownloadRuleMatch
         {
             public string Url { get; set; } = "";
@@ -160,14 +211,6 @@ namespace Saber.Vendors.Collector
             return false;
         }
 
-
-        public class RuleMatch
-        {
-            public string Url { get; set; } = "";
-            public string Title { get; set; } = "";
-            public string Summary { get; set; } = "";
-        }
-
         public static void CleanupDownloads(int domainId)
         {
             var clean = Query.Domains.GetDownloadsToClean(domainId);
@@ -185,6 +228,27 @@ namespace Saber.Vendors.Collector
                 }
             }
             Query.Domains.CleanDownloads(domainId);
+        }
+
+        #endregion
+
+        public static bool ValidateURL(string url)
+        {
+            bool isValid = url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0;
+            if (isValid)
+            {
+                url = url.Replace("http://", "").Replace("https://", "").Replace("www.", "");
+                var parts = url.Split('/');
+                if(parts.Length > 0)
+                {
+                    parts = parts[0].Split(".");
+                    if(parts.Length >= 2 && parts[0].Length > 0 && parts[1].Length > 0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public static void DeleteAllArticles(int domainId)

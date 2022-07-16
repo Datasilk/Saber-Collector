@@ -1,8 +1,14 @@
 ﻿<div class="domain-item" onclick="S.domain.details.show('{{domain}}')">
-    <div class="title">
+    <div class="row">
+    <div class="col title">
         <h4>{{title}}</h4>
     </div>
-    <p class="summary">{{summary}}</p>
+    {{has-domain-type}}
+        <div class="col right">
+            <span class="domain-type">{{domain-type}}</span>
+        </div>
+    {{/has-domain-type}}
+    </div>
     <div class="url">
         <a href="{{url}}" onclick="event.cancelBubble = true" target="_blank">{{url}}</a>
     </div>
