@@ -8,6 +8,7 @@ namespace Saber.Vendors.Collector.Models.Nodes
         public string[] a { get; set; }//attribute names
         public string[] t { get; set; } //tag names
         public Node dom { get; set; }
+        public string url { get; set; }
     }
 
     public class Dictionaries //used by Html.Traverse

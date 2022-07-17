@@ -28,7 +28,7 @@ namespace Saber.Vendors.Collector
             Oldest = 4
         };
 
-        public static string RenderList(int subjectId = 0, SearchType type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 50, string search = "")
+        public static string RenderList(int subjectId = 0, SearchType type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 200, string search = "")
         {
             List<Query.Models.Domain> domains;
             var subjectIds = new List<int>();
@@ -46,80 +46,96 @@ namespace Saber.Vendors.Collector
                 {
                     //populate view with domain info
                     item.Clear();
-                    item["title"] = domain.title != "" ? domain.title : domain.domain.GetDomainName();
-                    //item["summary"] = domain.description.Length > 100 ? domain.description.Substring(0, 98) + "..." : domain.description;
-                    item["url"] = "https://" + domain.domain;
-                    item["domain"] = domain.domain;
-                    item["domainid"] = domain.domainId.ToString();
-                    if((int)domain.type > -1)
-                    {
-                        var domaintype = "";
-                        switch (domain.type)
-                        {
-                            case Query.Models.DomainType.unused:
-                                domaintype = "unused";
-                                break;
-                            case Query.Models.DomainType.website:
-                                domaintype = "website";
-                                break;
-                            case Query.Models.DomainType.ecommerce:
-                                domaintype = "e-commerce";
-                                break;
-                            case Query.Models.DomainType.wiki:
-                                domaintype = "wiki";
-                                break;
-                            case Query.Models.DomainType.blog:
-                                domaintype = "blog";
-                                break;
-                            case Query.Models.DomainType.science_journal:
-                                domaintype = "science journal";
-                                break;
-                            case Query.Models.DomainType.advertiser:
-                                domaintype = "advertiser";
-                                break;
-                            case Query.Models.DomainType.search_engine:
-                                domaintype = "search engine";
-                                break;
-                            case Query.Models.DomainType.portfolio:
-                                domaintype = "portfolio";
-                                break;
-                            case Query.Models.DomainType.news:
-                                domaintype = "news";
-                                break;
-                            case Query.Models.DomainType.travel:
-                                domaintype = "travel";
-                                break;
-                            case Query.Models.DomainType.aggregator:
-                                domaintype = "aggregator";
-                                break;
-                            case Query.Models.DomainType.government:
-                                domaintype = "government";
-                                break;
-                        }
-                        item.Show("has-domain-type");
-                        item["domain-type"] = domaintype;
-                    }
-                    if (domain.articles > 0)
-                    {
-                        item["total-articles"] = domain.articles.ToString();
-                        item.Show("articles");
-                    }
-                    if(domain.whitelisted == true)
-                    {
-                        item.Show("whitelisted");
-                    }
-                    if (domain.paywall == true)
-                    {
-                        item.Show("paywall");
-                    }
-                    if (domain.free == true)
-                    {
-                        item.Show("free");
-                    }
-                    html.Append(item.Render());
+                    html.Append(RenderListItem(domain, item));
                 }
             }
             return html.ToString();
+        }
+
+        public static string RenderListItem(int domainId)
+        {
+            var domain = Query.Domains.GetById(domainId);
+            return RenderListItem(domain);
+        }
+
+        public static string RenderListItem(Query.Models.Domain domain, View item = null)
+        {
+            if (item == null) { item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html"); }
+            //populate view with domain info
+            item["title"] = domain.title != "" ? domain.title : domain.domain.GetDomainName();
+            //item["summary"] = domain.description.Length > 100 ? domain.description.Substring(0, 98) + "..." : domain.description;
+            item["url"] = "https://" + domain.domain;
+            item["domain"] = domain.domain;
+            item["domainid"] = domain.domainId.ToString();
+            if ((int)domain.type > -1)
+            {
+                var domaintype = "";
+                switch (domain.type)
+                {
+                    case Query.Models.DomainType.unused:
+                        domaintype = "unused";
+                        break;
+                    case Query.Models.DomainType.website:
+                        domaintype = "website";
+                        break;
+                    case Query.Models.DomainType.ecommerce:
+                        domaintype = "e-commerce";
+                        break;
+                    case Query.Models.DomainType.wiki:
+                        domaintype = "wiki";
+                        break;
+                    case Query.Models.DomainType.blog:
+                        domaintype = "blog";
+                        break;
+                    case Query.Models.DomainType.science_journal:
+                        domaintype = "science journal";
+                        break;
+                    case Query.Models.DomainType.advertiser:
+                        domaintype = "advertiser";
+                        break;
+                    case Query.Models.DomainType.search_engine:
+                        domaintype = "search engine";
+                        break;
+                    case Query.Models.DomainType.portfolio:
+                        domaintype = "portfolio";
+                        break;
+                    case Query.Models.DomainType.news:
+                        domaintype = "news";
+                        break;
+                    case Query.Models.DomainType.travel:
+                        domaintype = "travel";
+                        break;
+                    case Query.Models.DomainType.aggregator:
+                        domaintype = "aggregator";
+                        break;
+                    case Query.Models.DomainType.government:
+                        domaintype = "government";
+                        break;
+                    case Query.Models.DomainType.ebooks:
+                        domaintype = "e-books";
+                        break;
+                }
+                item.Show("has-domain-type");
+                item["domain-type"] = domaintype;
+            }
+            if (domain.articles > 0)
+            {
+                item["total-articles"] = domain.articles.ToString();
+                item.Show("articles");
+            }
+            if (domain.whitelisted == true)
+            {
+                item.Show("whitelisted");
+            }
+            if (domain.paywall == true)
+            {
+                item.Show("paywall");
+            }
+            if (domain.free == true)
+            {
+                item.Show("free");
+            }
+            return item.Render();
         }
 
         #region "Download Rules"

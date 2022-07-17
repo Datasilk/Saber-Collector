@@ -973,14 +973,12 @@ namespace Saber.Vendors.Collector
                 {
                     //try downloading head first to see if the request is actually html or a file
                     HttpWebResponse response;
-                    var hasError = false;
                     try
                     {
                         response = (HttpWebResponse)request.GetResponse();
                     }
                     catch(WebException ex)
                     {
-                        hasError = true;
                         response = (HttpWebResponse)ex.Response;
                     }
                     if(response == null && wasHttp == true)
@@ -1007,18 +1005,18 @@ namespace Saber.Vendors.Collector
                     contentType = response.ContentType.Split(";")[0];
                     status = (int)response.StatusCode;
 
-                    if (status >= 301 && status <= 303)
+                    if(response.ResponseUri.OriginalString != url)
                     {
                         //url redirect
-                        url = response.Headers["location"].ToString();
+                        url = response.ResponseUri.OriginalString;
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
                         status = 0;
                     }
-                    else if(hasError == true && response.ResponseUri.AbsoluteUri != url)
+                    else if ((status >= 301 && status <= 303))
                     {
-                        //server error & url redirect from server
-                        url = response.ResponseUri.AbsoluteUri;
+                        //url redirect
+                        url = response.Headers["location"].ToString();
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
                         status = 0;

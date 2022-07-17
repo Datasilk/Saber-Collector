@@ -34,7 +34,7 @@
                 domainId: S.domain.details.domainId,
                 required: domain_subscription.checked == true
             }
-            S.ajax.post('CollectorDomains/RequireSubscription', data, (response) => {});
+            S.ajax.post('CollectorDomains/RequireSubscription', data, S.domain.updateListItem);
         },
 
         hasFreeContent: function () {
@@ -42,7 +42,7 @@
                 domainId: S.domain.details.domainId,
                 free: domain_freecontent.checked == true
             }
-            S.ajax.post('CollectorDomains/HasFreeContent', data, (response) => { });
+            S.ajax.post('CollectorDomains/HasFreeContent', data, S.domain.updateListItem);
         },
 
         updateType: function () {
@@ -50,8 +50,20 @@
                 domainId: S.domain.details.domainId,
                 type: domain_type.value
             }
-            S.ajax.post('CollectorDomains/UpdateDomainType', data, (response) => { });
+            S.ajax.post('CollectorDomains/UpdateDomainType', data, S.domain.updateListItem);
         }
+    },
+
+    updateListItem: function () {
+        //update domain list item on domains HTML component list
+        S.ajax.post('CollectorDomains/GetDomainListItem', { domainId: S.domain.details.domainId }, (response) => { 
+            var elem = $('.domain-item.id-' + S.domain.details.domainId);
+            if (elem.length > 0) {
+                var div = document.createElement('div');
+                div.innerHTML = response;
+                elem.parent()[0].replaceChild(div.firstChild, elem[0]);
+            }
+        });
     },
 
     articles: {
@@ -150,7 +162,7 @@
                 if (!confirm('Do you really want to run this cleanup? This will permanently delete all affected articles, downloads, and associated files on disk.')) { return; }
                 S.ajax.post('CollectorDomains/CleanupDownloads', { domainId: S.domain.details.domainId }, () => {
                     S.popup.back();
-
+                    S.domain.updateListItem();
                 });
             }
         }
@@ -168,6 +180,7 @@
             if (!confirm('Do you really want to delete articles for this domain? This cannot be undone!')) { return; }
             S.ajax.post('CollectorDomains/DeleteAllArticles', { domainId: S.domain.details.domainId }, (response) => {
                 S.message.show('.popup.show .messages', '', 'All articles were deleted for your domain');
+                S.domain.updateListItem();
             });
         },
 
@@ -175,6 +188,7 @@
             S.ajax.post('CollectorDomains/GetDomainTitle', { domainId: S.domain.details.domainId }, (title) => {
                 S.message.show('.popup.show .messages', '', 'Found new domain title.');
                 $('.popup.show .title h6').html(title);
+                S.domain.updateListItem();
             });
         },
 
@@ -182,6 +196,7 @@
             S.ajax.post('CollectorDomains/GetDescription', { domainId: S.domain.details.domainId }, (description) => {
                 S.message.show('.popup.show .messages', '', 'Found new domain description.');
                 $('.popup.show .description p').html(description);
+                S.domain.updateListItem();
             });
         },
 
@@ -191,6 +206,7 @@
                 S.ajax.post('CollectorDomains/Whitelist', { domain: S.domain.details.domain }, (response) => {
                     S.message.show('.popup.show .messages', '', 'This domain is now whitelisted.');
                     S.domain.advanced.show();
+                    S.domain.updateListItem();
                 });
             },
 
@@ -199,6 +215,7 @@
                 S.ajax.post('CollectorDomains/RemoveWhitelist', { domain: S.domain.details.domain }, (response) => {
                     S.message.show('.popup.show .messages', '', 'This domain is now removed from the whitelist.');
                     S.domain.advanced.show();
+                    S.domain.updateListItem();
                 });
             }
         },
@@ -209,6 +226,7 @@
                 S.ajax.post('CollectorDomains/Blacklist', { domain: S.domain.details.domain }, (response) => {
                     S.message.show('.popup.show .messages', '', 'This domain is now blacklisted.');
                     S.popup.hide();
+                    $('.domain-item.id-' + S.domain.details.domainId).remove();
                 });
             },
 

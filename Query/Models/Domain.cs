@@ -34,5 +34,6 @@ namespace Query.Models
         travel = 12,
         aggregator = 13,
         government = 14,
+        ebooks = 15,
     }
 }

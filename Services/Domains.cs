@@ -17,6 +17,12 @@ namespace Saber.Vendors.Collector.Services
             return Domains.RenderList(subjectId, (Domains.SearchType)type, (Domains.Sort)sort, start, length, search);
         }
 
+        public string GetDomainListItem(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            return Domains.RenderListItem(domainId);
+        }
+
         public string Details(string domain)
         {
             if (!CheckSecurity()) { return AccessDenied(); }

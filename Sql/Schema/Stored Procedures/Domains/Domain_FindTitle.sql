@@ -49,7 +49,7 @@ AS
 	DECLARE @domainTitle nvarchar(128)
 	SELECT @domain = domain FROM Domains WHERE domainId=@domainId
 	INSERT INTO @domainparts SELECT * FROM STRING_SPLIT(@domain, '.')
-	SELECT TOP 1 @domainpart = REPLACE([value], '-', '') FROM @domainparts
+	SELECT TOP 1 @domainpart = REPLACE([value], '-', '%') FROM @domainparts
 	SELECT @domainpart2 = STRING_AGG([value], '') FROM @domainparts
 	PRINT @domainpart2
 	SELECT TOP 1 @domainTitle = TRIM(word)
@@ -65,7 +65,7 @@ AS
 		GROUP BY w.word, b.score
 		HAVING COUNT(w.word) > 1
 	) AS tbl
-	ORDER BY score DESC, [length] ASC, total DESC
+	ORDER BY score DESC, total DESC, [length] DESC
 
 	UPDATE Domains SET title=@domainTitle WHERE domainId=@domainId
 	

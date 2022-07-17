@@ -39,6 +39,7 @@ namespace Saber.Vendors.Collector
                 parser.Elements = elems;
                 article.elements = elems;
                 article.rawHtml = FormatHtml(elems).ToString();
+                article.url = node.url;
             }
             catch (Exception ex)
             {

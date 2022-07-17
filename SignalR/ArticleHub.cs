@@ -79,14 +79,51 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", 1, "Downloading...");
                     }
                     var result = Article.Download(url, out var newurl);
-                    if(newurl != url)
+
+                    if (result == "")
+                    {
+                        if (!published)
+                        {
+                            await Clients.Caller.SendAsync("update", 1, "Download timed out for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                        }
+                        return;
+                    }
+                    else if (result.IndexOf("file:") == 0)
+                    {
+                        if (!published)
+                        {
+                            await Clients.Caller.SendAsync("update", 1, "URL points to a file of type \"" + result.Substring(5) + "\"");
+                            await Clients.Caller.SendAsync("update", 1, "Download file: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
+                        }
+                        return;
+                    }
+                    try
+                    {
+                        article = Html.DeserializeArticle(result);
+                        if(article.url != null && article.url != "")
+                        {
+                            //get URL redirection from Charlotte
+                            newurl = article.url;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        if (!published)
+                        {
+                            await Clients.Caller.SendAsync("update", 1, "Error parsing DOM!");
+                            await Clients.Caller.SendAsync("update", 1, result.Replace("&", "&amp;").Replace("<", "&lt;").Replace("\n", "<br/>"));
+                        }
+                        return;
+                    }
+
+                    if (newurl != url)
                     {
                         //updated URL (was redirected)
                         if(articleInfo != null)
                         {
                             //update existing article URL
                             Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName());
-                            await Clients.Caller.SendAsync("update", 1, "Updated article URL from " + url + " to " + newurl);
+                            await Clients.Caller.SendAsync("update", 1, "Redirected & updated article URL from " + url + " to " + newurl);
                         }
                         await Clients.Caller.SendAsync("update-url", newurl);
 
@@ -97,10 +134,11 @@ namespace Saber.Vendors.Collector.Hubs
                             if(articleInfo != null)
                             {
                                 filename = articleInfo.articleId + ".html";
-                                if (oldinfo == null || oldinfo.articleId != articleInfo.articleId)
+                                if (oldinfo != null && oldinfo.articleId != articleInfo.articleId)
                                 {
-                                    await Clients.Caller.SendAsync("update", 1, "Old articleId = " + (oldinfo != null ? oldinfo.articleId : "NULL") + ", new articleId = " + articleInfo.articleId);
+                                    await Clients.Caller.SendAsync("update", 1, "Old articleId = " + oldinfo.articleId + ", new articleId = " + articleInfo.articleId);
                                 }
+                                await Clients.Caller.SendAsync("update", 1, "Redirected & updated article URL from " + url + " to " + newurl);
                             }
                         }
                     }
@@ -117,37 +155,6 @@ namespace Saber.Vendors.Collector.Hubs
 
                     relpath = Article.ContentPath(url);
                     filepath = App.MapPath(relpath);
-
-                    if (result == "")
-                    {
-                        if (!published)
-                        {
-                            await Clients.Caller.SendAsync("update", 1, "Download timed out for URL: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
-                        }
-                        return;
-                    }
-                    else if (result.IndexOf("file:") == 0)
-                    {
-                        if (!published) 
-                        { 
-                            await Clients.Caller.SendAsync("update", 1, "URL points to a file of type \"" + result.Substring(5) + "\"");
-                            await Clients.Caller.SendAsync("update", 1, "Download file: <a href=\"" + url + "\" target=\"_blank\">" + url + "</a>");
-                        }
-                        return;
-                    }
-                    try
-                    {
-                        article = Html.DeserializeArticle(result);
-                    }
-                    catch (Exception)
-                    {
-                        if (!published)
-                        {
-                            await Clients.Caller.SendAsync("update", 1, "Error parsing DOM!");
-                            await Clients.Caller.SendAsync("update", 1, result.Replace("&", "&amp;").Replace("<", "&lt;").Replace("\n","<br/>"));
-                        }
-                        return;
-                    }
 
 
                     //get filesize of article
