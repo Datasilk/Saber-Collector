@@ -1,1 +1,24 @@
-﻿{{content}}
+﻿<div class="row domains-paging">
+    {{has-paging}}
+    <div class="col right">
+        <ul class="paging">
+            {{show-first}}
+            <li class="prev">
+                <button class="special" onclick="S.domains.search.getResults(1, {{length}})">First Page</button>
+            </li>
+            {{/show-first}}
+            <li class="prev">
+                <button class="special {{no-prev}}disabled{{/no-prev}}" {{no-prev}}disabled="disabled"{{/no-prev}} onclick="S.domains.search.getResults({{prev-start}}, {{length}})">Previous</button>
+            </li>
+            <li class="next">
+                <button class="special {{no-next}}disabled{{/no-next}}" {{no-next}}disabled="disabled"{{/no-next}} onclick="S.domains.search.getResults({{next-start}}, {{length}})">Next</button>
+            </li>
+        </ul>
+    </div>
+    {{/has-paging}}
+    <div class="col text right pad-right-lg">
+        <span>{{total-domains}} total domains, viewing results #{{pos-start}} to #{{pos-end}}</span>
+    </div>
+</div>
+
+{{content}}

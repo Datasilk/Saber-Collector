@@ -14,12 +14,18 @@ AS
 	SELECT TOP 1 @qid = q.qid, @domainId = q.domainId
 	FROM DownloadQueue q WITH (TABLOCKX)
 	JOIN Domains d ON d.domainId = q.domainId
-	JOIN Whitelist_Domains w ON w.domain = d.domain -- must be a whitelisted domain
+	LEFT JOIN Whitelist_Domains w ON w.domain = d.domain -- must be a whitelisted domain
+	LEFT JOIN Blacklist_Domains b ON b.domain = d.domain -- check for blacklisted domain
 	WHERE q.status = 0
 	AND (
 		(@domain IS NOT NULL AND @domain <> '' AND d.domain = @domain)
 		OR @domain IS NULL OR @domain = ''
 	)
+	AND (
+		(@sort != 2 AND w.domain IS NOT NULL)
+		OR @sort = 2
+	)
+	AND b.domain IS NULL
 	AND d.lastchecked < DATEADD(SECOND, 0 - @domaindelay, GETUTCDATE())
 	AND (
 		(@feedId > 0 AND q.feedId = @feedId)

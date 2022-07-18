@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using Saber.Core;
 using Saber.Vendor;
 
@@ -24,18 +23,11 @@ namespace Saber.Vendors.Collector.HtmlComponents.Articles
                     {
                         var results = new List<KeyValuePair<string, string>>();
 
-                        //render articles list
-                        var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
-                        var viewArticle = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
-                        var html = new StringBuilder();
-
-                        viewComponent["content"] = Components.Accordion.Render("Domains", "domains", Collector.Domains.RenderList());
-
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/Domains/domains.css", "collector_domains_css");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/Domains/domains.js", "collector_domains_js");
 
-                        results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
+                        results.Add(new KeyValuePair<string, string>(prefix + key, Collector.Domains.RenderComponent()));
                         return results;
                     })
                 }

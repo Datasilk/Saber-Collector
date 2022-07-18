@@ -12,6 +12,11 @@ namespace Query
             return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length });
         }
 
+        public static int GetCount(int[] subjectIds = null, int type = 0, int sort = 0, string search = "")
+        {
+            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, sort });
+        }
+
         public static Models.Domain GetInfo(string domain)
         {
             return Sql.Populate<Models.Domain>("Domain_GetInfo", new { domain }).FirstOrDefault();

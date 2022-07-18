@@ -67,6 +67,6 @@ AS
 	) AS tbl
 	ORDER BY score DESC, total DESC, [length] DESC
 
-	UPDATE Domains SET title=@domainTitle WHERE domainId=@domainId
+	UPDATE Domains SET title=@domainTitle, hastitle=1 WHERE domainId=@domainId
 	
 	SELECT @domainTitle

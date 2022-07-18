@@ -21,6 +21,8 @@ AS
 		CASE WHEN @sort = 0 OR @sort = 1 THEN d.hastitle END DESC, 
 		CASE WHEN @sort = 0 THEN d.title END,
 		CASE WHEN @sort = 1 THEN d.title END DESC,
+		CASE WHEN @sort = 0 THEN d.domain END,
+		CASE WHEN @sort = 1 THEN d.domain END DESC,
 		CASE WHEN @sort = 2 THEN a.articles END DESC,
 		CASE WHEN @sort = 3 THEN d.datecreated END DESC,
 		CASE WHEN @sort = 4 THEN d.datecreated END ASC
