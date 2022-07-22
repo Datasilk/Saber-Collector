@@ -32,7 +32,12 @@ namespace Query
                     urls[x] = urls[x].Substring(0, urls[x].Length - 1);
                 }
             }
-            return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { urls = string.Join(",", urls), domain, feedId });
+            return Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, feedId });
+        }
+
+        public static int AddQueueItem(string url, string domain, int feedId = 0)
+        {
+            return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { url, domain, feedId });
         }
 
         public enum QueueSort

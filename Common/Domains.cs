@@ -304,6 +304,18 @@ namespace Saber.Vendors.Collector
             return false;
         }
 
+        public static bool ValidateDomain(string domain)
+        {
+            var parts = domain.Split(".");
+            if(parts.Length < 2) { return false; }
+            if (int.TryParse(parts[parts.Length - 1], out int num))
+            {
+                //found potential IP address
+                return false;
+            }
+            return true;
+        }
+
         public static void DeleteAllArticles(int domainId)
         {
             var domain = Query.Domains.GetById(domainId);

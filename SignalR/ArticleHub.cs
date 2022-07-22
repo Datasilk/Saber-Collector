@@ -64,11 +64,6 @@ namespace Saber.Vendors.Collector.Hubs
                         download = false;
                         Article.FileSize(article);
                     }
-                    else if (!Directory.Exists(filepath))
-                    {
-                        //create folder for content
-                        Directory.CreateDirectory(filepath);
-                    }
                 }
 
                 if (download == true)
@@ -168,6 +163,12 @@ namespace Saber.Vendors.Collector.Hubs
                             await Clients.Caller.SendAsync("update", 1, "URL returned an empty response");
                         }
                         return;
+                    }
+
+                    if (!Directory.Exists(filepath))
+                    {
+                        //create folder for content
+                        Directory.CreateDirectory(filepath);
                     }
 
                     File.WriteAllText(filepath + filename, result);

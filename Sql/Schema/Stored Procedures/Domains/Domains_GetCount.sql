@@ -18,10 +18,6 @@ AS
 	FROM [Domains] d
 	LEFT JOIN Whitelist_Domains wl ON wl.domain = d.domain
 	LEFT JOIN Blacklist_Domains bl ON bl.domain = d.domain
-	CROSS APPLY (
-		SELECT COUNT(*) AS articles FROM Articles a 
-		WHERE a.domainId = d.domainId
-	) AS a
 	WHERE
 	(
 		(@search IS NOT NULL AND @search  <> '' AND (
@@ -36,9 +32,9 @@ AS
 		OR (@type = 3 AND wl.domain IS NULL AND bl.domain IS NULL)
 		OR (@type = 4 AND d.paywall = 1)
 		OR (@type = 5 AND d.free = 1)
-		OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND bl.domain IS NULL AND wl.domain IS NULL)
+		OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND d.type = -1 AND bl.domain IS NULL AND wl.domain IS NULL)
 	)
 	AND (
-		(@sort = 2 AND a.articles > 0)
+		(@sort = 2 AND d.articles > 0)
 		OR (@sort <> 2)
 	)

@@ -5,7 +5,7 @@ CREATE PROCEDURE [dbo].[Domains_GetList]
 	@subjectIds nvarchar(MAX) = '',
 	@search nvarchar(MAX) = '',
 	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free, 6 = unprocessed
-	@sort int = 0, -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest
+	@sort int = 0, -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest, 5 = last updated
 	@start int = 1,
 	@length int = 50
 AS
@@ -23,19 +23,16 @@ AS
 		CASE WHEN @sort = 1 THEN d.title END DESC,
 		CASE WHEN @sort = 0 THEN d.domain END,
 		CASE WHEN @sort = 1 THEN d.domain END DESC,
-		CASE WHEN @sort = 2 THEN a.articles END DESC,
+		CASE WHEN @sort = 2 THEN d.articles END DESC,
 		CASE WHEN @sort = 3 THEN d.datecreated END DESC,
-		CASE WHEN @sort = 4 THEN d.datecreated END ASC
-		) AS rownum, d.*, a.articles, 
+		CASE WHEN @sort = 4 THEN d.datecreated END ASC,
+		CASE WHEN @sort = 5 THEN d.dateupdated END DESC
+		) AS rownum, d.*,
 		(CASE WHEN wl.domain IS NOT NULL THEN 1 ELSE 0 END) AS whitelisted,
 		(CASE WHEN bl.domain IS NOT NULL THEN 1 ELSE 0 END) AS blacklisted
 		FROM [Domains] d
 		LEFT JOIN Whitelist_Domains wl ON wl.domain = d.domain
 		LEFT JOIN Blacklist_Domains bl ON bl.domain = d.domain
-		CROSS APPLY (
-			SELECT COUNT(*) AS articles FROM Articles a 
-			WHERE a.domainId = d.domainId
-		) AS a
 		WHERE
 		(
 			(@search IS NOT NULL AND @search  <> '' AND (
@@ -50,10 +47,10 @@ AS
 			OR (@type = 3 AND wl.domain IS NULL AND bl.domain IS NULL)
 			OR (@type = 4 AND d.paywall = 1)
 			OR (@type = 5 AND d.free = 1)
-			OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND bl.domain IS NULL AND wl.domain IS NULL)
+			OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND d.type = -1 AND bl.domain IS NULL AND wl.domain IS NULL)
 		)
 		AND (
-			(@sort = 2 AND a.articles > 0)
+			(@sort = 2 AND d.articles > 0)
 			OR (@sort <> 2)
 		)
 	) AS tbl WHERE rownum >= @start AND rownum < @start + @length

@@ -5,7 +5,7 @@
             S.domains.search.getResults();
             e.preventDefault();
             return false;
-        })
+        });
         $('#search, #subjectId').on('keypress', (e) => {
             switch (e.key.toLowerCase()) {
                 case "enter":
@@ -62,6 +62,20 @@
 
         },
 
+    },
+
+    collections: {
+        show: function () {
+            S.ajax.post('Collector-Domains/RenderCollections', {}, (response) => {
+                $('.domains-collections').html(response).show();
+                $(document.body).on('click', S.domains.collections.hide);
+            });
+        },
+
+        hide: function () {
+            $('.domains-collections').hide();
+            $(document.body).off('click', S.domains.collections.hide);
+        }
     }
 };
 

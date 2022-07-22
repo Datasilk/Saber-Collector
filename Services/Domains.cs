@@ -10,7 +10,7 @@ namespace Saber.Vendors.Collector.Services
 {
     public class CollectorDomains : Service, IVendorService
     {
-
+        #region "Search"
         public string Search(int subjectId, int type, int sort, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
@@ -22,6 +22,7 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             return Domains.RenderListItem(domainId);
         }
+        #endregion
 
         public string Details(string domain)
         {
@@ -275,5 +276,18 @@ namespace Saber.Vendors.Collector.Services
             return Success();
         }
         #endregion
+
+        #region "Collections"
+        public string RenderCollections()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Domains/collections.html");
+            var item = new View("/Vendors/Collector/Views/Domains/collection-item.html");
+            var html = new StringBuilder();
+
+            return view.Render();
+        }
+        #endregion 
+
     }
 }

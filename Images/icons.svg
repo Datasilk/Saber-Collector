@@ -10,6 +10,18 @@
 
 
 <defs>
+<g id="icon_add_0_Layer1_0_FILL">
+<path fill-opacity="0" stroke="none" d="
+M 0 0
+L 0 15 15 15 15 0 0 0 Z"/>
+</g>
+
+<g id="icon_add_0_Layer0_0_FILL">
+<path stroke="none" d="
+M 15 8
+L 15 7 8 7 8 0 7 0 7 7 0 7 0 8 7 8 7 15 8 15 8 8 15 8 Z"/>
+</g>
+
 <g id="iconArrow_0_Layer1_0_FILL">
 <path stroke="none" d="
 M 62.55 27.95
@@ -435,7 +447,19 @@ M 35.5 51.05
 Q 37.45 51.05 39.45 51 40.05 51 40.05 51.5 40 53.5 40.85 55.25 39.6 55.75 38.65 56.6 36.1 59 32.75 60.4 29.2 58.65 25.4 57.2 24.85 57 24.8 56.55 24.471875 53.8779296875 27.55 52.2
 L 35.5 51.05 Z"/>
 </g>
-</defs><symbol id="icon-back" viewBox="0 0 64 64">
+</defs><symbol id="icon-add" viewBox="0 0 15 15">
+
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#icon_add_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#icon_add_0_Layer0_0_FILL"/>
+</g>
+</g>
+</symbol><symbol id="icon-back" viewBox="0 0 64 64">
 
 
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">

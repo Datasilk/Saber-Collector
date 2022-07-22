@@ -44,4 +44,7 @@ AS
 	SELECT * FROM DownloadQueue WHERE [url]=@url
 	DELETE FROM DownloadQueue WHERE [url] = @url
 
+	--update domain record
+	UPDATE Domains SET articles+=1 WHERE domainId=@domainId
+
 	SELECT @articleId

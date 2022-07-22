@@ -1005,7 +1005,7 @@ namespace Saber.Vendors.Collector
                     contentType = response.ContentType.Split(";")[0];
                     status = (int)response.StatusCode;
 
-                    if(response.ResponseUri.OriginalString != url)
+                    if (response.ResponseUri.OriginalString.Split("?")[0] != url.Split("?")[0])
                     {
                         //url redirect
                         url = response.ResponseUri.OriginalString;

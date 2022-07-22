@@ -1,0 +1,23 @@
+﻿BEGIN TRY
+    CREATE TABLE [dbo].[DomainCollections]
+    (
+	    [colId] INT NOT NULL PRIMARY KEY, 
+        [name] NVARCHAR(32) NOT NULL,
+        [search] NVARCHAR(128) NOT NULL DEFAULT '',
+        [subjectId] INT NOT NULL DEFAULT 0,
+        [type] INT NOT NULL DEFAULT 0,
+        [sort] INT NOT NULL DEFAULT 0,
+        [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+    )
+END TRY BEGIN CATCH END CATCH
+    GO
+
+BEGIN TRY
+    CREATE INDEX [IX_Domains_DomainCollectionDates] ON [dbo].[DomainCollections] ([datecreated] DESC)
+END TRY BEGIN CATCH END CATCH
+    GO
+
+BEGIN TRY
+    CREATE INDEX [IX_Domains_DomainCollectionNames] ON [dbo].[DomainCollections] ([name] DESC)
+END TRY BEGIN CATCH END CATCH
+    GO

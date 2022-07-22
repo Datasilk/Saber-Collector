@@ -25,8 +25,17 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
 
+                    if (!Domains.ValidateDomain(queue.domain))
+                    {
+                        //invalid domain, delete domain & all articles related to domain
+                        //shouldn't happen but just in case
+                        Domains.DeleteAllArticles(queue.domainId);
+                        Query.Domains.Delete(queue.domainId);
+                    }
+
                     if (!Domains.ValidateURL(queue.url))
                     {
+                        //shouldn't happen but just in case
                         Query.Downloads.Delete(queue.qid);
                         await Clients.Caller.SendAsync("update", "Invalid URL");
                         await Clients.Caller.SendAsync("checked", 1);
@@ -57,10 +66,38 @@ namespace Saber.Vendors.Collector.Hubs
                     var result = Article.Download(queue.url, out var newurl);
                     if (newurl != queue.url)
                     {
-                        //updated URL
-                        Query.Downloads.UpdateUrl(queue.qid, newurl, newurl.GetDomainName());
+                        ////////////////////////////////////////////////////////////////////////////////
+                        //updated URL, retire current download and create new download for the new URL
+                        Query.Downloads.Move(queue.qid);
+                        queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), feedId);
+                        queue.url = newurl;
+                        var domain = Query.Domains.GetInfo(newurl.GetDomainName());
+                        queue.domainId = domain.domainId;
+                        queue.domain = domain.domain;
+                        queue.downloadRules = Query.Domains.DownloadRules.GetList(domain.domainId);
+
+                        //check download rules again (for new URL)
+                        downloadOnly = false;
+                        foreach (var rule in queue.downloadRules)
+                        {
+                            if (rule.rule == false && rule.url != "" && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
+                            {
+                                await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
+                                await Clients.Caller.SendAsync("checked", 1);
+                                return;
+                            }
+                            else if (rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
+                            {
+                                downloadOnly = true;
+                            }
+                        }
+                        ////////////////////////////////////////////////////////////////////////////////
                     }
-                    queue.url = newurl;
+                    if (downloadOnly == false)
+                    {
+                        downloadOnly = !Models.Whitelist.Domains.Contains(queue.url.GetDomainName());
+                    }
+
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
                     if (result == "")
                     {
@@ -98,7 +135,7 @@ namespace Saber.Vendors.Collector.Hubs
                             articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 1)
                         {
                             //found home page
-                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.summary);
+                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.title, articleInfo.summary);
                         }
 
                         //check all download rules against article info
@@ -153,8 +190,12 @@ namespace Saber.Vendors.Collector.Hubs
                             }
                             File.WriteAllText(filepath + filename, result);
                         }
+                        else
+                        {
+                            Query.Downloads.Move(queue.qid);
+                        }
 
-                        //display article
+                        //display article information
                         await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
 
                         //get URLs from all anchor links on page //////////////////////////////////
@@ -196,8 +237,6 @@ namespace Saber.Vendors.Collector.Hubs
                         for(var x = 0; x < keys.Length; x++)
                         {
                             var domain = keys[x];
-                        //foreach (var domain in urls.Keys.ToArray())
-                        //{
                             try
                             {
                                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
@@ -228,11 +267,10 @@ namespace Saber.Vendors.Collector.Hubs
                                 await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
                                     domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
                             }
-
                         }
 
                         //finished processing download
-                        await Clients.Caller.SendAsync("checked", 0, 1, articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
+                        await Clients.Caller.SendAsync("checked", 0, 1, downloadOnly == false && articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
                         return;
                     }
                     catch (Exception ex)
@@ -289,7 +327,7 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         var response = client.DownloadString(feed.url);
                         var content = Utility.Syndication.Read(response);
-                        var links = content.items.Select(a => a.link).Where(a => ValidateURL(a) == true);
+                        var links = content.items.Select(a => a.link);
                         var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
 
                         //separate links by domain
@@ -382,7 +420,7 @@ namespace Saber.Vendors.Collector.Hubs
                         continue;
                     }
                     var links = article.elements.Where(a => a.tagName == "a" && a.attribute.ContainsKey("href"))
-                        .Select(a => a.attribute["href"]).Where(a => ValidateURL(a) == true);
+                        .Select(a => a.attribute["href"]);
 
                     var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
 
@@ -493,6 +531,7 @@ namespace Saber.Vendors.Collector.Hubs
             if (url.IndexOf("http://") != 0 && url.IndexOf("https://") != 0) { return false; }
             if (url.Length > 255) { return false; }
             if (Rules.badUrls.Any(a => url.Contains(a))) { return false; }
+            if (!Domains.ValidateDomain(url.GetDomainName())) { return false; }
             return true;
         }
 

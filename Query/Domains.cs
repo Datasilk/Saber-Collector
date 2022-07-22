@@ -89,6 +89,11 @@ namespace Query
             Sql.ExecuteNonQuery("Domain_DeleteAllArticles", new { domainId });
         }
 
+        public static void Delete(int domainId)
+        {
+            Sql.ExecuteNonQuery("Domain_Delete", new { domainId });
+        }
+
         public static void RequireSubscription(int domainId, bool required)
         {
             Sql.ExecuteNonQuery("Domain_RequireSubscription", new { domainId, required });
@@ -109,9 +114,9 @@ namespace Query
             return Sql.ExecuteScalar<string>("Domain_FindDescription", new { domainId });
         }
 
-        public static void UpdateDescription(int domainId, string description)
+        public static void UpdateDescription(int domainId, string title, string description)
         {
-            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, description });
+            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, title, description });
         }
 
         public static void UpdateDomainType(int domainId, Models.DomainType type)
