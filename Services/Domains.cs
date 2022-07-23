@@ -11,10 +11,10 @@ namespace Saber.Vendors.Collector.Services
     public class CollectorDomains : Service, IVendorService
     {
         #region "Search"
-        public string Search(int subjectId, int type, int sort, string search, int start, int length)
+        public string Search(int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            return Domains.RenderComponent(subjectId, (Domains.SearchType)type, (Domains.Sort)sort, start, length, search);
+            return Domains.RenderComponent(subjectId, type, sort, start, length, search);
         }
 
         public string GetDomainListItem(int domainId)
@@ -286,6 +286,17 @@ namespace Saber.Vendors.Collector.Services
             var html = new StringBuilder();
 
             return view.Render();
+        }
+
+        public string AddCollection(int colgroupId, string name, string search, int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            try
+            {
+                Query.Domains.Collections.Add(colgroupId, name, search, subjectId, type, sort);
+                return Success();
+            }
+            catch (Exception) { return Error("Could not create new collection"); }
         }
         #endregion 
 

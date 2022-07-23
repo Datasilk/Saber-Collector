@@ -55,7 +55,6 @@
                 start: start == null ? 1 : start,
                 length: length == null ? 200 : length
             }
-            console.log(data);
             S.ajax.post('CollectorDomains/Search', data, (response) => {
                 $('.website > .content').html(response);
             });
@@ -66,15 +65,53 @@
 
     collections: {
         show: function () {
+            var container = $('.domains-collections');
+            $(document.body).on('click', S.domains.collections.hide);
+
+            if (container.html().trim() != '') {
+                //collections already loaded, show dropdown list
+                container.show();
+                return;
+            }
             S.ajax.post('Collector-Domains/RenderCollections', {}, (response) => {
-                $('.domains-collections').html(response).show();
-                $(document.body).on('click', S.domains.collections.hide);
+                //load list of collections and show dropdown list
+                container.html(response).show();
             });
         },
 
         hide: function () {
             $('.domains-collections').hide();
             $(document.body).off('click', S.domains.collections.hide);
+        },
+
+        add: {
+            show: function () {
+
+            },
+
+            hide: function () {
+
+            },
+
+            submit: function() {
+
+            }
+        }
+    },
+
+    group: {
+        add: {
+            show: function () {
+
+            },
+
+            hide: function () {
+
+            },
+
+            submit: function () {
+                
+            }
         }
     }
 };

@@ -1,0 +1,13 @@
+﻿<div class="row add-domain">
+    <div class="row field">Blacklist a Domain</div>
+    <div class="row">
+        <div class="col input">
+            <input type="text" id="txtblacklist" placeholder="cnn.com" />
+        </div>
+        <div class="col input right"><button onclick="S.downloads.blacklist.add(txtblacklist.value)">Add Domain</button></div>
+    </div>
+    
+</div>
+<div class="row blacklist pad-top">
+    {{list}}
+</div>

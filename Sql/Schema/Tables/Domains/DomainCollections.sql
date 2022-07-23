@@ -2,6 +2,7 @@
     CREATE TABLE [dbo].[DomainCollections]
     (
 	    [colId] INT NOT NULL PRIMARY KEY, 
+        [colgroupId] INT NULL, -- collection group ID
         [name] NVARCHAR(32) NOT NULL,
         [search] NVARCHAR(128) NOT NULL DEFAULT '',
         [subjectId] INT NOT NULL DEFAULT 0,

@@ -10,35 +10,16 @@ namespace Saber.Vendors.Collector
 {
     public static class Domains
     {
-        public enum SearchType
-        {
-            all = 0,
-            whitelisted = 1,
-            blacklisted = 2,
-            newest = 3,
-            paywall = 4,
-            free = 5
-        };
-        public enum Sort
-        {
-            Ascending = 0,
-            Descending = 1,
-            TotalArticles = 2,
-            Newest = 3,
-            Oldest = 4
-        };
 
-        public static string RenderComponent(int subjectId = 0, SearchType type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 200, string search = "")
+        public static string RenderComponent(int subjectId = 0, Query.Models.DomainType type = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
         {
             var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
-            var viewArticle = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
-            var html = new StringBuilder();
             var subjectIds = new List<int>();
             if (subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
-            var total = Query.Domains.GetCount(subjectIds.ToArray(), (int)type, (int)sort, search);
+            var total = Query.Domains.GetCount(subjectIds.ToArray(), type, sort, search);
             viewComponent["total-domains"] =  total.ToString("N0");
             viewComponent["pos-start"] = start.ToString("N0");
             viewComponent["pos-end"] = (start + length - 1).ToString("N0");
@@ -66,14 +47,14 @@ namespace Saber.Vendors.Collector
             return viewComponent.Render();
         }
 
-        public static string RenderList(out int total, int subjectId = 0, SearchType type = 0, Sort sort = Sort.TotalArticles, int start = 1, int length = 200, string search = "")
+        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainType type = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
         {
             var subjectIds = new List<int>();
             if(subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
-            var domains = Query.Domains.GetList(subjectIds.ToArray(), (int)type, (int)sort, search, start, length);
+            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, sort, search, start, length);
             total = domains.Count;
             var item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
             var html = new StringBuilder();

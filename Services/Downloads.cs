@@ -35,5 +35,33 @@ namespace Saber.Vendors.Collector.Services
             return Success();
         }
         #endregion
+
+        #region "Blacklist"
+        public string RenderBlacklist()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Downloads/blacklist.html");
+            var item = new View("/Vendors/Collector/Views/Downloads/blacklist-item.html");
+            var blacklists = Query.Blacklists.Domains.GetList();
+            var html = new StringBuilder();
+            foreach (var blacklist in blacklists)
+            {
+                item.Clear();
+                item["domain"] = blacklist;
+                item["url"] = "https://" + blacklist;
+                html.Append(item.Render());
+            }
+            view["list"] = html.ToString();
+            return view.Render();
+        }
+
+        public string DeleteBlacklist(string domain)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == null || domain == "") { return Error("Missing domain"); }
+            Query.Blacklists.Domains.Remove(domain);
+            return Success();
+        }
+        #endregion
     }
 }

@@ -2,6 +2,7 @@
 	DROP PROCEDURE [dbo].[Domain_Collection_Add]
 GO
 CREATE PROCEDURE [dbo].[Domain_Collection_Add]
+	@colgroupId int = 0,
 	@name nvarchar(32),
 	@search nvarchar(128),
 	@subjectId int = 0,
@@ -9,6 +10,6 @@ CREATE PROCEDURE [dbo].[Domain_Collection_Add]
 	@sort int = 0
 AS
 	DECLARE @id int = NEXT VALUE FOR SequenceDomainCollections
-	INSERT INTO DomainCollections (colId, [name], [search], subjectId, [type], [sort], datecreated)
-	VALUES (@id, @name, @search, @subjectId, @type, @sort, GETUTCDATE())
+	INSERT INTO DomainCollections (colId, colgroupId, [name], [search], subjectId, [type], [sort], datecreated)
+	VALUES (@id, @colgroupId, @name, @search, @subjectId, @type, @sort, GETUTCDATE())
 	SELECT @id

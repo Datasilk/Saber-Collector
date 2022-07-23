@@ -6,13 +6,14 @@ namespace Query
 {
     public static class Domains
     {
+        #region "Get"
 
-        public static List<Models.Domain>GetList(int[] subjectIds = null, int type = 0, int sort = 0, string search = "", int start = 1, int length = 50)
+        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50)
         {
             return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length });
         }
 
-        public static int GetCount(int[] subjectIds = null, int type = 0, int sort = 0, string search = "")
+        public static int GetCount(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "")
         {
             return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, sort });
         }
@@ -27,6 +28,9 @@ namespace Query
             return Sql.Populate<Models.Domain>("Domain_GetById", new { domainId }).FirstOrDefault();
         }
 
+        #endregion
+
+        #region "Analyzer Rules"
         public static class AnalyzerRules
         {
             public static int Add(int domainId, string selector, bool rule)
@@ -43,7 +47,9 @@ namespace Query
                 Sql.ExecuteNonQuery("Domain_AnalyzerRule_Remove", new { ruleId });
             }
         }
+        #endregion
 
+        #region "Download Rules"
         public static class DownloadRules
         {
             public static int Add(int domainId, bool rule, string url, string title, string summary)
@@ -65,6 +71,9 @@ namespace Query
                 Sql.ExecuteNonQuery("Domain_DownloadRule_Remove", new { ruleId });
             }
         }
+        #endregion
+
+        #region "Clean"
 
         public static Models.CleanDownload GetDownloadsToClean(int domainId, bool topten = false)
         {
@@ -84,6 +93,10 @@ namespace Query
             Sql.ExecuteNonQuery("Domain_CleanDownloads", new { domainId});
         }
 
+        #endregion
+
+        #region "Delete"
+
         public static void DeleteAllArticles(int domainId)
         {
             Sql.ExecuteNonQuery("Domain_DeleteAllArticles", new { domainId });
@@ -93,6 +106,10 @@ namespace Query
         {
             Sql.ExecuteNonQuery("Domain_Delete", new { domainId });
         }
+
+        #endregion
+
+        #region "Update"
 
         public static void RequireSubscription(int domainId, bool required)
         {
@@ -123,5 +140,45 @@ namespace Query
         {
             Sql.ExecuteNonQuery("Domain_UpdateType", new { domainId, type = (int)type });
         }
+
+        #endregion
+
+        #region "Collections"
+        public static class Collections
+        {
+            public static int Add(int colgroupId, string name, string search = "", int subjectId = 0, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical)
+            {
+                return Sql.ExecuteScalar<int>("Domain_Collection_Add", new { colgroupId, name, search, subjectId, type, sort });
+            }
+
+            public static int Add(Models.DomainCollection collection)
+            {
+                return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.type, collection.sort);
+            }
+
+            public static List<Models.DomainCollection> GetList()
+            {
+                return Sql.Populate<Models.DomainCollection>("Domain_Collections_GetList");
+            }
+
+            public static int Remove(int colId)
+            {
+                return Sql.ExecuteScalar<int>("Domain_Collection_Remove", new { colId });
+            }
+
+            public static class Groups
+            {
+                public static int Add(string name)
+                {
+                    return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Add", new { name });
+                }
+
+                public static int Remove(int colgroupId)
+                {
+                    return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Remove", new { colgroupId });
+                }
+            }
+        }
+        #endregion
     }
 }

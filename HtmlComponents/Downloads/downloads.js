@@ -208,8 +208,28 @@
     blacklist: {
         add: function (domain) {
             S.downloads.hub.invoke('Blacklist', domain);
+            if ($('.popup.show .blacklist').length > 0) {
+                //reload list
+                S.downloads.blacklist.show();
+            }
+        },
+
+        show: function () {
+            S.ajax.post('CollectorDownloads/RenderBlacklist', {}, (response) => {
+                S.popup.show('Blacklist Domains', response, { width: 400 });
+                $('.popup.show .blacklist .close-btn').on('click', (e) => {
+                    var domain = $(e.target).parents('.row.hover').first().attr('data-id');
+                    S.downloads.blacklist.remove(domain);
+                })
+            });
+        },
+
+        remove: function (domain) {
+            S.ajax.post('CollectorDownloads/DeleteBlacklist', { domain: domain }, (response) => {
+                $('.popup.show .row.hover[data-id="' + domain + '"]').remove();
+            });
         }
-    }
+    },
 
 };
 

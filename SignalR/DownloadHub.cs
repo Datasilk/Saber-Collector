@@ -511,7 +511,7 @@ namespace Saber.Vendors.Collector.Hubs
             try
             {
                 //delete physical content for domain on disk
-                Directory.Delete(Saber.App.MapPath("/Content/" + domain.Substring(0, 2) + "/" + domain), true);
+                Directory.Delete(App.MapPath("/Content/" + domain.Substring(0, 2) + "/" + domain), true);
             }
             catch (Exception)
             {
