@@ -33,9 +33,13 @@
 
 .page-menu{#sort{max-width:130px;}}
 
-.domains-collections.dropmenu{display:none; right:146px; top:-25px;
-    li{cursor:default;
-        svg{width:16px; height:16px;}
-        & > .row{padding:5px 10px;}
+.domains-collections.dropmenu{display:none; right:146px; top:-25px; width:auto;
+    svg{width:16px; height:16px;}
+    & > .row, .group > .row{padding:10px; cursor:default; white-space:nowrap;}
+    .group-title{padding:15px 20px 5px 10px; cursor:default;  white-space:nowrap; margin-right:30px; 
+        use{fill:#444; opacity:0.5;}
     }
+    .item{padding-left:40px !important;}
+    .group{display:none;}
+    .group-row.expanded .group{display:block;}
 }

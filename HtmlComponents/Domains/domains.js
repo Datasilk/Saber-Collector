@@ -56,7 +56,36 @@
                 length: length == null ? 200 : length
             }
             S.ajax.post('CollectorDomains/Search', data, (response) => {
-                $('.website > .content').html(response);
+                $('.domains-paging, .domains.accordion').remove();
+                $('.website > .content').append(response);
+            });
+
+        },
+
+        customResults: function (domainsearch, subjectId, type, domainsort) {
+            var data = {
+                subjectId: subjectId,
+                type: type,
+                sort: domainsort,
+                search: domainsearch,
+                start: 1,
+                length: 200
+            }
+
+            domaintype.value = type;
+            sort.value = domainsort;
+            search.value = domainsearch;
+
+            if (subjectId != null && subjectId > 0) {
+                //update subjectIds
+                S.ajax.post('CollectorSubjects/NavigateDropdown', {subjectId: subjectId, parent: true }, (response) => {
+                    $('#subjectId').html(response);
+                });
+            }
+
+            S.ajax.post('CollectorDomains/Search', data, (response) => {
+                $('.domains-paging, .domains.accordion').remove();
+                $('.website > .content').append(response);
             });
 
         },
@@ -64,10 +93,12 @@
     },
 
     collections: {
-        show: function () {
+        show: function (force) {
             var container = $('.domains-collections');
             $(document.body).on('click', S.domains.collections.hide);
-
+            if (force === true) {
+                container.html('');
+            }
             if (container.html().trim() != '') {
                 //collections already loaded, show dropdown list
                 container.show();
@@ -79,22 +110,45 @@
             });
         },
 
-        hide: function () {
+        hide: function (e) {
+            if (e) {
+                var target = $(e.target);
+                if (target.parents('.domains-collections').length > 0) { return; }
+            }
             $('.domains-collections').hide();
             $(document.body).off('click', S.domains.collections.hide);
         },
 
         add: {
             show: function () {
-
+                $('.btn-new-collection').hide();
+                $('.new-collection').show();
+                $('.new-category').hide();
+                S.ajax.post("CollectorDomains/RenderGroups", {}, (response) => {
+                    $('#col_groupid').html(response);
+                });
             },
 
             hide: function () {
-
+                $('.btn-new-collection').show();
+                $('.new-collection').hide();
             },
 
-            submit: function() {
-
+            submit: function () {
+                var data = {
+                    colgroupId: col_groupid.value,
+                    name: col_name.value,
+                    search: search.value,
+                    subjectId: S.domains.search.selectedSubjectId,
+                    type: domaintype.value,
+                    sort: sort.value
+                }
+                S.ajax.post('CollectorDomains/AddCollection', data, () => {
+                    S.domains.collections.show(true);
+                }, (err) => {
+                    console.log(err);
+                    S.message.show('.new-collection .messages', 'error', err.responseText);
+                });
             }
         }
     },
@@ -102,16 +156,25 @@
     group: {
         add: {
             show: function () {
-
+                $('.new-collection').hide();
+                $('.new-category').show();
             },
 
             hide: function () {
-
+                $('.new-category').hide();
+                $('.new-collection').show();
             },
 
             submit: function () {
-                
+                S.ajax.post('CollectorDomains/AddGroup', {name:cat_name.value}, () => {
+                    S.domains.collections.add.show();
+                });
             }
+        },
+
+        toggle: function (e) {
+            var target = $(e.target).parents('.group-row').first();
+            target.toggleClass('expanded');
         }
     }
 };

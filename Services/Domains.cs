@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
 using System.Text;
 using Saber.Core;
@@ -32,6 +33,8 @@ namespace Saber.Vendors.Collector.Services
             view["description"] = info.description != "" ? info.description : "No description was found for this domain yet.";
             view["domain-url"] = "https://" + info.domain;
             view["domain-type"] = ((int)info.type).ToString();
+            view["domainid"] = info.domainId.ToString();
+            view["articles"] = info.articles.ToString();
             if (info.paywall)
             {
                 view.Show("subscription-required");
@@ -283,8 +286,60 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             var view = new View("/Vendors/Collector/Views/Domains/collections.html");
             var item = new View("/Vendors/Collector/Views/Domains/collection-item.html");
+            var groupView = new View("/Vendors/Collector/Views/Domains/collection-group.html");
             var html = new StringBuilder();
-
+            var itemhtml = new StringBuilder();
+            var collections = Query.Domains.Collections.GetList();
+            var currentGroupId = 0;
+            foreach(var collection in collections.Collections)
+            {
+                if(currentGroupId > 0 && currentGroupId != collection.colgroupId)
+                {
+                    //new group
+                    var group = collections.Groups.Where(a => a.colgroupId == currentGroupId).FirstOrDefault();
+                    if(group != null)
+                    {
+                        groupView.Clear();
+                        groupView["name"] = group.name;
+                        groupView["list"] = itemhtml.ToString();
+                        html.Append(groupView.Render());
+                    }
+                    else
+                    {
+                        //collection has no group
+                        groupView.Clear();
+                        groupView["name"] = "";
+                        groupView["list"] = itemhtml.ToString();
+                        html.Append(groupView.Render());
+                    }
+                }
+                item.Clear();
+                item["search"] = collection.search;
+                item["subjectid"] = collection.subjectId.ToString();
+                item["type"] = ((int)collection.type).ToString();
+                item["sort"] = ((int)collection.sort).ToString();
+                item["title"] = collection.name;
+                currentGroupId = collection.colgroupId;
+                itemhtml.Append(item.Render());
+            }
+            //last group
+            var group2 = collections.Groups.Where(a => a.colgroupId == currentGroupId).FirstOrDefault();
+            if (group2 != null)
+            {
+                groupView.Clear();
+                groupView["name"] = group2.name;
+                groupView["list"] = itemhtml.ToString();
+                html.Append(groupView.Render());
+            }
+            else if(itemhtml.Length > 0)
+            {
+                //collection has no group
+                groupView.Clear();
+                groupView["name"] = "";
+                groupView["list"] = itemhtml.ToString();
+                html.Append(groupView.Render());
+            }
+            view["list"] = html.ToString();
             return view.Render();
         }
 
@@ -293,12 +348,39 @@ namespace Saber.Vendors.Collector.Services
             if (!CheckSecurity()) { return AccessDenied(); }
             try
             {
+                if(name == "") { return Error("Collection Name is required"); }
                 Query.Domains.Collections.Add(colgroupId, name, search, subjectId, type, sort);
                 return Success();
             }
             catch (Exception) { return Error("Could not create new collection"); }
         }
-        #endregion 
+        #endregion
+
+        #region "Collection Groups"
+        public string RenderGroups()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var groups = Query.Domains.CollectionGroups.GetList();
+            var html = new StringBuilder("<option value=\"0\">[No Category]</option>");
+            foreach(var group in groups)
+            {
+                html.Append("<option value=\"" + group.colgroupId + "\">" + group.name + "</option>");
+            }
+            return html.ToString();
+        }
+
+        public string AddGroup(string name)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            try
+            {
+                if(name == "") { return Error("Name cannot be empty"); }
+                Query.Domains.CollectionGroups.Add(name);
+                return Success();
+            }
+            catch (Exception) { return Error("Could not create new domain collection category"); }
+        }
+        #endregion
 
     }
 }

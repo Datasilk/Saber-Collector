@@ -30,7 +30,7 @@ namespace Saber.Vendors.Collector
                 var html = new StringBuilder();
                 var hierarchy = new List<int>();                
                 var parser = new Parser("");
-                var dict = new Dictionaries() { t = node.t, a = node.a};
+                var dict = new Dictionaries() { t = node.t, a = node.a, cn = node.cn};
 
                 //build DOM tree
                 var elems = new List<DomElement>();
@@ -67,7 +67,7 @@ namespace Saber.Vendors.Collector
             elem.index = index;
             elem.parent = parentId;
             elem.tagName = dict.t[parent.t];
-            elem.className = new List<string>();
+            elem.className = parent.n != null && parent.n.Length > 0 ? parent.n.Select(a => dict.cn[a]).ToList() : new List<string>();
             elem.hierarchyIndexes = hier.ToArray();
             elem.childIndexes = new List<int>();
             elem.style = new Dictionary<string, string>();
@@ -253,11 +253,17 @@ namespace Saber.Vendors.Collector
                 {
                     part = selector.Substring(0, x);
                     part2 = selector.Substring(x + 1);
+                    break;
                 }
             }
             if(part == "") 
             { 
                 part = selector; 
+            }
+
+            if(part == "*")
+            {
+                return elems;
             }
 
             //find all element indexes for each part of the selector ////////////////////////
@@ -417,6 +423,19 @@ namespace Saber.Vendors.Collector
                     {
                         var el = elem.NextSibling;
                         if(el != null) { children.Add(el); }
+                    }
+                    part2 = part2.Substring(2);
+                }
+                if (nextpart == "~")
+                {
+                    foreach (var elem in newElems)
+                    {
+                        var el = elem.NextSibling;
+                        while(el != null)
+                        {
+                            children.Add(el);
+                            el = el.NextSibling;
+                        }
                     }
                     part2 = part2.Substring(2);
                 }

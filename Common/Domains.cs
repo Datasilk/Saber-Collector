@@ -11,6 +11,7 @@ namespace Saber.Vendors.Collector
     public static class Domains
     {
 
+        #region "Domains Component"
         public static string RenderComponent(int subjectId = 0, Query.Models.DomainType type = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
         {
             var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
@@ -155,6 +156,7 @@ namespace Saber.Vendors.Collector
             }
             return item.Render();
         }
+        #endregion
 
         #region "Download Rules"
         public class DownloadRuleMatch

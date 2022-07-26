@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Query.Models
 {
@@ -13,5 +14,11 @@ namespace Query.Models
         public DomainSort sort { get; set; }
         public DateTime datecreated { get; set; }
         public string groupName { get; set; }
+    }
+
+    public class DomainCollectionsAndGroups
+    {
+        public List<DomainCollection> Collections { get; set; }
+        public List<CollectionGroup> Groups { get; set; }
     }
 }

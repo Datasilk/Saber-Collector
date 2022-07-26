@@ -156,27 +156,45 @@ namespace Query
                 return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.type, collection.sort);
             }
 
-            public static List<Models.DomainCollection> GetList()
+            public static Models.DomainCollectionsAndGroups GetList()
             {
-                return Sql.Populate<Models.DomainCollection>("Domain_Collections_GetList");
+                using(var conn = new Connection("Domain_Collections_GetList"))
+                {
+                    var reader = conn.PopulateMultiple();
+
+                    var collections = reader.Read<Models.DomainCollection>().ToList();
+                    var groups = reader.Read<Models.CollectionGroup>().ToList();
+                    return new Models.DomainCollectionsAndGroups()
+                    {
+                        Collections = collections,
+                        Groups = groups
+                    };
+                }
             }
 
             public static int Remove(int colId)
             {
                 return Sql.ExecuteScalar<int>("Domain_Collection_Remove", new { colId });
             }
+        }
+        #endregion
 
-            public static class Groups
+        #region "Collection Groups"
+        public static class CollectionGroups
+        {
+            public static int Add(string name)
             {
-                public static int Add(string name)
-                {
-                    return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Add", new { name });
-                }
+                return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Add", new { name });
+            }
 
-                public static int Remove(int colgroupId)
-                {
-                    return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Remove", new { colgroupId });
-                }
+            public static int Remove(int colgroupId)
+            {
+                return Sql.ExecuteScalar<int>("Domain_CollectionGroup_Remove", new { colgroupId });
+            }
+
+            public static List<Models.CollectionGroup> GetList()
+            {
+                return Sql.Populate<Models.CollectionGroup>("Domain_CollectionGroups_GetList");
             }
         }
         #endregion

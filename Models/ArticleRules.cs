@@ -82,7 +82,7 @@
             "signin", "recommend", "promot", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "related",
             "navi", "menu", "toolbar", "sidecontent", "tab", "label",
-            "embed", "carousel", "overlay", "progress", "comment",
+            "carousel", "overlay", "progress", "comment",
             "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
             "widget", "privacy", "captcha", "badge", "comment", "cancel",
             "apply", "links", "skip", "dropdown", "drop-down", "truncated",

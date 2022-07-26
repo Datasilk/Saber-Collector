@@ -1,13 +1,54 @@
-﻿<ul>
-    <li title="Create a new collection using the current search filters">
-        <div class="row hover">
-            <div class="col pad-right-sm">
-                <svg viewBox="0 0 32 32">
-                    <use xlink:href="#icon-add" x="0" y="0" width="32" height="32"></use>
-                </svg>
-            </div>
-            <div class="col"><span>New Collection</span></div>
+﻿<div class="row new-collection" style="display:none;">
+    <form onsubmit="S.domains.collections.add.submit(); return false">
+        <div class="row pad"><h5>New Collection</h5></div>
+        <div class="row pad-left pad-right">
+            <p>Save current search parameters as a collection</p>
         </div>
-    </li>
-    {{list}}
-</ul>
+        <div class="messages"></div>
+        <div class="row hover pad-right">
+            <div class="col field">Name</div>
+            <div class="col input"><input type="text" id="col_name" /></div>
+        </div>
+        <div class="row hover pad-right">
+            <div class="col field">Category</div>
+            <div class="col input">
+                <select id="col_groupid">
+                    <option value="0">[No Category]</option>
+                </select>
+            </div>
+            <div class="col icon small add-category" onclick="S.domains.group.add.show()" title="Create a new category to place your Domain Collection inside of">
+                <div class="row hover pad">
+                    <svg viewBox="0 0 32 32">
+                        <use xlink:href="#icon-add" x="0" y="0" width="32" height="32"></use>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="row buttons pad-right pad-top">
+            <div class="col right"><button type="submit">Create Collection</button></div>
+            <div class="col right pad-right"><a class="button cancel" onclick="S.domains.collections.add.hide(); return false;">Cancel</a></div>
+        </div>
+    </form>
+</div>
+<div class="row new-category" style="display:none;">
+    <form onsubmit="S.domains.group.add.submit(); return false">
+        <div class="row pad"><h5>New Collection Category</h5></div>
+        <div class="row hover pad-right">
+            <div class="col field">Name</div>
+            <div class="col input"><input type="text" id="cat_name" /></div>
+        </div>
+        <div class="row buttons pad-right pad-top">
+            <div class="col right"><button type="submit">Create Category</button></div>
+            <div class="col right pad-right"><a class="button cancel" onclick="S.domains.group.add.hide(); return false;">Cancel</a></div>
+        </div>
+    </form>
+</div>
+<div class="row hover btn-new-collection" onclick="S.domains.collections.add.show()" title="Create a new collection using the current search filters">
+    <div class="col pad-right">
+        <svg viewBox="0 0 32 32">
+            <use xlink:href="#icon-add" x="0" y="0" width="32" height="32"></use>
+        </svg>
+    </div>
+    <div class="col"><span>New Collection</span></div>
+</div>
+{{list}}
