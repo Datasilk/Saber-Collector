@@ -15,7 +15,7 @@ namespace Saber.Vendors.Collector.Services
         public string Search(int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            return Domains.RenderComponent(subjectId, type, sort, start, length, search);
+            return Domains.RenderComponent(subjectId, type, sort, start, length, search.Replace("*", "%"));
         }
 
         public string GetDomainListItem(int domainId)
@@ -303,6 +303,7 @@ namespace Saber.Vendors.Collector.Services
                         groupView["name"] = group.name;
                         groupView["list"] = itemhtml.ToString();
                         html.Append(groupView.Render());
+                        itemhtml.Clear();
                     }
                     else
                     {
@@ -311,6 +312,7 @@ namespace Saber.Vendors.Collector.Services
                         groupView["name"] = "";
                         groupView["list"] = itemhtml.ToString();
                         html.Append(groupView.Render());
+                        itemhtml.Clear();
                     }
                 }
                 item.Clear();

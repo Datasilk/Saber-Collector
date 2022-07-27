@@ -36,8 +36,8 @@ AS
 		WHERE
 		(
 			(@search IS NOT NULL AND @search  <> '' AND (
-				d.title LIKE '%' + @search + '%'
-				OR d.domain LIKE '%' + @search + '%'
+				d.title LIKE CASE WHEN CHARINDEX(@search,'%', 0) > 0 THEN @search ELSE '%' + @search + '%' END
+				OR d.domain LIKE CASE WHEN CHARINDEX(@search,'%', 0) > 0 THEN @search ELSE '%' + @search + '%' END
 			))
 			OR (@search IS NULL OR @search = '')
 		) AND (
