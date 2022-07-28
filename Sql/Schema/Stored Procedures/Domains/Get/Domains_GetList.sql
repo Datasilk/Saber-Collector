@@ -15,6 +15,10 @@ AS
 	/* get domains that match a search term */
 	SELECT * INTO #search FROM dbo.SplitArray(@search, ',')
 
+	DECLARE @haswildcard bit = 0
+	IF CHARINDEX('%', @search) > 0 SET @haswildcard = 1
+	PRINT 'has wildcard = ' + CONVERT(nvarchar(1), @haswildcard)
+
 	/* get list of domains that match filter */
 	SELECT * FROM (
 		SELECT ROW_NUMBER() OVER(ORDER BY 
@@ -36,8 +40,8 @@ AS
 		WHERE
 		(
 			(@search IS NOT NULL AND @search  <> '' AND (
-				d.title LIKE CASE WHEN CHARINDEX(@search,'%', 0) > 0 THEN @search ELSE '%' + @search + '%' END
-				OR d.domain LIKE CASE WHEN CHARINDEX(@search,'%', 0) > 0 THEN @search ELSE '%' + @search + '%' END
+				d.title LIKE CASE WHEN @haswildcard = 1 THEN @search ELSE '%' + @search + '%' END
+				OR d.domain LIKE CASE WHEN @haswildcard = 1 THEN @search ELSE '%' + @search + '%' END
 			))
 			OR (@search IS NULL OR @search = '')
 		) AND (

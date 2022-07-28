@@ -18,5 +18,10 @@ namespace Query.Blacklists
         {
             Sql.ExecuteNonQuery("Blacklist_Domain_Remove", new { domain });
         }
+
+        public static bool Check(string domain)
+        {
+            return Sql.ExecuteScalar<int>("Blacklist_Domain_Check", new { domain }) > 0;
+        }
     }
 }

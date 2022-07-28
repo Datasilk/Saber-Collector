@@ -95,7 +95,7 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                     if (downloadOnly == false)
                     {
-                        downloadOnly = !Models.Whitelist.Domains.Contains(queue.url.GetDomainName());
+                        downloadOnly = !Query.Whitelists.Domains.Check(queue.url.GetDomainName());
                     }
 
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
@@ -214,7 +214,6 @@ namespace Saber.Vendors.Collector.Hubs
                             if (!ValidateURL(uri)) { continue; }
                             if (!Domains.ValidateURL(uri)) { continue; }
                             var domain = uri.GetDomainName();
-                            if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
                             //if (!Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
 
                             if (!urls.ContainsKey(domain))
@@ -240,6 +239,7 @@ namespace Saber.Vendors.Collector.Hubs
                             try
                             {
                                 if (CheckToStopQueue(id, Clients.Caller)) { return; }
+                                if (Query.Blacklists.Domains.Check(domain)) { continue; }
                                 var rules = downloadRules.Where(b => b.domain == domain);
                                 if (urls[domain] == null || urls[domain].Count == 0) { continue; }
 
@@ -252,14 +252,7 @@ namespace Saber.Vendors.Collector.Hubs
                                 {
                                     addedLinks += count;
                                     await Clients.Caller.SendAsync("update",
-                                        "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
-                                        "<div class=\"col right\">" +
-                                        (
-                                            !Models.Whitelist.Domains.Any(a => domain.IndexOf(a) == 0) ?
-                                            "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
-                                        ) +
-                                        "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                        "</div>");
+                                        "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>");
                                 }
                             }
                             catch (Exception ex)
@@ -339,8 +332,6 @@ namespace Saber.Vendors.Collector.Hubs
                             if (!ValidateURL(uri)) { continue; }
                             if (!Domains.ValidateURL(uri)) { continue; }
                             var domain = uri.GetDomainName();
-                            if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
-
                             if (!urls.ContainsKey(domain))
                             {
                                 urls.Add(domain, new List<KeyValuePair<string, string>>());
@@ -360,6 +351,7 @@ namespace Saber.Vendors.Collector.Hubs
                         var count = 0;
                         foreach (var domain in urls.Keys)
                         {
+                            if (Query.Blacklists.Domains.Check(domain)) { continue; }
 
                             //filter URLs that pass the download rules
                             ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
@@ -433,7 +425,6 @@ namespace Saber.Vendors.Collector.Hubs
                         if (!ValidateURL(uri)) { continue; }
                         if (!Domains.ValidateURL(uri)) { continue; }
                         var domain = uri.GetDomainName();
-                        if (Models.Blacklist.Domains.Any(a => domain.IndexOf(a) == 0)) { continue; }
 
                         if (!urls.ContainsKey(domain))
                         {
@@ -455,6 +446,8 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         try
                         {
+                            if (Query.Blacklists.Domains.Check(domain)) { continue; }
+
                             //filter URLs that pass the download rules
                             ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
 
@@ -463,17 +456,8 @@ namespace Saber.Vendors.Collector.Hubs
                             {
                                 var count = Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
                                 await Clients.Caller.SendAsync("feed", count,
-                                        "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>" +
-                                        "<div class=\"col right\">" +
-                                        (
-                                            !Models.Whitelist.Domains.Any(a => domain.Contains(a)) ?
-                                            "<a href=\"javascript:\" onclick=\"S.downloads.whitelist.add('" + domain + "')\"><small>whitelist</small></a> / " : ""
-                                        ) +
-                                        (
-                                            !Models.Blacklist.Domains.Any(a => domain.Contains(a)) ?
-                                            "<a href=\"javascript:\" onclick=\"S.downloads.blacklist.add('" + domain + "')\"><small>blacklist</small></a>" +
-                                            "</div>" : ""
-                                        )
+                                        "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + 
+                                        feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>"
                                     );
                             }
                             else
@@ -497,11 +481,6 @@ namespace Saber.Vendors.Collector.Hubs
         public async Task Whitelist(string domain)
         {
             Query.Whitelists.Domains.Add(domain);
-            //add domain to white list object
-            if (!Models.Whitelist.Domains.Contains(domain))
-            {
-                Models.Whitelist.Domains.Add(domain);
-            }
             await Clients.Caller.SendAsync("update", "Whitelisted <a href=\"" + domain + "\" target=\"_blank\">" + domain + "</a> for the download queue");
         }
 
@@ -516,11 +495,6 @@ namespace Saber.Vendors.Collector.Hubs
             catch (Exception)
             {
                 await Clients.Caller.SendAsync("update", "Could not delete folder " + "/Content/" + domain.Substring(0, 2) + "/" + domain);
-            }
-            //add domain to black list object
-            if (!Models.Blacklist.Domains.Contains(domain))
-            {
-                Models.Blacklist.Domains.Add(domain);
             }
             await Clients.Caller.SendAsync("update", "Blacklisted domain " + domain + " and removed all related articles");
         }

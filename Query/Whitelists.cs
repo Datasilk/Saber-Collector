@@ -18,5 +18,10 @@ namespace Query.Whitelists
         {
             Sql.ExecuteNonQuery("Whitelist_Domain_Remove", new { domain });
         }
+
+        public static bool Check(string domain)
+        {
+            return Sql.ExecuteScalar<int>("Whitelist_Domain_Check", new { domain }) > 0;
+        }
     }
 }
