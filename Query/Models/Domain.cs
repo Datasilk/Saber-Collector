@@ -35,6 +35,27 @@ namespace Query.Models
         aggregator = 13,
         government = 14,
         ebooks = 15,
+        crypto = 16,
+        law = 17,
+        medical = 18,
+        political = 19,
+        software_development = 20,
+        photo_gallery = 21,
+        videos = 22,
+        music = 23,
+        maps = 24,
+        mobile_apps = 25,
+        video_games = 26,
+        erotic = 27,
+        conspiracy = 28,
+        religion = 29,
+        weather = 30,
+        comics = 31,
+        gore = 32,
+        real_estate = 33,
+        _3d_animation = 34,
+        live_streaming = 35,
+        history = 36
     }
 
     public enum DomainSort

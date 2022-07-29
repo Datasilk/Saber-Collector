@@ -383,6 +383,5 @@ namespace Saber.Vendors.Collector.Services
             catch (Exception) { return Error("Could not create new domain collection category"); }
         }
         #endregion
-
     }
 }

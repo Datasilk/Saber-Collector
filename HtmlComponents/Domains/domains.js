@@ -58,6 +58,7 @@
             S.ajax.post('CollectorDomains/Search', data, (response) => {
                 $('.domains-paging, .domains.accordion').remove();
                 $('.website > .content').append(response);
+                S.accordion.load();
             });
 
         },
@@ -86,6 +87,7 @@
             S.ajax.post('CollectorDomains/Search', data, (response) => {
                 $('.domains-paging, .domains.accordion').remove();
                 $('.website > .content').append(response);
+                S.accordion.load();
             });
 
         },
@@ -174,6 +176,7 @@
 
         toggle: function (e) {
             var target = $(e.target).parents('.group-row').first();
+            //$(e.target).parents('.dropmenu').first().find('.group-row.expanded').removeClass('expanded');
             target.toggleClass('expanded');
         }
     }
