@@ -35,6 +35,7 @@ AS
 		(@sort = 2 AND LEN(q.[url]) <= LEN(d.domain) + 9)
 		OR @sort != 2
 	)
+	AND (d.paywall = 0 OR (d.paywall = 1 AND d.free = 1))
 	ORDER BY 
 	CASE WHEN @sort = 0 THEN q.datecreated END DESC,
 	CASE WHEN @sort = 2 THEN LEN(q.url) END

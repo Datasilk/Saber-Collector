@@ -140,6 +140,7 @@ namespace Saber.Vendors.Collector.Models.Article
         public Dictionary<ElementFlagCounters, int> counters { get; set; } = new Dictionary<ElementFlagCounters, int>();
         public List<string> badClassNames { get; set; } = new List<string>();
         public List<AnalyzedElement> hierarchy { get; set; } = new List<AnalyzedElement>();
+        public string flagInfo { get; set; }
 
         public void AddFlag(ElementFlags flag)
         {

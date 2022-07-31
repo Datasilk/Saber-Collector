@@ -91,47 +91,42 @@ namespace Saber.Vendors.Collector
                 var domaintype = "";
                 switch (domain.type)
                 {
-                    case Query.Models.DomainType.unused:
-                        domaintype = "unused";
-                        break;
-                    case Query.Models.DomainType.website:
-                        domaintype = "website";
-                        break;
+                    
                     case Query.Models.DomainType.ecommerce:
                         domaintype = "e-commerce";
-                        break;
-                    case Query.Models.DomainType.wiki:
-                        domaintype = "wiki";
-                        break;
-                    case Query.Models.DomainType.blog:
-                        domaintype = "blog";
                         break;
                     case Query.Models.DomainType.science_journal:
                         domaintype = "science journal";
                         break;
-                    case Query.Models.DomainType.advertiser:
-                        domaintype = "advertiser";
-                        break;
                     case Query.Models.DomainType.search_engine:
                         domaintype = "search engine";
                         break;
-                    case Query.Models.DomainType.portfolio:
-                        domaintype = "portfolio";
-                        break;
-                    case Query.Models.DomainType.news:
-                        domaintype = "news";
-                        break;
-                    case Query.Models.DomainType.travel:
-                        domaintype = "travel";
-                        break;
-                    case Query.Models.DomainType.aggregator:
-                        domaintype = "aggregator";
-                        break;
-                    case Query.Models.DomainType.government:
-                        domaintype = "government";
-                        break;
                     case Query.Models.DomainType.ebooks:
                         domaintype = "e-books";
+                        break;
+                    case Query.Models.DomainType.software_development:
+                        domaintype = "software dev";
+                        break;
+                    case Query.Models.DomainType.photo_gallery:
+                        domaintype = "photo gallery";
+                        break;
+                    case Query.Models.DomainType.mobile_apps:
+                        domaintype = "mobile apps";
+                        break;
+                    case Query.Models.DomainType.video_games:
+                        domaintype = "video games";
+                        break;
+                    case Query.Models.DomainType._3d_animation:
+                        domaintype = "3D animation";
+                        break;
+                    case Query.Models.DomainType.live_streaming:
+                        domaintype = "live streams";
+                        break;
+                    case Query.Models.DomainType.guns_weapons:
+                        domaintype = "guns & weapons";
+                        break;
+                    default:
+                        domaintype = domain.type.ToString();
                         break;
                 }
                 item.Show("has-domain-type");

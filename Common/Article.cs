@@ -257,7 +257,7 @@ namespace Saber.Vendors.Collector
                         (index.HasFlag(ElementFlags.BadHeaderMenu) ? ", bad header menu" : "") +
                         (index.Counter(ElementFlagCounters.badLegalWords) > 0 ? ", legal words:" + index.Counter(ElementFlagCounters.badLegalWords) : "") +
                         (index.HasFlag(ElementFlags.ProtectedAnalyzerRule) ? ", protected analyzer rule" : "") +
-                        (index.HasFlag(ElementFlags.ExcludedAnalyzerRule) ? ", excluded analyzer rule" : "");
+                        (index.HasFlag(ElementFlags.ExcludedAnalyzerRule) ? ", excluded analyzer rule: " + index.flagInfo.Replace("\"", "'") : "");
                     if (index.isContaminated)
                     {
                         line.Append(
@@ -989,7 +989,7 @@ namespace Saber.Vendors.Collector
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
                     }
-                    if (response == null && request.Method == "HEAD")
+                    if ((response == null || response.StatusCode == HttpStatusCode.MethodNotAllowed) && request.Method == "HEAD")
                     {
                         //try GET method instead
                         status = 0;
@@ -1026,7 +1026,7 @@ namespace Saber.Vendors.Collector
                 {
                     status = 500;
                 }
-                if(status >= 500 && request.Method == "HEAD")
+                if(status != 200 && request.Method == "HEAD")
                 {
                     //try GET method instead
                     status = 0;

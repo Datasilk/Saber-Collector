@@ -11,7 +11,7 @@ AS
 	AND summary != ''
 	ORDER BY LEN(url) ASC
 	
-	UPDATE Domains SET [description] = @description
+	UPDATE Domains SET [description] = @description, dateupdated = GETUTCDATE()
 	WHERE domainId=@domainId
 	
 	SELECT @description

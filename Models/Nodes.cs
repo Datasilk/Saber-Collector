@@ -10,6 +10,7 @@ namespace Saber.Vendors.Collector.Models.Nodes
         public string[] cn { get; set; }//class names
         public Node dom { get; set; }
         public string url { get; set; }
+        public string[] err { get; set; }
     }
 
     public class Dictionaries //used by Html.Traverse

@@ -274,7 +274,7 @@ namespace Saber.Vendors.Collector
             var afterColon = "";
             if(colon > -1)
             {
-                var parts = part.Split(':');
+                var parts = part.Split(':', 2);
                 part = parts[0];
                 afterColon = parts[1];
             }
@@ -299,7 +299,7 @@ namespace Saber.Vendors.Collector
             }
 
             //find element identifiers (classes, ids, tagnames)
-            if(part != "")
+            if(part != "" && part[0] != '*')
             {
                 var partIds = new List<string>();
                 var startIndex = 0;
@@ -366,6 +366,10 @@ namespace Saber.Vendors.Collector
                             attrKey = attr.Substring(x, 2);
                             attrValue = attr.Substring(x + 2).Trim();
                         }
+                        else
+                        {
+                            attrValue = attr.Substring(x + 1).Trim();
+                        }
                         break;
                     }
                 }
@@ -379,18 +383,27 @@ namespace Saber.Vendors.Collector
                     if (attrName == "#text")
                     {
                         newElems = newElems.Where(a => {
-                            if (a != null && a.text != null && a.text.Length > 0)
+                            if(a.childIndexes.Count > 0)
                             {
-                                switch (attrKey)
+                                var txt = Html.GetTextFromElement(a, 1);
+                                if (txt.Count > 0)
                                 {
-                                    case "=":
-                                        return a.text == attrValue;
-                                    case "^=":
-                                        return a.text.IndexOf(attrValue) == 0;
-                                    case "$=":
-                                        return a.text.IndexOf(attrValue) == a.text.Length - attrValue.Length - 1;
-                                    case "*=":
-                                        return a.text.IndexOf(attrValue) >= 0;
+                                    var t = string.Join(" ", txt.Select(a => a.Trim()));
+                                    switch (attrKey)
+                                    {
+                                        case "=":
+                                            return t == attrValue;
+                                        case "^=":
+                                            return t.IndexOf(attrValue) == 0;
+                                        case "$=":
+                                            return t.IndexOf(attrValue) == t.Length - attrValue.Length - 1;
+                                        case "*=":
+                                            if(t.IndexOf(attrValue) >= 0)
+                                            {
+
+                                            }
+                                            return t.IndexOf(attrValue) >= 0;
+                                    }
                                 }
                             }
                             return false;
@@ -403,8 +416,70 @@ namespace Saber.Vendors.Collector
                 }
             }
 
-            //narrow results by keyword after colon
+            //check for colon keywords
+            if(afterColon != "")
+            {
+                var cols = afterColon.Split('(');
+                var param = cols.Length > 1 ? cols[1].Substring(0, cols[1].Length - 1) : "";
+                switch (cols[0].Trim())
+                {
+                    case "parent":
+                        var depth = 0;
+                        int.TryParse(param, out depth);
+                        if(depth < 0) { depth = 1; }
+                        newElems = newElems.Select(a => {
+                            var p = a;
+                            for(var x = 1; x <= depth; x++)
+                            {
+                                p = p.Parent;
+                            }
+                            return p;
+                            }).Where(a => a != null).Distinct().ToList();
+                        break;
+                    case "has-parent":
+                        newElems = newElems.Where(a =>
+                        {
+                            var parent = a.Parent;
+                            var parents = new List<DomElement>();
+                            while (parent != null)
+                            {
+                                parents.Add(parent);
+                                parent = parent.Parent;
+                            }
+                            if (parents.Count > 0)
+                            {
+                                return FindElements(param, parents).Count > 0;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }).ToList();
+                        break;
+                    case "no-parent":
+                        newElems = newElems.Where(a =>
+                        {
+                            var parent = a.Parent;
+                            var parents = new List<DomElement>() { a };
+                            while (parent != null)
+                            {
+                                parents.Add(parent);
+                                parent = parent.Parent;
+                            }
+                            if(parents.Count > 0)
+                            {
+                                return FindElements(param, parents).Count == 0;
+                            }
+                            else
+                            {
+                                return true;
+                            }
+                        }).ToList();
+                        break;
+                }
+            }
 
+            //narrow results by keyword after colon
             if(part2 != "")
             {
                 var nextpart = part2.Split(' ')[0];
@@ -1224,14 +1299,14 @@ namespace Saber.Vendors.Collector
             return words.Where(word => text.Contains(word)).ToArray();
         }
 
-        public static List<string> GetTextFromElement(DomElement elem)
+        public static List<string> GetTextFromElement(DomElement elem, int depth = -1)
         {
             var text = new List<string>();
             if(elem.text != null && elem.text != "") { text.Add(elem.text); }
+            if(depth == 0) { return text; }
             foreach(var child in elem.Children())
             {
-                if(child.text != "") { text.Add(child.text); }
-                var list = GetTextFromElement(child);
+                var list = GetTextFromElement(child, depth > 0 ? depth - 1 : -1);
                 if(list.Count > 0) { text.AddRange(list); }
             }
             return text;

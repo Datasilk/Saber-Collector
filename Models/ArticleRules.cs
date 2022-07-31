@@ -27,7 +27,7 @@
 
         //used to find URLs that may be used for advertisements or UI buttons
         public static string[] badUrls = new string[] {
-            "/ads/", "/ad/", "/advert/", "/click/", "/tag/", "/tags/", "/keyword/", "/bait/", "javascript:",
+            "/ads/", "/ad/", "/advert/", "javascript:",
             "login", "/submit", "/job", "advertis", "/privacy/", "privacy-policy", "privacypolicy",
             "/signup", "/signin", "/sign-up", "/sign-in", "/career", "/donate", "/newsletter", "/legal",
             "doubleclick", "/subscribe", "/cookies/", ".ashx"

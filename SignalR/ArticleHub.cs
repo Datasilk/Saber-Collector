@@ -200,6 +200,7 @@ namespace Saber.Vendors.Collector.Hubs
                 var rules = Query.Domains.AnalyzerRules.GetList(articleInfo.domainId);
                 var protectedIndexes = new List<int>();
                 var excludedIndexes = new List<int>();
+                var indexFlagInfo = new Dictionary<int, Query.Models.AnalyzerRule>();
 
                 foreach (var rule in rules)
                 {
@@ -210,6 +211,10 @@ namespace Saber.Vendors.Collector.Hubs
                         foreach(var elem in elems)
                         {
                             excludedIndexes.Add(elem.index);
+                            if (!indexFlagInfo.ContainsKey(elem.index))
+                            {
+                                indexFlagInfo.Add(elem.index, rule);
+                            }
                         }
                     }
                     else
@@ -219,6 +224,10 @@ namespace Saber.Vendors.Collector.Hubs
                         foreach (var elem in elems)
                         {
                             protectedIndexes.Add(elem.index);
+                            if (!indexFlagInfo.ContainsKey(elem.index))
+                            {
+                                indexFlagInfo.Add(elem.index, rule);
+                            }
                         }
                     }
                 }
@@ -234,6 +243,7 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         elem.isBad = true;
                         elem.flags.Add(ElementFlags.ExcludedAnalyzerRule);
+                        elem.flagInfo = indexFlagInfo[elem.index] != null ? indexFlagInfo[elem.index].selector : "";
                         //reset all child elements
                         foreach (var elem2 in elements)
                         {
@@ -254,6 +264,7 @@ namespace Saber.Vendors.Collector.Hubs
                         elem.isContaminated = false;
                         elem.flags.Clear();
                         elem.flags.Add(ElementFlags.ProtectedAnalyzerRule);
+                        elem.flagInfo = indexFlagInfo[elem.index] != null ? indexFlagInfo[elem.index].selector : "";
                         elem.badClasses = 0;
                         elem.badClassNames.Clear();
                         elem.counters.Clear();
