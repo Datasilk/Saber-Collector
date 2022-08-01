@@ -35,9 +35,9 @@ namespace Query
             return Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, feedId });
         }
 
-        public static int AddQueueItem(string url, string domain, int feedId = 0)
+        public static Int64 AddQueueItem(string url, string domain, int feedId = 0)
         {
-            return Sql.ExecuteScalar<int>("DownloadQueue_Add", new { url, domain, feedId });
+            return Sql.ExecuteScalar<Int64>("DownloadQueue_Add", new { url, domain, feedId });
         }
 
         public enum QueueSort

@@ -1005,7 +1005,7 @@ namespace Saber.Vendors.Collector
                     contentType = response.ContentType.Split(";")[0];
                     status = (int)response.StatusCode;
 
-                    if (response.ResponseUri.OriginalString.Split("?")[0] != url.Split("?")[0])
+                    if (CleanUrl(response.ResponseUri.OriginalString) != CleanUrl(url))
                     {
                         //url redirect
                         url = response.ResponseUri.OriginalString;
@@ -1066,6 +1066,16 @@ namespace Saber.Vendors.Collector
                 return "file:" + contentType;
             }
             return "";
+        }
+
+        private static string CleanUrl(string url)
+        {
+            url = url.Split("?")[0];
+            if (url[url.Length - 1] == '/')
+            {
+                url = url.Substring(0, url.Length - 1);
+            }
+            return url;
         }
 
         public static void FileSize(AnalyzedArticle article)

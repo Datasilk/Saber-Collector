@@ -2,7 +2,7 @@
 	DROP PROCEDURE [dbo].[Download_UpdateUrl]
 GO
 CREATE PROCEDURE [dbo].[Download_UpdateUrl]
-	@qId int = 0,
+	@qId bigint = 0,
 	@url nvarchar(250),
 	@domain nvarchar(250)
 AS

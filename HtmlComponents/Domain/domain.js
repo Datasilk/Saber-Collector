@@ -7,7 +7,7 @@
             S.ajax.post('CollectorDomains/Details', { domain: domain }, (response) => {
                 S.domain.details.domainId = response.domainId;
                 S.domain.details.domain = domain;
-                S.popup.show(response.title, response.popup, { width: 450 });
+                S.popup.show(response.title, response.popup, { width: 600 });
                 $('.popup.show .tab-info').on('click', () => { S.domain.details.tab('info'); });
                 $('.popup.show .tab-articles').on('click', S.domain.articles.show);
                 $('.popup.show .tab-rules').on('click', S.domain.rules.show);

@@ -211,7 +211,7 @@ namespace Utility
                     }
                 }
 
-                //get channel copyright
+                //get channel feed URL
                 elems = channel.Find("/atom:link");
                 if (elems.Count > 0)
                 {

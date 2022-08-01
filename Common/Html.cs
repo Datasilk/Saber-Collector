@@ -230,7 +230,7 @@ namespace Saber.Vendors.Collector
         /// <param name="selector">CSS selector</param>
         /// <param name="elems">A list of DOM elements to search through</param>
         /// <returns></returns>
-        public static List<DomElement> FindElements(string selector, List<DomElement> elems)
+        public static List<DomElement> FindElements(string selector, List<DomElement> elems, List<DomElement> dom)
         {
 
             var attrFlag = false;
@@ -448,7 +448,7 @@ namespace Saber.Vendors.Collector
                             }
                             if (parents.Count > 0)
                             {
-                                return FindElements(param, parents).Count > 0;
+                                return FindElements(param, parents, dom).Count > 0;
                             }
                             else
                             {
@@ -456,7 +456,7 @@ namespace Saber.Vendors.Collector
                             }
                         }).ToList();
                         break;
-                    case "no-parent":
+                    case "no-parent-or-child":
                         newElems = newElems.Where(a =>
                         {
                             var parent = a.Parent;
@@ -466,9 +466,24 @@ namespace Saber.Vendors.Collector
                                 parents.Add(parent);
                                 parent = parent.Parent;
                             }
+                            parents.AddRange(a.AllChildren());
                             if(parents.Count > 0)
                             {
-                                return FindElements(param, parents).Count == 0;
+                                return FindElements(param, parents, dom).Count == 0;
+                            }
+                            else
+                            {
+                                return true;
+                            }
+                        }).ToList();
+                        break;
+                    case "no-child":
+                        newElems = newElems.Where(a =>
+                        {
+                            var children = a.AllChildren();
+                            if (children.Count > 0)
+                            {
+                                return FindElements(param, children, dom).Count == 0;
                             }
                             else
                             {
@@ -521,7 +536,7 @@ namespace Saber.Vendors.Collector
                         TraverseElements(elem, children);
                     }
                 }
-                newElems = FindElements(part2, children);
+                newElems = FindElements(part2, children, dom);
             }
             return newElems;
         }

@@ -86,7 +86,7 @@
             "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
             "widget", "privacy", "captcha", "badge", "comment", "cancel",
             "apply", "links", "skip", "dropdown", "drop-down", "truncated",
-            "editors-picks", "also", "categories", "notifi", "timer", "next", "previous",
+            "editors-picks", "categories", "notifi", "timer", "next", "previous",
             "signout", "sign-out", "player", "picker", "stories"
         };
 

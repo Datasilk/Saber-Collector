@@ -23,44 +23,45 @@
                 <select id="domain_type" oninput="S.domain.info.updateType()" data-value="{{domain-type}}">
                     <option value="-1">[Not Set]</option>
                     <option value="0">Unused</option>
-                    <option value="1">Website</option>
-                    <option value="2">E-Commerce</option>
-                    <option value="3">Wiki</option>
-                    <option value="4">Blog</option>
-                    <option value="38">Magazine</option>
-                    <option value="5">Science Journal</option>
-                    <option value="6">SASS</option>
-                    <option value="7">Social Network</option>
-                    <option value="8">Advertiser</option>
-                    <option value="9">Search Engine</option>
-                    <option value="10">Portfolio</option>
-                    <option value="11">News</option>
-                    <option value="12">Travel</option>
-                    <option value="13">Aggregator</option>
-                    <option value="14">Government</option>
-                    <option value="15">E-Books</option>
-                    <option value="16">Crypto</option>
-                    <option value="17">Law</option>
-                    <option value="18">Medical</option>
-                    <option value="19">Political</option>
-                    <option value="20">Software Development</option>
-                    <option value="21">Photo Gallery</option>
-                    <option value="22">Videos</option>
-                    <option value="23">Music</option>
-                    <option value="24">Maps</option>
-                    <option value="25">Mobile App</option>
-                    <option value="26">Video Games</option>
-                    <option value="27">Erotic</option>
-                    <option value="28">Conspiracy</option>
-                    <option value="29">Religion</option>
-                    <option value="30">Weather</option>
-                    <option value="31">Comics</option>
-                    <option value="32">Gore</option>
-                    <option value="33">Real Estate</option>
                     <option value="34">3D Animation</option>
-                    <option value="35">Live Streaming</option>
-                    <option value="36">History</option>
+                    <option value="8">Advertiser</option>
+                    <option value="13">Aggregator</option>
+                    <option value="4">Blog</option>
+                    <option value="31">Comics</option>
+                    <option value="28">Conspiracy</option>
+                    <option value="16">Crypto</option>
+                    <option value="15">E-Books</option>
+                    <option value="2">E-Commerce</option>
+                    <option value="27">Erotic</option>
+                    <option value="32">Gore</option>
+                    <option value="14">Government</option>
                     <option value="37">Guns &amp; Weapons</option>
+                    <option value="36">History</option>
+                    <option value="17">Law</option>
+                    <option value="35">Live Streaming</option>
+                    <option value="38">Magazine</option>
+                    <option value="24">Maps</option>
+                    <option value="18">Medical</option>
+                    <option value="25">Mobile App</option>
+                    <option value="23">Music</option>
+                    <option value="11">News</option>
+                    <option value="21">Photo Gallery</option>
+                    <option value="19">Political</option>
+                    <option value="10">Portfolio</option>
+                    <option value="33">Real Estate</option>
+                    <option value="29">Religion</option>
+                    <option value="6">SASS</option>
+                    <option value="5">Science Journal</option>
+                    <option value="9">Search Engine</option>
+                    <option value="7">Social Network</option>
+                    <option value="20">Software Development</option>
+                    <option value="39">Space</option>
+                    <option value="12">Travel</option>
+                    <option value="30">Weather</option>
+                    <option value="26">Video Games</option>
+                    <option value="22">Videos</option>
+                    <option value="1">Website</option>
+                    <option value="3">Wiki</option>
                 </select>
             </div>
         </div>
@@ -69,13 +70,21 @@
             <input type="checkbox" id="domain_subscription" 
                    {{subscription-required}}checked="checked"{{/subscription-required}} 
                    oninput="S.domain.info.requireSubscription()" />
-            <label for="domain_subscription">Requires a <b>subscription</b> to consume content</label>
+            <label for="domain_subscription">
+                Requires a <b>subscription</b> to consume content
+            </label>
         </div>
         <div class="row hover input">
             <input type="checkbox" id="domain_freecontent" 
                    {{has-free-content}}checked="checked"{{/has-free-content}} 
                    oninput="S.domain.info.hasFreeContent()" />
             <label for="domain_freecontent">Includes <b>free</b> content</label>
+        </div>
+        <div class="row hover input">
+            <input type="checkbox" id="domain_download_articles" 
+                   {{download-articles}}checked="checked"{{/download-articles}} 
+                   oninput="S.domain.info.downloadArticles()" />
+            <label for="domain_download_articles" title="Will download all article images & any other important assets">Download Full Articles for Queued Downloads</label>
         </div>
     </div>
     <div class="content-rules pad-top"></div>

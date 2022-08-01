@@ -57,7 +57,8 @@ namespace Query.Models
         live_streaming = 35,
         history = 36,
         guns_weapons = 37,
-        magazine = 38
+        magazine = 38,
+        space = 39
     }
 
     public enum DomainSort

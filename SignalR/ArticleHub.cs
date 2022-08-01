@@ -207,7 +207,7 @@ namespace Saber.Vendors.Collector.Hubs
                     if(rule.rule == false)
                     {
                         //remove elements from article
-                        var elems = Html.FindElements(rule.selector, article.elements);
+                        var elems = Html.FindElements(rule.selector, article.elements, article.elements);
                         foreach(var elem in elems)
                         {
                             excludedIndexes.Add(elem.index);
@@ -220,7 +220,7 @@ namespace Saber.Vendors.Collector.Hubs
                     else
                     {
                         //protect elements in article
-                        var elems = Html.FindElements(rule.selector, article.elements);
+                        var elems = Html.FindElements(rule.selector, article.elements, article.elements);
                         foreach (var elem in elems)
                         {
                             protectedIndexes.Add(elem.index);
