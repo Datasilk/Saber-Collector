@@ -1015,7 +1015,7 @@ namespace Saber.Vendors.Collector
                     }
                     else if ((status >= 301 && status <= 303))
                     {
-                        //url redirect
+                        //url redirect (301, 302, or 303)
                         url = response.Headers["location"].ToString();
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
