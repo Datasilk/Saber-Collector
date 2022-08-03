@@ -1,13 +1,8 @@
 ﻿<div class="domain-item id-{{domainid}}" onclick="S.domain.details.show('{{domain}}')">
     <div class="row">
-    <div class="col title">
-        <h4>{{title}}</h4>
-    </div>
-    {{has-domain-type}}
-        <div class="col right">
-            <span class="domain-type">{{domain-type}}</span>
+        <div class="col title">
+            <h4>{{title}}</h4>
         </div>
-    {{/has-domain-type}}
     </div>
     <div class="url">
         <a href="{{url}}" onclick="event.cancelBubble = true" target="_blank">{{url}}</a>
@@ -20,5 +15,12 @@
             <span class="articles"><span class="num">{{total-articles}}</span> 
             <a href="/?domainId={{domainid}}" class="nolink" target="_blank">articles</a></span>
         {{/articles}}
+        <div class="row">
+            {{has-domain-type}}
+                <div class="col">
+                    <span class="domain-type">{{domain-type}}</span>
+                </div>
+            {{/has-domain-type}}
+        </div>
     </div>
 </div>

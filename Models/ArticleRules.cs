@@ -81,11 +81,11 @@
             "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "related",
-            "navi", "menu", "toolbar", "sidecontent", "tab", "label",
+            "navi", "menu", "toolbar", "sidecontent", "tab", 
             "carousel", "overlay", "progress", "comment",
             "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
-            "widget", "privacy", "captcha", "badge", "comment", "cancel",
-            "apply", "links", "skip", "dropdown", "drop-down", "truncated",
+            "privacy", "captcha", "badge", "comment", "cancel",
+            "apply", "dropdown", "drop-down", "truncated",
             "editors-picks", "categories", "notifi", "timer", "next", "previous",
             "signout", "sign-out", "player", "picker", "stories"
         };
@@ -112,7 +112,7 @@
             "disqus", "advertisement", "follow on twitter", "check out our", "announcement",
             "users", "sign up", "log in", "sign in", "reset pass", "subscribe", "learn more",
             "more stories", "click for", "update required", "update your browser", "supports html5",
-            "support html5", "support", "member", "this site", "exclusive", "podcast", "newsletter",
+            "support html5", "member", "this site", "exclusive", "podcast", "newsletter",
             "tick the box", "recent stories", "recent articles", "recent posts", "viewers", "followers", "skip",
             "related content", "sponsored", "links"
         };
