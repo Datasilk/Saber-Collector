@@ -504,7 +504,9 @@ namespace Saber.Vendors.Collector.Hubs
             if(url == "") { return false; }
             if (url.IndexOf("http://") != 0 && url.IndexOf("https://") != 0) { return false; }
             if (url.Length > 255) { return false; }
+
             if (Rules.badUrls.Any(a => url.Contains(a))) { return false; }
+            if (Rules.badUrlExtensions.Any(a => url.Contains("." + a))) { return false; }
             if (!Domains.ValidateDomain(url.GetDomainName())) { return false; }
             return true;
         }

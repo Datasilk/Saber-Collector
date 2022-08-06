@@ -33,6 +33,20 @@
             "doubleclick", "/subscribe", "/cookies/", ".ashx"
         };
 
+        public static string[] badUrlExtensions = new string[]
+        {
+            "jpg", "jpeg", "png", "gif", "aiff", // image file extensions
+            "zip", "z7", "rar", "tar", "arc", "cab", "tgz", //compressed file extensions
+            //"pdf", "doc", "docx", "rtf", "txt", "odt" //document file extensions
+            "xml", "json", "dat", "sql", "js", "css", "less", "scss", //dev file extensions
+            "exe", "so", "dll", "bat" //system file extensions
+        };
+
+        public static string[] documentExtensions = new string[]
+        {
+            "pdf", "doc", "docx", "rtf", "txt", "odt", "csv", "ppt", "pptx", "xls", "xlsx"
+        };
+
         //used to identify page titles that disqualifies the page as an article
         public static string[] badPageTitles = new string[]{
             "terms of use", "terms & conditions", "terms and conditions", "our policies",
