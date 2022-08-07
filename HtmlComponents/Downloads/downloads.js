@@ -44,7 +44,7 @@
         $('.btn-hide-console').hide();
         setTimeout(() => {
             S.downloads.check();
-            S.downloads.checkFeeds();
+            //S.downloads.checkFeeds();
         }, 10);
     },
 
@@ -73,7 +73,7 @@
     },
 
     check: function () {
-        if (S.downloads.running === false) { return; }
+        if (S.downloads.running === false) { return; } 
         var id = S.math.rnd.guid(6);
         var feedId = feedid ? parseInt(feedid.value) : 0;
         var domain = download_domain ? download_domain.value : '';

@@ -81,6 +81,21 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
                             //auto-run the download queue
                             request.AddScriptBlock("setTimeout(S.downloads.start, 1000);");
                         }
+                        if (request.Parameters.ContainsKey("feedid"))
+                        {
+                            viewComponent.Show("has-feedid");
+                            viewComponent["feedid"] = request.Parameters["feedid"];
+                        }
+                        if (request.Parameters.ContainsKey("domain"))
+                        {
+                            viewComponent.Show("has-domain");
+                            viewComponent["domain"] = request.Parameters["domain"];
+                        }
+                        if (request.Parameters.ContainsKey("sort"))
+                        {
+                            viewComponent.Show("has-sort");
+                            viewComponent["sort"] = request.Parameters["sort"];
+                        }
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;
                     })

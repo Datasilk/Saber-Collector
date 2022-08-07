@@ -1,14 +1,14 @@
 {
   "browser": {
     "endpoint": {
-      "development": "http://localhost:7077/Browser",
-      "staging": "http://localhost:7077/Browser",
-      "production": "http://localhost:7077/Browser"
+      "development": "http://localhost:7007/GetDOM",
+      "staging": "http://localhost:7007/GetDOM",
+      "production": "http://localhost:7007/GetDOM"
     }
   },
   "storage": {
     "development": "/Content/Collector/",
     "staging": "/Content/Collector/",
     "production": "/Content/Collector/"
-  },
+  }
 }

@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings;
 using System.Net;
+using System.Net.Http;
+using System.IO;
 using System.ServiceModel;
 using Saber.Core.Extensions.Strings;
 using Utility.DOM;
@@ -1048,17 +1051,28 @@ namespace Saber.Vendors.Collector
             
             if (contentType == "text/html" || contentType == "")
             {
-                //get JSON compressed HTML page from Charlotte windows service
-                var binding = new BasicHttpBinding()
-                {
-                    MaxReceivedMessageSize = 5 * 1024 * 1024 //5 MB
-                };
-                var endpoint = new EndpointAddress(new Uri(browserEndpoint));
-                var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
-                var serviceClient = channelFactory.CreateChannel();
-                var result = serviceClient.Collect(url);
-                channelFactory.Close();
+                //new code that calls Charlotte Web Router
+                var postData = new StringBuilder();
+                postData.Append(String.Format("{0}={1}&", WebUtility.HtmlEncode("url"), WebUtility.HtmlEncode(url)));
+                postData.Append(String.Format("{0}={1}&", WebUtility.HtmlEncode("session"), false));
+                postData.Append(String.Format("{0}={1}", WebUtility.HtmlEncode("macros"), WebUtility.HtmlEncode("?")));
+                StringContent postContent = new StringContent(postData.ToString(), Encoding.UTF8, "application/x-www-form-urlencoded");
+                HttpClient client = new HttpClient();
+                HttpResponseMessage message = client.PostAsync(browserEndpoint, postContent).GetAwaiter().GetResult();
+                string result = message.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 return result;
+                //old code that called Charlotte directy
+                //get JSON compressed HTML page from Charlotte windows service
+                //var binding = new BasicHttpBinding()
+                //{
+                //    MaxReceivedMessageSize = 5 * 1024 * 1024 //5 MB
+                //};
+                //var endpoint = new EndpointAddress(new Uri(browserEndpoint));
+                //var channelFactory = new ChannelFactory<IBrowser>(binding, endpoint);
+                //var serviceClient = channelFactory.CreateChannel();
+                //var result = serviceClient.Collect(url);
+                //channelFactory.Close();
+                //return result;
             }
             else if(contentType != "")
             {
