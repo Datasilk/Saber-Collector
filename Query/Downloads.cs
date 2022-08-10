@@ -81,5 +81,15 @@ namespace Query
         {
             Sql.ExecuteNonQuery("DownloadQueue_Move", new { qid });
         }
+
+        public static void Archive(long qid)
+        {
+            Sql.ExecuteNonQuery("DownloadQueue_Archive", new { qid });
+        }
+
+        public static void MoveArchived()
+        {
+            Sql.ExecuteNonQuery("DownloadQueue_MoveArchived");
+        }
     }
 }

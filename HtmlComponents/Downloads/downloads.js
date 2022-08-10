@@ -2,6 +2,8 @@
     hub: null,
     id: null,
     running: false,
+    checkingQueue: false,
+    timerFeeds: null,
 
     console: {
         visible: false,
@@ -30,6 +32,7 @@
         S.downloads.hub.on('update', S.downloads.update);
         S.downloads.hub.on('checked', S.downloads.checked);
         S.downloads.hub.on('feed', S.downloads.checkedfeed);
+        S.downloads.hub.on('checkedfeeds', S.downloads.finishedCheckingFeeds);
         S.downloads.hub.on('article', S.downloads.articles.found);
         S.downloads.hub.start().catch(S.downloads.error);
     },
@@ -42,14 +45,13 @@
         $('.btn-download-stop').removeClass('hide');
         $('.btn-view-console').hide();
         $('.btn-hide-console').hide();
-        setTimeout(() => {
-            S.downloads.check();
-            //S.downloads.checkFeeds();
-        }, 10);
+        S.downloads.checkFeeds();
     },
 
     stop: function () {
         S.downloads.running = false;
+        S.downloads.checkingQueue = false;
+        clearTimeout(S.downloads.timerFeeds);
         $('.downloads .download').show();
         $('.cancel-downloads').hide();
         $('.btn-download-start').removeClass('hide');
@@ -64,12 +66,28 @@
         setTimeout(() => {
             S.downloads.hub.invoke('StopQueue', S.downloads.id);
         }, 10);
+        setTimeout(() => {
+            //remove iframe if page is inside an iframe
+            var id = S.util.location.queryString('iframe', window.location.href);
+            if (window.parent != null && typeof id == 'string') {
+                var iframe = window.parent.document.getElementById('iframe_' + id);
+                iframe.parentNode.parentNode.removeChild(iframe.parentNode);
+            }
+        }, 500);
     },
 
     checkFeeds: function () {
         var feedId = feedid ? parseInt(feedid.value) : 0;
         S.downloads.hub.invoke('CheckFeeds', feedId);
-        setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
+        S.downloads.timerFeeds = setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
+    },
+
+    finishedCheckingFeeds: function () {
+        S.downloads.running = true;
+        if (S.downloads.checkingQueue == false) {
+            S.downloads.checkingQueue = true;
+            S.downloads.check();
+        }
     },
 
     check: function () {
@@ -91,46 +109,9 @@
         var div = document.createElement('div');
         div.className = 'cli-line';
         div.innerHTML = '> ' + msg;
-        $('.downloads .console').append(div);
+        $('.downloads .console').append(div); 
         //var box = $('.downloads .accordion > .box')[0];
         //box.scrollTop = box.scrollHeight;
-    },
-
-    articles: {
-        visible: false,
-        list: [],
-
-        found: function (json) {
-            if (S.downloads.articles.visible == false) { return; }
-            var article = JSON.parse(json);
-            if (article == null || article.wordcount == null || article.wordcount == 0) { return; }
-            $('.articles-list').append(S.downloads.articles.render(article));
-            $('.no-articles').remove();
-            $('.btn-sort-articles').show();
-            S.downloads.articles.list.push(article);
-        },
-
-        render: function (article) {
-            return temp_article_item.innerHTML
-                .replace('#url#', article.url)
-                .replace('#url#', article.url)
-                .replace('#article-url#', encodeURIComponent(article.url))
-                .replace('#title#', article.title)
-                .replace('#score#', article.score)
-                .replace('#words#', article.wordcount)
-                .replace('#links#', article.linkcount)
-                .replace('#filesize#', article.filesize);
-        },
-
-        sort: function () {
-            if (S.downloads.articles.visible == false) { return; }
-            var list = $('.articles-list');
-            list.html('');
-            S.downloads.articles.list.sort((a, b) => a.score < b.score ? 1 : -1)
-            .forEach(a => {
-                list.append(S.downloads.articles.render(a));
-            });
-        }
     },
 
     checked: function (skipped, downloaded, article, links, words, important) {
@@ -151,7 +132,7 @@
                 S.downloads.check(); //check immediately
             }
         } else {
-            S.downloads.update('S.downloads.running = false');
+            S.downloads.update('stopped running...'); 
         }
     },
 
@@ -231,6 +212,43 @@
         }
     },
 
+    articles: {
+        visible: false,
+        list: [],
+
+        found: function (json) {
+            if (S.downloads.articles.visible == false) { return; }
+            var article = JSON.parse(json);
+            if (article == null || article.wordcount == null || article.wordcount == 0) { return; }
+            $('.articles-list').append(S.downloads.articles.render(article));
+            $('.no-articles').remove();
+            $('.btn-sort-articles').show();
+            S.downloads.articles.list.push(article);
+        },
+
+        render: function (article) {
+            return temp_article_item.innerHTML
+                .replace('#url#', article.url)
+                .replace('#url#', article.url)
+                .replace('#article-url#', encodeURIComponent(article.url))
+                .replace('#title#', article.title)
+                .replace('#score#', article.score)
+                .replace('#words#', article.wordcount)
+                .replace('#links#', article.linkcount)
+                .replace('#filesize#', article.filesize);
+        },
+
+        sort: function () {
+            if (S.downloads.articles.visible == false) { return; }
+            var list = $('.articles-list');
+            list.html('');
+            S.downloads.articles.list.sort((a, b) => a.score < b.score ? 1 : -1)
+            .forEach(a => {
+                list.append(S.downloads.articles.render(a));
+            });
+        }
+    },
+
 };
 
 //utility functions ///////////////////////////////////////
@@ -254,6 +272,18 @@ S.math.rnd = {
             }
         }
         return result;
+    }
+};
+
+S.util.location = {
+    queryString: function (key, url) {
+        if (!url) url = window.location.href;
+        key = key.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + key + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 };
 

@@ -14,12 +14,13 @@ namespace Saber.Vendors.Collector.Hubs
     public class DownloadHub : Hub
     {
         private List<string> StopQueues = new List<string>();
+        private static int downloadsArchived = 0;
 
         public async Task CheckQueue(string id, int feedId, string domainName, int sort)
         {
             try
             {
-
+                await Clients.Caller.SendAsync("update", "Checking queue...");
                 var queue = Query.Downloads.CheckQueue(feedId, domainName, domainName != "" ? 5 : 10, (Query.Downloads.QueueSort)sort); // 10 second delay for each download on a single domain
                 if (queue != null)
                 {
@@ -68,7 +69,8 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         ////////////////////////////////////////////////////////////////////////////////
                         //updated URL, retire current download and create new download for the new URL
-                        Query.Downloads.Move(queue.qid);
+                        Query.Downloads.Archive(queue.qid);
+                        downloadsArchived++;
                         queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), feedId);
                         queue.url = newurl;
                         var domain = Query.Domains.GetInfo(newurl.GetDomainName());
@@ -176,7 +178,8 @@ namespace Saber.Vendors.Collector.Hubs
                             else
                             {
                                 //archive download
-                                Query.Downloads.Move(queue.qid);
+                                Query.Downloads.Archive(queue.qid);
+                                downloadsArchived++;
                             }
 
                             //save downloaded results to disk
@@ -192,7 +195,8 @@ namespace Saber.Vendors.Collector.Hubs
                         }
                         else
                         {
-                            Query.Downloads.Move(queue.qid);
+                            Query.Downloads.Archive(queue.qid);
+                            downloadsArchived++;
                         }
 
                         //display article information
@@ -264,6 +268,15 @@ namespace Saber.Vendors.Collector.Hubs
 
                         //finished processing download
                         await Clients.Caller.SendAsync("checked", 0, 1, downloadOnly == false && articleInfo.wordcount > 50 ? 1 : 0, addedLinks, articleInfo.wordcount ?? 0, articleInfo.importantcount ?? 0);
+
+                        //check if we should move archived downloads
+                        if (downloadsArchived > 1000)
+                        {
+                            downloadsArchived = 0;
+                            await Clients.Caller.SendAsync("update", "Archiving the last 1,000 completed downloads");
+                            Query.Downloads.MoveArchived(); 
+
+                        }
                         return;
                     }
                     catch (Exception ex)
@@ -281,8 +294,16 @@ namespace Saber.Vendors.Collector.Hubs
             }
             catch(Exception ex)
             {
-                await Clients.Caller.SendAsync("update", "An error occurred while checking the download queue");
-                await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0, 0);
+                if(ex.Message.Contains("No connection could be made because the target machine actively refused it"))
+                {
+                    //No connection could be made because the target machine actively refused it. (localhost:7007)
+                    await Clients.Caller.SendAsync("update", ex.Message);
+                }
+                else
+                {
+                    await Clients.Caller.SendAsync("update", "An error occurred while checking the download queue");
+                    await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0, 0);
+                }
                 Query.Logs.LogError(0, "", "DownloadHub", ex.Message, ex.StackTrace);
             }
         }
@@ -310,10 +331,21 @@ namespace Saber.Vendors.Collector.Hubs
             await Clients.Caller.SendAsync("update", "Checking " + feeds.Count + " feed" + (feeds.Count != 1 ? "s" : "") + "...");
             var i = 0;
             var len = feeds.Count;
+            if(len == 0)
+            {
+                await Clients.Caller.SendAsync("update", "Checked feeds.");
+                await Clients.Caller.SendAsync("checkedfeeds");
+                return;
+            }
             foreach (var feed in feeds)
             {
                 i++;
-                if(feed.doctype == Query.Feeds.DocTypes.RSS)
+
+                //update database (if multiple download instances running)
+                Query.Feeds.UpdateLastChecked(feed.feedId);
+
+                //read feed (either RSS or HTML)
+                if (feed.doctype == Query.Feeds.DocTypes.RSS)
                 {
                     //Read RSS feed ///////////////////////////////////////////////////////////////////////////////
                     using (var client = new WebClient())
@@ -442,6 +474,7 @@ namespace Saber.Vendors.Collector.Hubs
                     }
 
                     //add all links for all domains to download queue
+                    var totalQueueItems = 0;
                     foreach (var domain in urls.Keys)
                     {
                         try
@@ -454,11 +487,7 @@ namespace Saber.Vendors.Collector.Hubs
                             var dlinks = urls[domain].Select(a => a.Key + a.Value);
                             if (dlinks.Count() > 0)
                             {
-                                var count = Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
-                                await Clients.Caller.SendAsync("feed", count,
-                                        "<span>(" + i + " of " + len + " feeds) Found " + count + " new link(s) from " + 
-                                        feed.title + ": <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>"
-                                    );
+                                totalQueueItems += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
                             }
                             else
                             {
@@ -471,11 +500,24 @@ namespace Saber.Vendors.Collector.Hubs
                                 domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
                         }
                     }
+                    await Clients.Caller.SendAsync("feed", totalQueueItems,
+                        "<span>(" + len + " feeds left) Found " + totalQueueItems + " new link(s) from " + 
+                        urls.Keys.Count + " domains for feed: <a href=\"" + feed.url + "\" target=\"_blank\">" + feed.url + "</a></span>"
+                    );
                 }
-                Query.Feeds.UpdateLastChecked(feed.feedId);
+
+                //recursively check feeds
+                if(feeds.Count == 1)
+                {
+                    await Clients.Caller.SendAsync("update", "Checked feeds.");
+                    await Clients.Caller.SendAsync("checkedfeeds");
+                }
+                else
+                {
+                    await CheckFeeds(feedId);
+                }
+                return;
             }
-            await Clients.Caller.SendAsync("update", "Checked feeds.");
-            await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0);
         }
 
         public async Task Whitelist(string domain)

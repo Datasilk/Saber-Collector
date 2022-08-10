@@ -12,7 +12,7 @@ AS
 	BEGIN TRANSACTION
 
 	SELECT TOP 1 @qid = q.qid, @domainId = q.domainId
-	FROM DownloadQueue q WITH (TABLOCKX)
+	FROM DownloadQueue q --WITH (TABLOCKX)
 	JOIN Domains d ON d.domainId = q.domainId
 	LEFT JOIN Whitelist_Domains w ON w.domain = d.domain -- must be a whitelisted domain
 	LEFT JOIN Blacklist_Domains b ON b.domain = d.domain -- check for blacklisted domain
