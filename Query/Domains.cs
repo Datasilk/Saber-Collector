@@ -6,6 +6,13 @@ namespace Query
 {
     public static class Domains
     {
+        #region "Add"
+        public static int Add(string domain, string title = "", int type = 0)
+        {
+            return Sql.ExecuteScalar<int>("Domain_Add", new { domain, title, type });
+        }
+        #endregion
+
         #region "Get"
 
         public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50)

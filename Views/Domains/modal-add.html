@@ -1,0 +1,30 @@
+﻿<form id="form_add_domain">
+    <div class="row pad-height">
+        <p>
+            Add a domain to Collector and whitelist the domain to start downloading content, 
+            or blacklist the domain to prevent any content from downloading from that domain.
+        </p>
+    </div>
+    <div class="messages"></div>
+    <div class="row hover">
+        <div class="col field long">Domain Name</div>
+        <div class="col input expand short"><input type="text" id="domain_name" placeholder="datasilk.io" /></div>
+    </div>
+    <div class="row hover">
+        <div class="col field long">Title</div>
+        <div class="col input expand short"><input type="text" id="domain_title" placeholder="Datasilk" /></div>
+    </div>
+    <div class="row hover">
+        <div class="col field long">Type</div>
+        <div class="col input short">
+            <select id="domain_type">
+                <option value="0">None</option>
+                <option value="1">Whitelist</option>
+                <option value="2">Blacklist</option>
+            </select>
+        </div>
+    </div>
+    <div class="row pad-top text-right">
+        <button type="submit">Add Domain</button>
+    </div>
+</form>

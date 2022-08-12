@@ -14,6 +14,34 @@
         });
     },
 
+    add: {
+        show: function () {
+            S.ajax.post('Collector-Domains/RenderAdd', {}, (response) => {
+                //load modal for adding new domain
+                S.popup.show('Add New Domain', response, {
+                    width: 450
+                });
+                $('#form_add_domain').on('submit', S.domains.add.submit);
+            });
+        },
+
+        submit: function (e) {
+            e.preventDefault();
+            var data = {
+                domain: domain_name.value,
+                title: domain_title.value,
+                type: domain_type.value
+            };
+            S.ajax.post('Collector-Domains/Add', data, (response) => {
+                console.log('prepend response');
+                $('.domains .contents').prepend(response);
+                S.popup.hide();
+            }, (err) => {
+                S.message.show('.popup.show .messages', 'error', err.responseText);
+            });
+        }
+    },
+
     search: {
         selectedSubjectId: 0,
 
@@ -65,7 +93,7 @@
 
         customResults: function (domainsearch, subjectId, type, domainsort) {
             var data = {
-                subjectId: subjectId,
+                subjectId: subjectId, 
                 type: type,
                 sort: domainsort,
                 search: domainsearch,

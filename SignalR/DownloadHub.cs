@@ -21,7 +21,7 @@ namespace Saber.Vendors.Collector.Hubs
             try
             {
                 await Clients.Caller.SendAsync("update", "Checking queue...");
-                var queue = Query.Downloads.CheckQueue(feedId, domainName, domainName != "" ? 5 : 10, (Query.Downloads.QueueSort)sort); // 10 second delay for each download on a single domain
+                var queue = Query.Downloads.CheckQueue(feedId, domainName, 60, (Query.Downloads.QueueSort)sort); // 60 second delay for each download on a single domain
                 if (queue != null)
                 {
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }

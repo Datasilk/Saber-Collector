@@ -10,5 +10,10 @@
     "development": "/Content/Collector/",
     "staging": "/Content/Collector/",
     "production": "/Content/Collector/"
+  },
+  "domains": {
+    "downloads": {
+      "minIntervals": 60
+    }
   }
 }

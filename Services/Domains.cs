@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 using System.Text;
-using Saber.Core;
 using Saber.Vendor;
 using Saber.Core.Extensions.Strings;
 
@@ -11,6 +9,32 @@ namespace Saber.Vendors.Collector.Services
 {
     public class CollectorDomains : Service, IVendorService
     {
+        #region "Add"
+        public string RenderAdd()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Domains/modal-add.html");
+            return view.Render();
+        }
+
+        public string Add(string domain, string title = "", int type = 0)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            if (domain == null || domain == "") { return Error("Please specify the domain you wish to add"); }
+            try
+            {
+                domain = domain.GetDomainName();
+                var domainId = Query.Domains.Add(domain, title, type);
+                return GetDomainListItem(domainId);
+            }
+            catch(Exception ex)
+            {
+                return Error(ex.Message);
+            }
+
+        }
+        #endregion
+
         #region "Search"
         public string Search(int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort, string search, int start, int length)
         {

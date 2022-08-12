@@ -1015,6 +1015,7 @@ namespace Saber.Vendors.Collector
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
                         status = 0;
+                        continue;
                     }
                     else if ((status >= 301 && status <= 303))
                     {

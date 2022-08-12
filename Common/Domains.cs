@@ -154,6 +154,8 @@ namespace Saber.Vendors.Collector
         #endregion
 
         #region "Download Rules"
+        public static int DownloadMinimumIntervals { get; set; } = 60; //in seconds
+
         public class DownloadRuleMatch
         {
             public string Url { get; set; } = "";

@@ -61,6 +61,10 @@ namespace Saber.Vendors.Collector
                     Directory.CreateDirectory(Article.storagePath + "files");
                 }
 
+                //load domain-level minimum download intervals (in seconds)
+                section = "domains:downloads:minIntervals";
+                Domains.DownloadMinimumIntervals = config.GetValue<int>(section);
+
                 //load common words
                 Models.Article.Rules.commonWords = Query.CommonWords.GetList().ToArray();
             }
