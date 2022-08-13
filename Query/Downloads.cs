@@ -22,7 +22,7 @@ namespace Query
             Sql.ExecuteNonQuery("Download_UpdateUrl", new { qId, url, domain });
         }
 
-        public static int AddQueueItems(string[] urls, string domain, int feedId = 0)
+        public static int AddQueueItems(string[] urls, string domain, int parentId = 0, int feedId = 0)
         {
             //clean urls
             for(var x = 0; x < urls.Length; x++)
@@ -32,12 +32,12 @@ namespace Query
                     urls[x] = urls[x].Substring(0, urls[x].Length - 1);
                 }
             }
-            return Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, feedId });
+            return Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, parentId, feedId });
         }
 
-        public static Int64 AddQueueItem(string url, string domain, int feedId = 0)
+        public static Int64 AddQueueItem(string url, string domain, int parentId = 0, int feedId = 0)
         {
-            return Sql.ExecuteScalar<Int64>("DownloadQueue_Add", new { url, domain, feedId });
+            return Sql.ExecuteScalar<Int64>("DownloadQueue_Add", new { url, domain, parentId, feedId });
         }
 
         public enum QueueSort

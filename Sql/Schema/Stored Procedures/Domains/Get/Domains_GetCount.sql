@@ -5,7 +5,8 @@ CREATE PROCEDURE [dbo].[Domains_GetCount]
 	@subjectIds nvarchar(MAX) = '',
 	@search nvarchar(MAX) = '',
 	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free, 6 = unprocessed
-	@sort int = 0 -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest
+	@sort int = 0, -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest
+	@parentId int = -1
 AS
 	/* get subjects from array */
 	SELECT * INTO #subjects FROM dbo.SplitArray(@subjectIds, ',')
@@ -37,4 +38,8 @@ AS
 	AND (
 		(@sort = 2 AND d.articles > 0)
 		OR (@sort <> 2)
+	)
+	AND (
+		(@parentId >= 0 AND d.parentId = @parentId)
+		OR (@parentId < 0)
 	)

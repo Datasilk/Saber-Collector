@@ -7,6 +7,7 @@ namespace Query.Models
     {
         public Int64 qid { get; set; }
         public int domainId { get; set; }
+        public int parentId { get; set; }
         public int feedId { get; set; }
         public int status { get; set; }
         public string url { get; set; }

@@ -7,22 +7,22 @@ namespace Query
     public static class Domains
     {
         #region "Add"
-        public static int Add(string domain, string title = "", int type = 0)
+        public static int Add(string domain, string title = "", int parentId = 0, int type = 0)
         {
-            return Sql.ExecuteScalar<int>("Domain_Add", new { domain, title, type });
+            return Sql.ExecuteScalar<int>("Domain_Add", new { domain, title, parentId, type });
         }
         #endregion
 
         #region "Get"
 
-        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50)
+        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50, int parentId = -1)
         {
-            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length });
+            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length, parentId });
         }
 
-        public static int GetCount(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "")
+        public static int GetCount(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int parentId = -1)
         {
-            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, sort });
+            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, sort, parentId });
         }
 
         public static Models.Domain GetInfo(string domain)

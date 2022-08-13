@@ -17,14 +17,14 @@ namespace Saber.Vendors.Collector.Services
             return view.Render();
         }
 
-        public string Add(string domain, string title = "", int type = 0)
+        public string Add(string domain, string title = "", int parentId = 0, int type = 0)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             if (domain == null || domain == "") { return Error("Please specify the domain you wish to add"); }
             try
             {
                 domain = domain.GetDomainName();
-                var domainId = Query.Domains.Add(domain, title, type);
+                var domainId = Query.Domains.Add(domain, title, parentId, type);
                 return GetDomainListItem(domainId);
             }
             catch(Exception ex)

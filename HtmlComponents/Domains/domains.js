@@ -16,7 +16,7 @@
 
     add: {
         show: function () {
-            S.ajax.post('Collector-Domains/RenderAdd', {}, (response) => {
+            S.ajax.post('CollectorDomains/RenderAdd', {}, (response) => {
                 //load modal for adding new domain
                 S.popup.show('Add New Domain', response, {
                     width: 450
@@ -32,7 +32,7 @@
                 title: domain_title.value,
                 type: domain_type.value
             };
-            S.ajax.post('Collector-Domains/Add', data, (response) => {
+            S.ajax.post('CollectorDomains/Add', data, (response) => {
                 console.log('prepend response');
                 $('.domains .contents').prepend(response);
                 S.popup.hide();

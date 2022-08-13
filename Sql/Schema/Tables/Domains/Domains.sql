@@ -3,6 +3,7 @@
     (
 	    [domainId] INT NOT NULL PRIMARY KEY, 
         [domain] NVARCHAR(64) NOT NULL,
+        [parentId] INT NOT NULL DEFAULT 0,
         [hastitle] BIT NOT NULL DEFAULT 0,
         [paywall] BIT NOT NULL DEFAULT 0,
         [free] BIT NOT NULL DEFAULT 0,
@@ -15,15 +16,3 @@
     )
 END TRY BEGIN CATCH END CATCH
     GO
-
-BEGIN TRY
-    CREATE INDEX [IX_Domains_Domain] ON [dbo].[Domains] ([domain])
-END TRY BEGIN CATCH END CATCH
-
-BEGIN TRY
-    CREATE INDEX [IX_Domains_Title] ON [dbo].[Domains] ([title])
-END TRY BEGIN CATCH END CATCH
-
-BEGIN TRY
-    CREATE INDEX [IX_Domains_HasTitle] ON [dbo].[Domains] ([hastitle] DESC)
-END TRY BEGIN CATCH END CATCH

@@ -4,6 +4,7 @@ GO
 CREATE PROCEDURE [dbo].[DownloadQueue_Add]
 	@url nvarchar(MAX) = '',
 	@domain nvarchar(64) = '',
+	@parentId int,
 	@feedId int = 0
 AS
 DECLARE @domainId INT, @qid BIGINT, @count INT = 0, @title nvarchar(128)
@@ -19,7 +20,7 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 END ELSE BEGIN
 	--create domain ID
 	SET @domainId = NEXT VALUE FOR SequenceDomains
-	INSERT INTO Domains (domainId, domain, lastchecked) VALUES (@domainId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
+	INSERT INTO Domains (domainId, parentId, domain, lastchecked) VALUES (@domainId, @parentId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
 END
 
 	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) 

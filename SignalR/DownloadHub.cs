@@ -71,7 +71,7 @@ namespace Saber.Vendors.Collector.Hubs
                         //updated URL, retire current download and create new download for the new URL
                         Query.Downloads.Archive(queue.qid);
                         downloadsArchived++;
-                        queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), feedId);
+                        queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), queue.parentId, feedId);
                         queue.url = newurl;
                         var domain = Query.Domains.GetInfo(newurl.GetDomainName());
                         queue.domainId = domain.domainId;
@@ -251,7 +251,7 @@ namespace Saber.Vendors.Collector.Hubs
                                 ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
 
                                 //add filtered URLs to download queue
-                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked.ToArray(), domain, queue.feedId) : 0;
+                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked.ToArray(), domain, queue.domainId, queue.feedId) : 0;
                                 if (count > 0)
                                 {
                                     addedLinks += count;
@@ -391,7 +391,7 @@ namespace Saber.Vendors.Collector.Hubs
                             var dlinks = urls[domain].Select(a => a.Key + a.Value);
                             if (dlinks.Count() > 0)
                             {
-                                count += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
+                                count += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.domainId, feed.feedId);
                             }
                         }
                         if (count > 0)
@@ -487,7 +487,7 @@ namespace Saber.Vendors.Collector.Hubs
                             var dlinks = urls[domain].Select(a => a.Key + a.Value);
                             if (dlinks.Count() > 0)
                             {
-                                totalQueueItems += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.feedId);
+                                totalQueueItems += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.domainId, feed.feedId);
                             }
                             else
                             {

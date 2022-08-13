@@ -23,7 +23,15 @@ END TRY BEGIN CATCH END CATCH
 GO
 
 BEGIN TRY
-    CREATE INDEX [IndexDomainArtciles] ON [dbo].[Domains] ([articles] DESC)
+    CREATE INDEX [IndexDomainArticles] ON [dbo].[Domains] ([articles] DESC)
 END TRY BEGIN CATCH END CATCH
 
 GO
+
+BEGIN TRY
+    CREATE INDEX [IX_Domains_Title] ON [dbo].[Domains] ([title])
+END TRY BEGIN CATCH END CATCH
+
+BEGIN TRY
+    CREATE INDEX [IX_Domains_HasTitle] ON [dbo].[Domains] ([hastitle] DESC)
+END TRY BEGIN CATCH END CATCH
