@@ -43,7 +43,9 @@ namespace Query
         public enum QueueSort
         {
             Newest = 0,
-            Oldest = 1
+            Oldest = 1,
+            HomePages = 2,
+            Random = 3
         }
 
         public static Models.DownloadQueue CheckQueue(int feedId = 0, string domain = "", int domaindelay = 60, QueueSort sort = QueueSort.Newest)

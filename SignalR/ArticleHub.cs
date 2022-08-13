@@ -117,7 +117,7 @@ namespace Saber.Vendors.Collector.Hubs
                         if(articleInfo != null)
                         {
                             //update existing article URL
-                            Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName());
+                            Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName(), articleInfo.domainId);
                             await Clients.Caller.SendAsync("update", 1, "Redirected & updated article URL from " + url + " to " + newurl);
                         }
                         await Clients.Caller.SendAsync("update-url", newurl);

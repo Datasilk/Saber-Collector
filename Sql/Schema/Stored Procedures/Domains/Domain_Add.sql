@@ -8,9 +8,22 @@ CREATE PROCEDURE [dbo].[Domain_Add]
 	@type int = 0 -- 0 = none, 1 = whitelist, 2 = blacklist
 AS
 	DECLARE @id int = NEXT VALUE FOR SequenceDomains
-	INSERT INTO Domains (domainId, parentId, domain, title)
-	VALUES (@id, @parentId, @domain, @title)
+	INSERT INTO Domains (domainId, parentId, domain, title, lastchecked)
+	VALUES (@id, @parentId, @domain, @title, DATEADD(HOUR, -1, GETUTCDATE()))
 	SELECT @id
+
+	IF @parentId > 0 BEGIN
+		BEGIN TRY
+		INSERT INTO DomainHierarchy (domainId, parentId, [level])
+		SELECT @id, parentId, [level]
+		FROM DomainHierarchy WHERE domainId = @parentId
+		END TRY BEGIN CATCH END CATCH
+		DECLARE @level int
+		SELECT @level = ISNULL(MAX([level]), 0) + 1 FROM DomainHierarchy WHERE domainId = @parentId
+
+		INSERT INTO DomainHierarchy (domainId, parentId, [level])
+		VALUES (@id, @parentId, @level)
+	END
 
 	IF @type = 1 EXEC Whitelist_Domain_Add @domain=@domain
 	IF @type = 2 EXEC Blacklist_Domain_Add @domain=@domain

@@ -153,11 +153,11 @@ namespace Query
                 });
         }
 
-        public static void UpdateUrl(int articleId, string url, string domain)
+        public static void UpdateUrl(int articleId, string url, string domain, int parentId = 0)
         {
             Sql.ExecuteNonQuery("Article_UpdateUrl", new
             {
-                articleId, url, domain
+                articleId, url, domain, parentId
             });
         }
 

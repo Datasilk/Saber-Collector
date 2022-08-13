@@ -19,8 +19,8 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 	END
 END ELSE BEGIN
 	--create domain ID
-	SET @domainId = NEXT VALUE FOR SequenceDomains
-	INSERT INTO Domains (domainId, parentId, domain, lastchecked) VALUES (@domainId, @parentId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
+	EXEC Domain_Add @domain=@domain, @parentId=@parentId
+	SELECT @domainId = domainId, @title = title FROM Domains WHERE domain=@domain
 END
 
 	IF NOT EXISTS(SELECT * FROM DownloadQueue WHERE url=@url) 

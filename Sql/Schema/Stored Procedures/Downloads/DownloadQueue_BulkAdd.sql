@@ -20,8 +20,8 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 	END
 END ELSE BEGIN
 	--create domain ID
-	SET @domainId = NEXT VALUE FOR SequenceDomains
-	INSERT INTO Domains (domainId, parentId, domain, lastchecked) VALUES (@domainId, @parentId, @domain, DATEADD(HOUR, -1, GETUTCDATE()))
+	EXEC Domain_Add @domain=@domain, @parentId=@parentId
+	SELECT @domainId = domainId, @title = title FROM Domains WHERE domain=@domain
 END
 SET @cursor = CURSOR FOR
 SELECT DISTINCT [value] FROM #urls

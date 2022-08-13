@@ -4,7 +4,8 @@ GO
 CREATE PROCEDURE [dbo].[Article_UpdateUrl]
 	@articleId int = 0,
 	@url nvarchar(250),
-	@domain nvarchar(250)
+	@domain nvarchar(250),
+	@parentId int = 0
 AS
 
 DECLARE @oldurl nvarchar(250), @domainId int
@@ -12,8 +13,8 @@ SELECT @oldurl=[url] FROM Articles WHERE articleId=@articleId
 SELECT @domainId=domainId FROM Domains WHERE domain=@domain
 
 IF @domainId IS NULL BEGIN
-	SET @domainId = NEXT VALUE FOR SequenceDomains
-	INSERT INTO Domains (domainId, domain) VALUES (@domainId, @domain)
+	EXEC Domain_Add @domain=@domain, @parentId=@parentId
+	SELECT @domainId=domainId FROM Domains WHERE domain=@domain
 END
 
 IF @oldurl != @url BEGIN

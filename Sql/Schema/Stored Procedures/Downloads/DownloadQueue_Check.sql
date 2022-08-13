@@ -5,11 +5,16 @@ CREATE PROCEDURE [dbo].[DownloadQueue_Check]
 	@domaindelay int = 60, -- in seconds
 	@domain nvarchar(64) = '',
 	@feedId int = 0,
-	@sort int = 0 -- 0 = newest, 1 = oldest, 2 = domain-level
+	@sort int = 0 -- 0 = newest, 1 = oldest, 2 = domain-level, 3 = random
 AS
-	DECLARE @qid int, @domainId int
+	DECLARE @qid int, @domainId int, @maxQid int
+
 
 	BEGIN TRANSACTION
+
+	IF @sort = 3 BEGIN -- random queue item
+		SELECT @maxQid = MAX(qid) FROM DownloadQueue
+	END
 
 	SELECT TOP 1 @qid = q.qid, @domainId = q.domainId
 	FROM DownloadQueue q --WITH (TABLOCKX)
@@ -18,24 +23,35 @@ AS
 	LEFT JOIN Blacklist_Domains b ON b.domain = d.domain -- check for blacklisted domain
 	WHERE q.status = 0
 	AND (
+		-- filter by domain name
 		(@domain IS NOT NULL AND @domain <> '' AND d.domain = @domain)
 		OR @domain IS NULL OR @domain = ''
 	)
 	AND (
+		-- filter by whitelisted domains only (unless we're getting domain home pages)
 		(@sort != 2 AND w.domain IS NOT NULL)
 		OR @sort = 2
 	)
 	AND b.domain IS NULL
+	-- filter domains that have not been checked recently
 	AND d.lastchecked < DATEADD(SECOND, 0 - @domaindelay, GETUTCDATE())
 	AND (
+		-- filter by feed
 		(@feedId > 0 AND q.feedId = @feedId)
 		OR @feedId <= 0
 	)
 	AND (
+		-- get download queue item that only contains domain name (domain home page)
 		(@sort = 2 AND LEN(q.[url]) <= LEN(d.domain) + 9)
 		OR @sort != 2
 	)
+	-- filter domains that are not behind a paywall
 	AND (d.paywall = 0 OR (d.paywall = 1 AND d.free = 1))
+	AND ( 
+		-- get random download queue item
+		(@sort = 3 AND @maxQid > 0 AND q.qid >= (RAND() * @maxQid))
+		OR @sort <> 3 OR @maxQid = 0
+	)
 	ORDER BY 
 	CASE WHEN @sort = 0 THEN q.datecreated END DESC,
 	CASE WHEN @sort = 2 THEN LEN(q.url) END
