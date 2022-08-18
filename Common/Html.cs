@@ -605,11 +605,12 @@ namespace Saber.Vendors.Collector
                 //try getting title from URL path if all else fails
                 var path = WebUtility.UrlDecode(article.url.Split("?")[0].Split("#")[0]);
                 path = path.Substring(path.IndexOf(article.domain) + article.domain.Length);
-                if(path.Substring(0, 1) == "/") { path = path.Substring(1); }
+                if(path.Length > 0 && path.Substring(0, 1) == "/") { path = path.Substring(1); }
                 var ext = path.GetFileExtension();
-                if(ext != "" && path.Length > 0)
+                var filename = path.GetFilename();
+                if (ext != "" && filename.Length > 0)
                 {
-                    path = path.Replace(path.GetFilename(), "");
+                    path = path.Replace(filename, "");
                 }
                 var paths = path.ReplaceAll(" ", new string[] {":", ";", "-", "_", "+", "=", ",", "  ", "  "}).Split("/").Select(a => a.Trim());
                 article.title = string.Join(" ", paths);
@@ -620,7 +621,7 @@ namespace Saber.Vendors.Collector
                 (a.attribute.ContainsKey("name") && a.attribute["name"].ToLower().IndexOf("description") >= 0) ||
                 (a.attribute.ContainsKey("property") && a.attribute["property"].ToLower().IndexOf("og:description") >= 0)
                 )).FirstOrDefault();
-            if(description != null)
+            if(description != null && description.attribute.ContainsKey("content"))
             {
                 article.summary = description.attribute["content"];
             }

@@ -59,7 +59,8 @@ namespace Query.Models
         guns_weapons = 37,
         magazine = 38,
         space = 39,
-        directory = 40
+        directory = 40,
+        propaganda = 41
     }
 
     public enum DomainSort

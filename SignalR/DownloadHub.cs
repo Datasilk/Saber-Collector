@@ -71,6 +71,12 @@ namespace Saber.Vendors.Collector.Hubs
                         //updated URL, retire current download and create new download for the new URL
                         Query.Downloads.Archive(queue.qid);
                         downloadsArchived++;
+                        if(newurl.Length > 255)
+                        {
+                            await Clients.Caller.SendAsync("update", "Redirected URL is too long");
+                            await Clients.Caller.SendAsync("checked", 1);
+                            return;
+                        }
                         queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), queue.parentId, feedId);
                         queue.url = newurl;
                         var domain = Query.Domains.GetInfo(newurl.GetDomainName());
@@ -101,7 +107,7 @@ namespace Saber.Vendors.Collector.Hubs
                     }
 
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
-                    if (result == "")
+                    if (result == null || result == "")
                     {
                         await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
                         await Clients.Caller.SendAsync("checked", 1);
@@ -115,10 +121,18 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                     try
                     {
-                        article = Html.DeserializeArticle(result);
-                        article.feedId = queue.feedId;
+                        if(result.StartsWith("\"Uncaught TypeError") || result.StartsWith("log: ") || result.StartsWith("Object reference not set to an instance of an object"))
+                        {
+                            await Clients.Caller.SendAsync("update", "Error parsing DOM!");
+                            await Clients.Caller.SendAsync("checked", 1);
+                        }
+                        else
+                        {
+                            article = Html.DeserializeArticle(result);
+                            article.feedId = queue.feedId;
+                        }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         await Clients.Caller.SendAsync("update", "Error parsing DOM!");
                         await Clients.Caller.SendAsync("checked", 1);
@@ -141,26 +155,39 @@ namespace Saber.Vendors.Collector.Hubs
                         }
 
                         //check all download rules against article info
-                        if(Domains.CheckDefaultDownloadLinksOnlyRules(queue.url, articleInfo.title, articleInfo.summary))
+                        if (downloadOnly == false)
                         {
-                            downloadOnly = true;
-                        }
-                        else
-                        {
-                            //check domain-specific download rules
-                            foreach (var rule in queue.downloadRules)
+                            if (Domains.CheckDefaultDownloadLinksOnlyRules(queue.url, articleInfo.title, articleInfo.summary))
                             {
-                                if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                                downloadOnly = true;
+                            }
+                            else
+                            {
+                                //check domain-specific download rules
+                                foreach (var rule in queue.downloadRules)
                                 {
-                                    downloadOnly = true;
-                                    break;
+                                    if (rule.rule == true && Domains.CheckDownloadRule(rule.url, rule.title, rule.summary, queue.url, articleInfo.title, articleInfo.summary) == true)
+                                    {
+                                        downloadOnly = true;
+                                        break;
+                                    }
                                 }
                             }
                         }
-
-
+                        
                         //get article score
                         Article.DetermineScore(article, articleInfo);
+
+                        //get page score
+                        if(downloadOnly == false)
+                        {
+                            var pageScore = Article.DeterminePageScore(article);
+                            if(pageScore <= 40)
+                            {
+                                //do not save such a low-scoring download as an article
+                                downloadOnly = true;
+                            }
+                        }
 
                         await Clients.Caller.SendAsync("update", "<span>" +
                                 "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
@@ -251,12 +278,15 @@ namespace Saber.Vendors.Collector.Hubs
                                 ValidateURLs(domain, downloadRules, urls, out var urlsChecked);
 
                                 //add filtered URLs to download queue
-                                var count = urlsChecked != null ? Query.Downloads.AddQueueItems(urlsChecked.ToArray(), domain, queue.domainId, queue.feedId) : 0;
-                                if (count > 0)
+                                if(urlsChecked != null && urlsChecked.Count > 0)
                                 {
-                                    addedLinks += count;
-                                    await Clients.Caller.SendAsync("update",
-                                        "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>");
+                                    var count = Query.Downloads.AddQueueItems(urlsChecked.ToArray(), domain, queue.domainId, queue.feedId);
+                                    if (count > 0)
+                                    {
+                                        addedLinks += count;
+                                        await Clients.Caller.SendAsync("update",
+                                            "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>");
+                                    }
                                 }
                             }
                             catch (Exception ex)
@@ -283,6 +313,7 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace);
                         await Clients.Caller.SendAsync("checked", 1, 0, 0, 0, 0, 0);
+                        Query.Logs.LogError(0, queue.url, "DownloadHub", ex.Message, ex.StackTrace);
                         return;
                     }
                 }
@@ -296,7 +327,7 @@ namespace Saber.Vendors.Collector.Hubs
             {
                 if(ex.Message.Contains("No connection could be made because the target machine actively refused it"))
                 {
-                    //No connection could be made because the target machine actively refused it. (localhost:7007)
+                    //No connection could be made because the target machine (Charlotte's Web Router) actively refused it. (localhost:7007)
                     await Clients.Caller.SendAsync("update", ex.Message);
                 }
                 else
@@ -488,6 +519,10 @@ namespace Saber.Vendors.Collector.Hubs
                             if (dlinks.Count() > 0)
                             {
                                 totalQueueItems += Query.Downloads.AddQueueItems(dlinks.ToArray(), domain, feed.domainId, feed.feedId);
+                                if(totalQueueItems > 0)
+                                {
+
+                                }
                             }
                             else
                             {
@@ -564,6 +599,7 @@ namespace Saber.Vendors.Collector.Hubs
             urlsChecked = urls[domain].Select(a => a.Key + a.Value)
                 .Where(a =>
                 {
+                    if(a.Length > 255) { return false; }
                     var domainIndex = a.IndexOf(domain);
                     if (domainIndex != -1 && domainIndex + domain.Length + 1 <= a.Length)
                     {

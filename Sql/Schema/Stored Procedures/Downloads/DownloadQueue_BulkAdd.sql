@@ -18,8 +18,14 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 			EXEC Domain_FindTitle @domainId=@domainId
 		END
 	END
+	IF @parentId > 0 AND @parentId <> @domainId BEGIN
+		EXEC DomainLink_Add @domainId=@parentId, @linkId=@domainId
+	END
+
 END ELSE BEGIN
 	--create domain ID
+	DECLARE @domain_results TABLE (id int)
+	INSERT INTO @domain_results
 	EXEC Domain_Add @domain=@domain, @parentId=@parentId
 	SELECT @domainId = domainId, @title = title FROM Domains WHERE domain=@domain
 END
@@ -34,12 +40,12 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 		SET @qid = NEXT VALUE FOR SequenceDownloadQueue
 		INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
 		VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETUTCDATE())
-		SET @count += 1
+		SET @count = @count + 1
 	END
 	FETCH NEXT FROM @cursor INTO @url
 END
 CLOSE @cursor
 DEALLOCATE @cursor
-SELECT @count AS [count]
+SELECT @count
 
 	

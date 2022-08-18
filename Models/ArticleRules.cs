@@ -89,13 +89,13 @@
 
         //used to determine if a DOM element is used for advertisements or UI
         public static string[] badClasses = new string[] {
-            "social", "advert", "menu", "keyword", "twitter", "replies", "reply",
-            "trending", "footer", "logo", "disqus", "popular", "contacts",
+            "social", "advert", "keyword", "twitter", "replies", "reply",
+            "trending", "logo", "disqus", "popular", "contacts",
             "bread", "callout", "masthead", "addthis", "-ad-", "ad-cont", "tags",
             "subscri", "button", "reddit", "login", "signup", "promo", "sponsor",
             "signin", "recommend", "promot", "share", "sharing", "facebook",
             "poweredby", "powered-by", "invisible", "newsletter", "related",
-            "navi", "menu", "toolbar", "sidecontent", "tab", 
+            "navi", "toolbar", "sidecontent", "tab", 
             "carousel", "overlay", "progress", "comment",
             "guestbook", "free-trial", "rating", "message", "divid", "article-collection",
             "privacy", "captcha", "badge", "comment", "cancel",

@@ -24,15 +24,8 @@ namespace Query
 
         public static int AddQueueItems(string[] urls, string domain, int parentId = 0, int feedId = 0)
         {
-            //clean urls
-            for(var x = 0; x < urls.Length; x++)
-            {
-                if(urls[x].Substring(urls[x].Length - 1, 1) == "/")
-                {
-                    urls[x] = urls[x].Substring(0, urls[x].Length - 1);
-                }
-            }
-            return Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, parentId, feedId });
+            var count = Sql.ExecuteScalar<int>("DownloadQueue_BulkAdd", new { urls = string.Join(",", urls), domain, parentId, feedId });
+            return count;
         }
 
         public static Int64 AddQueueItem(string url, string domain, int parentId = 0, int feedId = 0)

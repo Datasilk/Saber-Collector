@@ -86,7 +86,7 @@
             }
             console.log(data);
             S.ajax.post('CollectorArticles/Search', data, (response) => {
-                $('.articles .accordion .contents').html(response);
+                $('.articles .results').html(response);
             });
 
         },

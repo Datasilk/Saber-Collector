@@ -29,15 +29,21 @@ namespace Saber.Vendors.Collector.HtmlComponents.Articles
                         var viewArticle = new View("/Vendors/Collector/HtmlComponents/Articles/list-item.html");
                         var html = new StringBuilder();
                         var domainId = request.Parameters.ContainsKey("domainId") ? int.Parse(request.Parameters["domainId"]) : 0;
-                        var total = Query.Articles.GetCount(new int[0], 0, domainId);
-                        viewComponent["total"] = total.ToString();
-                        viewComponent["content"] = Components.Accordion.Render("Articles", "", Collector.Articles.RenderList(domainId: domainId ,orderBy: Query.Articles.SortBy.BestScore));
                         if(domainId > 0)
                         {
+                            var total = Query.Articles.GetCount(new int[0], 0, domainId);
+                            viewComponent["total"] = total.ToString("N0");
+                            viewComponent["content"] = Collector.Articles.RenderList(domainId: domainId ,orderBy: Query.Articles.SortBy.BestScore);
+
                             var domain = Query.Domains.GetById(domainId);
                             viewComponent.Show("domain-results");
                             viewComponent["domain"] = domain.domain;
                         }
+                        else
+                        {
+                            viewComponent["total"] = "0";
+                        }
+                        
 
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/Articles/articles.css", "collector_articles_css");

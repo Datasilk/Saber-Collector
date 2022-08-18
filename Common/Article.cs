@@ -138,7 +138,7 @@ namespace Saber.Vendors.Collector
             catch (Exception) { }
             return articleInfo;
         }
-        
+
         public static IEnumerable<DomElement> GetLinks(AnalyzedArticle article)
         {
             var links = article.bodyElements.Where(a => a.HasTagInHierarchy("a"))
@@ -227,7 +227,7 @@ namespace Saber.Vendors.Collector
 
                 //get info about element
                 var index = indexes.FirstOrDefault(a => a.index == el.index);
-                if(index != null)
+                if (index != null)
                 {
                     var rank = 1;
                     //if (index.bestIndexes > 100)
@@ -347,7 +347,7 @@ namespace Saber.Vendors.Collector
                 fontsize = 0;
                 index = article.body[x];
                 elem = article.elements[index];
-                if(elem.style != null)
+                if (elem.style != null)
                 {
                     if (elem.style.ContainsKey("font-size"))
                     {
@@ -366,14 +366,14 @@ namespace Saber.Vendors.Collector
                         }
                     }
                 }
-                
+
             }
             //sort font sizes & get top font size as base font size
             fontsizes = fontsizes.OrderBy(a => a.Value * -1).ToList();
             baseFontSize = fontsizes[0].Key;
-            foreach(var size in fontsizes)
+            foreach (var size in fontsizes)
             {
-                if(size.Key > maxFontSize && (size.Key - baseFontSize) <= 20) {
+                if (size.Key > maxFontSize && (size.Key - baseFontSize) <= 20) {
                     maxFontSize = size.Key;
                 }
             }
@@ -396,10 +396,10 @@ namespace Saber.Vendors.Collector
                     });
                     continue;
                 }
-                if(elem.tagName == "img")
+                if (elem.tagName == "img")
                 {
                     var img = article.images.Find(a => a.index == elem.index);
-                    if(img != null)
+                    if (img != null)
                     {
                         if (img.exists == true)
                         {
@@ -411,7 +411,7 @@ namespace Saber.Vendors.Collector
                         }
                     }
                 }
-                if(elem.text == "" || elem.text == null) { continue; }
+                if (elem.text == "" || elem.text == null) { continue; }
 
                 var part = new ArticlePart();
                 part.value = elem.text;
@@ -442,11 +442,11 @@ namespace Saber.Vendors.Collector
                     if (fontsize > 1) {
                         fontsize = (int)Math.Round(fontsize / incFontSize);
                     }
-                    if(fontsize > 6) { fontsize = 6; }
-                    if(fontsize < 1) { fontsize = 1; }
+                    if (fontsize > 6) { fontsize = 6; }
+                    if (fontsize < 1) { fontsize = 1; }
                 }
                 part.fontSize = fontsize;
-                if(part.fontSize > 1)
+                if (part.fontSize > 1)
                 {
                     classNames.Add("font-" + part.fontSize);
                 }
@@ -508,10 +508,10 @@ namespace Saber.Vendors.Collector
                                     newline = false;
                                     break;
                             }
-                            if(newline == false) { break; }
+                            if (newline == false) { break; }
                         }
                     }
-                    if(newline == true && indents.Count > 0)
+                    if (newline == true && indents.Count > 0)
                     {
                         indents = new List<int>();
                     }
@@ -607,7 +607,7 @@ namespace Saber.Vendors.Collector
                     }
                 }
 
-                if(inQuote > 0 && hasQuote == false) { inQuote = 0; }
+                if (inQuote > 0 && hasQuote == false) { inQuote = 0; }
                 if (newline == true)
                 {
                     var nline = new ArticlePart()
@@ -620,7 +620,7 @@ namespace Saber.Vendors.Collector
                 }
 
                 //HTML encode content
-                if(part.type.Where(a => a == TextType.text || a == TextType.header || a == TextType.listItem || a == TextType.quote).Count() > 0)
+                if (part.type.Where(a => a == TextType.text || a == TextType.header || a == TextType.listItem || a == TextType.quote).Count() > 0)
                 {
                     part.value = part.value.Replace("&", "&amp;").Replace("<", "&lt;");
                 }
@@ -629,7 +629,7 @@ namespace Saber.Vendors.Collector
                 part.classNames = classNames.Count > 0 ? string.Join(" ", classNames) : "";
 
                 //finally, add part to render list
-                if(part.type.Count == 0 || part.type.Contains(TextType.listItem)) { part.type.Add(TextType.text); }
+                if (part.type.Count == 0 || part.type.Contains(TextType.listItem)) { part.type.Add(TextType.text); }
                 parts.Add(part);
                 lastHierarchy = elem.hierarchyIndexes;
             }
@@ -640,8 +640,8 @@ namespace Saber.Vendors.Collector
             indent = 0;
             inQuote = 0;
             hasQuote = false;
-            
-            foreach(var part in parts)
+
+            foreach (var part in parts)
             {
                 closedParagraph = false;
                 //create paragraph tag (if neccessary)
@@ -655,7 +655,7 @@ namespace Saber.Vendors.Collector
                 }
                 else if (part.value != "" && indent == 0)
                 {
-                    if (part.type.Where(a => a == TextType.header).Count() > 0 && part.value.Length > 1 )
+                    if (part.type.Where(a => a == TextType.header).Count() > 0 && part.value.Length > 1)
                     {
                         paragraph = false;
                         html.Append("</p>");
@@ -672,7 +672,7 @@ namespace Saber.Vendors.Collector
 
                 //escape list if neccessary
                 if (part.indent == 0 && indent > 0)
-                { 
+                {
                     if (indentOpen == true)
                     {
                         html.Append("</li>");
@@ -727,11 +727,11 @@ namespace Saber.Vendors.Collector
                 if (part.type.Where(a => a == TextType.quote).Count() > 0)
                 {
                     //render quote
-                    if(inQuote > 0 && part.quote > inQuote)
+                    if (inQuote > 0 && part.quote > inQuote)
                     {
                         html.Append("</blockquote>");
                     }
-                    if(inQuote != part.quote)
+                    if (inQuote != part.quote)
                     {
                         html.Append("<blockquote>");
                     }
@@ -776,12 +776,12 @@ namespace Saber.Vendors.Collector
                         showValue = true;
                     }
                 }
-                if (closedParagraph == false && 
+                if (closedParagraph == false &&
                     (
                         part.type.Where(a => a == TextType.lineBreak).Count() > 0
                         || ( //check for change in font size between two text elements
-                            part.fontSize != lastFontsize && 
-                            lastPart.type.Contains(TextType.text) && 
+                            part.fontSize != lastFontsize &&
+                            lastPart.type.Contains(TextType.text) &&
                             part.type.Contains(TextType.text) &&
                             part.value.Length > 1 &&
                             lastPart.value.Length > 1
@@ -808,7 +808,7 @@ namespace Saber.Vendors.Collector
                 }
 
                 if (showValue == true && cancelValue == false) { html.Append(part.value); }
-                if(endTags != "") { html.Append(endTags); }
+                if (endTags != "") { html.Append(endTags); }
                 lastPart = part;
                 lastFontsize = part.fontSize;
             }
@@ -822,12 +822,12 @@ namespace Saber.Vendors.Collector
             var viewItem = new View("Vendors/Collector/HtmlComponents/Analyzer/word-item.html");
 
             var distinctWords = words.Select(a => {
-                    var word = a.ToLower();
-                    return new { word = word, subject = subjectWords.Where(b => b.word == word).FirstOrDefault() };
-                }).Distinct().OrderByDescending(a => a.subject != null).ToArray();
+                var word = a.ToLower();
+                return new { word = word, subject = subjectWords.Where(b => b.word == word).FirstOrDefault() };
+            }).Distinct().OrderByDescending(a => a.subject != null).ToArray();
             var html = new StringBuilder();
 
-            foreach(var distinct in distinctWords)
+            foreach (var distinct in distinctWords)
             {
                 viewItem.Clear();
                 viewItem["word"] = words.Where(a => a.ToLower() == distinct.word).FirstOrDefault();
@@ -855,21 +855,21 @@ namespace Saber.Vendors.Collector
             var lastindex = 0;
             var startindex = 0;
             var endindex = 0;
-            while(index >= 0)
+            while (index >= 0)
             {
                 lastindex = index;
                 startindex = 0;
                 endindex = 0;
 
                 index = words.FindIndex(index, a => a == "of");
-                if(index > lastindex)
+                if (index > lastindex)
                 {
                     //find index where phrase begins
                     var i = index - 1;
-                    while(i >= 0)
+                    while (i >= 0)
                     {
                         var word = words[i].ToLower();
-                        if(word.Length == 1 || Rules.wordSeparators.Contains(word) || Rules.ofPhraseStartSeparators.Contains(word) || Rules.commonWords.Contains(word))
+                        if (word.Length == 1 || Rules.wordSeparators.Contains(word) || Rules.ofPhraseStartSeparators.Contains(word) || Rules.commonWords.Contains(word))
                         {
                             //found beginning of phrase
                             startindex = i + 1;
@@ -878,7 +878,7 @@ namespace Saber.Vendors.Collector
                         i--;
                     }
 
-                    if(startindex > 0 && startindex != index)
+                    if (startindex > 0 && startindex != index)
                     {
                         //find end of phrase
                         i = index + 1;
@@ -894,13 +894,13 @@ namespace Saber.Vendors.Collector
                             i++;
                         }
                     }
-                    if(endindex == 0){ index++; continue; }
+                    if (endindex == 0) { index++; continue; }
 
-                    if(endindex > 0 && endindex > index + 1 && !Rules.commonWords.Contains(words[endindex - 1]))
+                    if (endindex > 0 && endindex > index + 1 && !Rules.commonWords.Contains(words[endindex - 1]))
                     {
                         //found valid "of" phrase (e.g. "knight of round table")
                         var phrase = "";
-                        for(var x = startindex; x < endindex; x++)
+                        for (var x = startindex; x < endindex; x++)
                         {
                             phrase += words[x] + " ";
                         }
@@ -961,7 +961,7 @@ namespace Saber.Vendors.Collector
             var status = 0;
             var wasHttp = url.IndexOf("http://") >= 0;
 
-            if(wasHttp == true)
+            if (wasHttp == true)
             {
                 //change to https protocol
                 url = url.Replace("http://", "https://");
@@ -970,7 +970,7 @@ namespace Saber.Vendors.Collector
             }
 
             //long filesize = 0;
-            while((status < 301 && status > 200) || status == 0)
+            while ((status < 301 && status > 200) || status == 0)
             {
                 try
                 {
@@ -980,11 +980,11 @@ namespace Saber.Vendors.Collector
                     {
                         response = (HttpWebResponse)request.GetResponse();
                     }
-                    catch(WebException ex)
+                    catch (WebException ex)
                     {
                         response = (HttpWebResponse)ex.Response;
                     }
-                    if(response == null && wasHttp == true)
+                    if (response == null && wasHttp == true)
                     {
                         //try going back to http protocol
                         wasHttp = false;
@@ -1017,7 +1017,7 @@ namespace Saber.Vendors.Collector
                         status = 0;
                         continue;
                     }
-                    else if ((status >= 301 && status <= 303))
+                    else if (status >= 301 && status <= 303 && response.Headers.AllKeys.Contains("location"))
                     {
                         //url redirect (301, 302, or 303)
                         url = response.Headers["location"].ToString();
@@ -1030,14 +1030,14 @@ namespace Saber.Vendors.Collector
                 {
                     status = 500;
                 }
-                if(status != 200 && request.Method == "HEAD")
+                if (status != 200 && request.Method == "HEAD")
                 {
                     //try GET method instead
                     status = 0;
                     request = WebRequest.Create(url);
                     request.Method = "GET";
                 }
-                else if(status > 303 && request.Method == "GET" && wasHttp == true)
+                else if (status > 303 && request.Method == "GET" && wasHttp == true)
                 {
                     //try getting request after going back to http protocol
                     url = url.Replace("https://", "http://");
@@ -1049,7 +1049,7 @@ namespace Saber.Vendors.Collector
             }
 
             newurl = url;
-            
+
             if (contentType == "text/html" || contentType == "")
             {
                 //new code that calls Charlotte Web Router
@@ -1062,7 +1062,7 @@ namespace Saber.Vendors.Collector
                 HttpResponseMessage message = client.PostAsync(browserEndpoint, postContent).GetAwaiter().GetResult();
                 string result = message.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 return result;
-                //old code that called Charlotte directy
+                //old code that called Charlotte directly
                 //get JSON compressed HTML page from Charlotte windows service
                 //var binding = new BasicHttpBinding()
                 //{
@@ -1075,7 +1075,7 @@ namespace Saber.Vendors.Collector
                 //channelFactory.Close();
                 //return result;
             }
-            else if(contentType != "")
+            else if (contentType != "")
             {
                 //handle all other files
                 return "file:" + contentType;
@@ -1116,7 +1116,7 @@ namespace Saber.Vendors.Collector
         {
             //get all items that determine the quality of the article
             var qualityWords = (75.0 / 500.0) * (double)(articleInfo.wordcount > 500 ? 500.0 : articleInfo.wordcount.Value);
-            if(article.body.Count > 0 && article.images.Count == 0)
+            if (article.body.Count > 0 && article.images.Count == 0)
             {
                 Html.GetImages(article);
             }
@@ -1129,7 +1129,7 @@ namespace Saber.Vendors.Collector
             var info = new ScoreInfo()
             {
                 //too many words inside of anchor links will lower score
-                linkWordCount = articleInfo.linkwordcount.Value > 0 ? articleInfo.linkwordcount.Value : 1 
+                linkWordCount = articleInfo.linkwordcount.Value > 0 ? articleInfo.linkwordcount.Value : 1
             };
 
 
@@ -1138,13 +1138,33 @@ namespace Saber.Vendors.Collector
 
             if (articleInfo.wordcount > 0)
             {
-                info.linkRatio = Math.Clamp((info.quality / articleInfo.wordcount.Value) * info.linkWordCount, 0, info.quality);
+                info.linkRatio = (100.0 / articleInfo.wordcount.Value) * info.linkWordCount;
 
                 //final score
-                articleInfo.score = (Int16)(info.quality - info.linkRatio);
+                articleInfo.score = (Int16)((info.quality / 100.0) * info.linkRatio);
                 info.score = articleInfo.score.Value;
             }
             return info;
+        }
+
+        /// <summary>
+        /// Scoring system based on the balance between total page characters and total page anchor link characters (too many links or less than 500 words will result in a lower score) 
+        /// </summary>
+        /// <param name="article"></param>
+        /// <param name="articleInfo"></param>
+        /// <returns></returns>
+        public static double DeterminePageScore(AnalyzedArticle article)
+        {
+            //get all items that determine the quality of the article
+            var totalChars = article.elements.Where(a => a.text != null).Sum(a => a.text.Length);
+            if (totalChars == 0) { return 0; }
+            var totalLinkChars = article.elements.Where(a => a.text != null && a.Hierarchy().Any(b => b.tagName == "a")).Sum(a => a.text.Length);
+            var totalImages = article.elements.Where(a => a.tagName == "img" && (a.attribute.ContainsKey("src") || a.attribute.ContainsKey("srcset")));
+            var qualityChars = (75.0 / 500.0) * (double)(totalChars > 500 ? 500.0 : totalChars);
+            var qualityImages = article.images.Count > 1 ? 25 : 0; //one or more images = 25% of the quality score
+            var quality = qualityChars + qualityImages;
+            var linkRatio = (100.0 / totalChars) * totalLinkChars;
+            return (quality / 100.0) * (100 - linkRatio);
         }
         #endregion
     }

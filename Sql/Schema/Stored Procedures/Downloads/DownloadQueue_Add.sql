@@ -17,8 +17,14 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 			EXEC Domain_FindTitle @domainId=@domainId
 		END
 	END
+	IF @parentId > 0 AND @parentId <> @domainId BEGIN
+		EXEC DomainLink_Add @domainId=@parentId, @linkId=@domainId
+	END
+
 END ELSE BEGIN
 	--create domain ID
+	DECLARE @domain_results TABLE (id int)
+	INSERT INTO @domain_results
 	EXEC Domain_Add @domain=@domain, @parentId=@parentId
 	SELECT @domainId = domainId, @title = title FROM Domains WHERE domain=@domain
 END

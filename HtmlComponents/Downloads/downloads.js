@@ -79,7 +79,7 @@
     checkFeeds: function () {
         var feedId = feedid ? parseInt(feedid.value) : 0;
         S.downloads.hub.invoke('CheckFeeds', feedId);
-        S.downloads.timerFeeds = setTimeout(S.downloads.checkFeeds, 15 * 60 * 1001); // every 15 minutes
+        S.downloads.timerFeeds = setTimeout(S.downloads.checkFeeds, 15 * 60 * 1000); // every 15 minutes
     },
 
     finishedCheckingFeeds: function () {
@@ -97,9 +97,8 @@
         var domain = download_domain ? download_domain.value : '';
         var sort = download_sort ? parseInt(download_sort.value) : 0;
         S.downloads.id = id;
-        setTimeout(() => {
-            S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
-        });
+        S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
+        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 60 * 1000);
     },
 
     update: function (msg) {
@@ -116,6 +115,7 @@
 
     checked: function (skipped, downloaded, article, links, words, important) {
         //update stats
+        clearTimeout(S.downloads.timerCheck);
         S.downloads.updateStat('downloads', downloaded || 0);
         S.downloads.updateStat('articles', article || 0);
         S.downloads.updateStat('links', links || 0);
@@ -151,7 +151,9 @@
 
     updateStat: function (stat, increment) {
         var elem = $('.accordion .stats .stat-' + stat + ' .number');
-        var val = parseInt(elem.html()) + increment;
+        var val = elem.html().trim() == '' ? 0 : parseInt(elem.html());
+        if (isNaN(val)) { val = 0; }
+        val += increment;
         elem.html(val);
     },
 

@@ -1,22 +1,10 @@
-﻿.listing-item{padding:10px; margin:0 0 20px 0; border-bottom:1px solid #015e4a;
-    &:hover{background-color:#00383c;}
-    .title{padding-bottom:4px;}
+﻿.listing-item{padding:10px; border-bottom:1px solid #acd1c6;
+    &:hover{background-color:#dce9e3;}
+    .title{padding-bottom:4px;
+        a:link, a:visited{text-decoration:none; color:#333;}
+        a:hover, a:active{text-decoration:underline; color:#333;}
+    }
     .url{font-size:13px; padding-bottom:7px;}
-    .url a:link{color:#aaa;}
-    .url a:hover{color:#aaa;}
-    .url a:active{color:#aaa;}
-    .url a:visited{color:#aaa;}
-    .title a:link{color:#fff;}
-    .title a:hover{color:#fff;}
-    .title a:active{color:#fff;}
-    .title a:visited{color:#fff;}
-    .subject{color:#38e5a5;}
-    .subject a:link{color:#38e5a5;}
-    .subject a:hover{color:#38e5a5;}
-    .subject a:active{color:#38e5a5;}
-    .subject a:visited{color:#38e5a5;}
-    .subject .important{display:inline-block; padding-left:10px; color:#00f7ff;}
-    .desc{color:#777777;}
     .article-title{font-size:20px;}
     .info{width:100%; padding:7px 0; overflow:hidden; font-size:13px;}
     .info > .col{height:16px; padding:0 20px 0 5px; border-left:4px solid #009b75;}
@@ -27,20 +15,17 @@
     .info .important{color:#00f7ff; font-weight:bold;}
     .info .domain{
         cursor:pointer;
-        use{fill:#fff !important; color:#fff;}
         &:hover{
             span{text-decoration:underline;}
         }
     }
 }
-#iconModal_0_Layer1_0_FILL path{fill:#fff;}
-#iconModal_0_Layer0_0_FILL path{fill:#fff;}
 .page-menu{
     #search{max-width:500px; width:100%;}
-    .subjects-breadcrumb{padding-top:3px;
-        span{display:inline-block; background-color:#4ebedd; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
-    }
     .btn-search{padding-top:5px; cursor:pointer;}
+}
+.subjects-breadcrumb{padding-top:3px;
+    span{display:inline-block; background-color:#4ebedd; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
 }
 .search-article-score{position:relative;
     label{position:absolute; left:10px; top:10px; z-index:5;}

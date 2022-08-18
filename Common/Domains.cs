@@ -131,6 +131,7 @@ namespace Saber.Vendors.Collector
                 }
                 item.Show("has-domain-type");
                 item["domain-type"] = domaintype;
+                item["domain-type-id"] = domain.type.ToString();
             }
             if (domain.articles > 0)
             {
