@@ -15,14 +15,14 @@ namespace Query
 
         #region "Get"
 
-        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50, int parentId = -1)
+        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50, int parentId = -1)
         {
-            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, sort, start, length, parentId });
+            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, domainType, sort, start, length, parentId });
         }
 
-        public static int GetCount(int[] subjectIds = null, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int parentId = -1)
+        public static int GetCount(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int parentId = -1)
         {
-            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, sort, parentId });
+            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, domainType, sort, parentId });
         }
 
         public static Models.Domain GetInfo(string domain)
@@ -35,6 +35,13 @@ namespace Query
             return Sql.Populate<Models.Domain>("Domain_GetById", new { domainId }).FirstOrDefault();
         }
 
+        #endregion
+
+        #region "Links"
+        public static List<Models.Domain>GetLinks(int domainId)
+        {
+            return Sql.Populate<Models.Domain>("DomainLinks_GetList", new { domainId });
+        }
         #endregion
 
         #region "Analyzer Rules"
@@ -128,6 +135,11 @@ namespace Query
             Sql.ExecuteNonQuery("Domain_HasFreeContent", new { domainId, free });
         }
 
+        public static void IsEmpty(int domainId, bool empty)
+        {
+            Sql.ExecuteNonQuery("Domain_IsEmpty", new { domainId, empty });
+        }
+
         public static string FindDomainTitle(int domainId)
         {
             return Sql.ExecuteScalar<string>("Domain_FindTitle", new { domainId });
@@ -153,14 +165,14 @@ namespace Query
         #region "Collections"
         public static class Collections
         {
-            public static int Add(int colgroupId, string name, string search = "", int subjectId = 0, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical)
+            public static int Add(int colgroupId, string name, string search = "", int subjectId = 0, Models.DomainFilterType filtertype = Models.DomainFilterType.All, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical)
             {
-                return Sql.ExecuteScalar<int>("Domain_Collection_Add", new { colgroupId, name, search, subjectId, type, sort });
+                return Sql.ExecuteScalar<int>("Domain_Collection_Add", new { colgroupId, name, search, subjectId, filtertype, type, sort });
             }
 
             public static int Add(Models.DomainCollection collection)
             {
-                return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.type, collection.sort);
+                return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.filtertype, collection.type, collection.sort);
             }
 
             public static Models.DomainCollectionsAndGroups GetList()

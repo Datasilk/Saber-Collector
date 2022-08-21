@@ -10,7 +10,7 @@ WHERE qid IN
 		OR q.url LIKE '%.jpg'
 		OR q.url LIKE '%.jpeg'
 		OR q.url LIKE '%.svg'
-		OR q.url LIKE '%.pdf'
+		--OR q.url LIKE '%.pdf'
 		OR q.url LIKE '%.zip'
 	)
 )
@@ -21,12 +21,14 @@ SELECT qid FROM DownloadQueue q
 JOIN Domains d ON d.domainId = q.domainId
 WHERE LEN(q.url) <= LEN(d.domain) + 9)
 
-SELECT * FROM DownloadQueue q
+SELECT TOP 100 * FROM DownloadQueue q
 JOIN Domains d ON d.domainId = q.domainId
-WHERE LEN(q.url) <= LEN(d.domain) + 9
+WHERE LEN(q.url) <= LEN(d.domain) + 10
 
+/*
 INSERT INTO DownloadQueue
 SELECT q.id AS qid, q.feedId, q.domainId, q.status, q.tries, q.url, q.path, q.datecreated 
 FROM Downloads q
 
 DELETE FROM Downloads
+*/

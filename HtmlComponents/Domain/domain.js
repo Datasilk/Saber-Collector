@@ -9,7 +9,7 @@
                 S.domain.details.domain = domain;
                 S.popup.show(response.title, response.popup, { width: 600 });
                 $('.popup.show .tab-info').on('click', () => { S.domain.details.tab('info'); });
-                $('.popup.show .tab-articles').on('click', S.domain.articles.show);
+                $('.popup.show .tab-links').on('click', S.domain.links.show);
                 $('.popup.show .tab-rules').on('click', S.domain.rules.show);
                 $('.popup.show .tab-download').on('click', S.domain.download.show);
                 $('.popup.show .tab-advanced').on('click', S.domain.advanced.show);
@@ -66,9 +66,12 @@
         });
     },
 
-    articles: {
+    links: {
         show: function () {
-            S.domain.details.tab('articles');
+            S.domain.details.tab('links');
+            S.ajax.post('CollectorDomains/RenderLinks', { domainId: S.domain.details.domainId }, (response) => {
+                $('.popup.show .content-links').html(response);
+            });
         }
     },
 

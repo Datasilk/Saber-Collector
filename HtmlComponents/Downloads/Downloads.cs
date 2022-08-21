@@ -67,6 +67,38 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
 
                         viewStatistics["stats"] = html.ToString();
 
+                        var title = "";
+                        switch (int.Parse(request.Parameters["sort"]))
+                        {
+                            case 0:
+                                title = "Newest First";
+                                break;
+                            case 1:
+                                title = "Oldest First";
+                                break;
+                            case 2:
+                                title = "Home Pages Only";
+                                break;
+                            case 3:
+                                title = "Random";
+                                break;
+                        }
+                        if(request.Parameters.ContainsKey("domain") && request.Parameters["domain"] != "")
+                        {
+                            title += " - domain: " + request.Parameters["domain"];
+                        }
+                        if(request.Parameters.ContainsKey("feedid") && request.Parameters["feedid"] != "")
+                        {
+                            var feedId = int.Parse(request.Parameters["feedid"]);
+                            var feed = Query.Feeds.GetInfo(feedId);
+                            if(feed != null)
+                            {
+                                title += " - feed: " + feed.title;
+                            }
+                        }
+
+                        viewStatistics["title"] = title;
+
 
                         //viewComponent["content"] = Components.Accordion.Render("Statistics", "", viewStatistics.Render()) +
                         //Components.Accordion.Render("Downloads", "section-downloads hide", Cache.LoadFile("/Vendors/Collector/HtmlComponents/Downloads/console.html")) +

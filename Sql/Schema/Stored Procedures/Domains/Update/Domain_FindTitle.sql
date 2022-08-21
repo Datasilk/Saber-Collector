@@ -21,7 +21,7 @@ AS
 	SELECT @count = COUNT(*) FROM @articles
 	DECLARE @exclude TABLE(value NVARCHAR(32))
 	INSERT INTO @exclude ([value])
-	VALUES ('and'), ('or'), ('&'), ('the')
+	VALUES ('and'), ('or'), ('&'), ('the'), ('for'), ('with')
 
 	DECLARE @cursor CURSOR, @title nvarchar(250)
 	SET @cursor = CURSOR FOR
@@ -51,7 +51,7 @@ AS
 	INSERT INTO @domainparts SELECT * FROM STRING_SPLIT(@domain, '.')
 	SELECT TOP 1 @domainpart = REPLACE([value], '-', '%') FROM @domainparts
 	SELECT @domainpart2 = STRING_AGG([value], '') FROM @domainparts
-	PRINT @domainpart2
+	--PRINT @domainpart2
 	SELECT TOP 1 @domainTitle = TRIM(word)
 	FROM (
 		SELECT b.score, w.word, COUNT(w.word) AS total, LEN(w.word) AS [length]

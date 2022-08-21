@@ -42,7 +42,7 @@ AS
 	)
 	AND (
 		-- get download queue item that only contains domain name (domain home page)
-		(@sort = 2 AND LEN(q.[url]) <= LEN(d.domain) + 9)
+		(@sort = 2 AND LEN(q.[url]) <= LEN(d.domain) + 11)
 		OR @sort != 2
 	)
 	-- filter domains that are not behind a paywall

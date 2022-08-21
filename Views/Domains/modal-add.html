@@ -1,8 +1,12 @@
 ﻿<form id="form_add_domain">
     <div class="row pad-height">
-        <p>
+        <p class="default-p">
             Add a domain to Collector and whitelist the domain to start downloading content, 
             or blacklist the domain to prevent any content from downloading from that domain.
+        </p>
+        <p class="wildcard-p" style="display:none;">
+            Blacklist a whole block of domains by using a wildcard (*) anywhere in your domain. <br/>
+            <span class="faded">(e.g. "<i>*.cn</i>" to blacklist all domains from China)</span>
         </p>
     </div>
     <div class="messages"></div>
@@ -10,7 +14,7 @@
         <div class="col field long">Domain Name</div>
         <div class="col input expand short"><input type="text" id="domain_name" placeholder="datasilk.io" /></div>
     </div>
-    <div class="row hover">
+    <div class="row hover domain-title-field">
         <div class="col field long">Title</div>
         <div class="col input expand short"><input type="text" id="domain_title" placeholder="Datasilk" /></div>
     </div>
@@ -21,6 +25,7 @@
                 <option value="0">None</option>
                 <option value="1">Whitelist</option>
                 <option value="2">Blacklist</option>
+                <option value="3">Blacklist Wildcard</option>
             </select>
         </div>
     </div>

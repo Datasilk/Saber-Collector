@@ -930,28 +930,7 @@ namespace Saber.Vendors.Collector
         }
         #endregion
 
-        #region "Utility"
-        public static string ContentPath(string url)
-        {
-            //get content path for url
-            var domain = url.GetDomainName();
-            return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
-        }
-
-        public static double Version
-        {
-            get
-            {
-                if (_version == 0)
-                {
-                    var info = new Info();
-                    var ver = info.Version;
-                    _version = double.Parse(ver.Major + "." + ver.Minor1 + ver.Minor2 + ver.Minor3);
-                }
-                return _version;
-            }
-        }
-
+        #region "Download Article"
         public static string Download(string url, out string newurl)
         {
             //first, try to get headers for the URL from the host
@@ -960,6 +939,7 @@ namespace Saber.Vendors.Collector
             var contentType = "";
             var status = 0;
             var wasHttp = url.IndexOf("http://") >= 0;
+            var wwwAdded = false;
 
             if (wasHttp == true)
             {
@@ -972,6 +952,7 @@ namespace Saber.Vendors.Collector
             //long filesize = 0;
             while ((status < 301 && status > 200) || status == 0)
             {
+                status = 0;
                 try
                 {
                     //try downloading head first to see if the request is actually html or a file
@@ -982,22 +963,36 @@ namespace Saber.Vendors.Collector
                     }
                     catch (WebException ex)
                     {
+                        if(ex.Message.IndexOf("No such host is known") >= 0)
+                        {
+                            newurl = "";
+                            return "";
+                        }
                         response = (HttpWebResponse)ex.Response;
                     }
-                    if (response == null && wasHttp == true)
+                    if (response == null && wasHttp == true && url.IndexOf("https://") == 0)
                     {
                         //try going back to http protocol
-                        wasHttp = false;
                         url = url.Replace("https://", "http://");
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
+                        continue;
                     }
                     if ((response == null || response.StatusCode == HttpStatusCode.MethodNotAllowed) && request.Method == "HEAD")
                     {
                         //try GET method instead
-                        status = 0;
                         request = WebRequest.Create(url);
                         request.Method = "GET";
+                        continue;
+                    }
+                    else if (response == null && wwwAdded == false && url.IndexOf("/www.") < 0)
+                    {
+                        //try adding www. to the URL
+                        wwwAdded = true;
+                        url = url.Replace("https://", "").Replace("http://", "");
+                        url = "https://www." + url;
+                        request = WebRequest.Create(url);
+                        request.Method = "HEAD";
                         continue;
                     }
                     else if (response == null)
@@ -1005,6 +1000,7 @@ namespace Saber.Vendors.Collector
                         //if all else fails, don't get response
                         break;
                     }
+
                     contentType = response.ContentType.Split(";")[0];
                     status = (int)response.StatusCode;
 
@@ -1024,6 +1020,7 @@ namespace Saber.Vendors.Collector
                         request = WebRequest.Create(url);
                         request.Method = "HEAD";
                         status = 0;
+                        continue;
                     }
                 }
                 catch (Exception)
@@ -1036,15 +1033,26 @@ namespace Saber.Vendors.Collector
                     status = 0;
                     request = WebRequest.Create(url);
                     request.Method = "GET";
+                    continue;
                 }
-                else if (status > 303 && request.Method == "GET" && wasHttp == true)
+                else if (status > 303 && request.Method == "GET" && wasHttp == true && url.IndexOf("https://") >= 0)
                 {
                     //try getting request after going back to http protocol
                     url = url.Replace("https://", "http://");
                     request = WebRequest.Create(url);
                     request.Method = "HEAD";
                     status = 0;
-                    wasHttp = false;
+                    continue;
+                }
+                else if (url.IndexOf("/www.") < 0)
+                {
+                    wwwAdded = true;
+                    url = url.Replace("https://", "").Replace("http://", "");
+                    url = "https://www." + url;
+                    request = WebRequest.Create(url);
+                    request.Method = "HEAD";
+                    status = 0;
+                    continue;
                 }
             }
 
@@ -1081,6 +1089,29 @@ namespace Saber.Vendors.Collector
                 return "file:" + contentType;
             }
             return "";
+        }
+        #endregion
+
+        #region "Utility"
+        public static string ContentPath(string url)
+        {
+            //get content path for url
+            var domain = url.GetDomainName();
+            return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
+        }
+
+        public static double Version
+        {
+            get
+            {
+                if (_version == 0)
+                {
+                    var info = new Info();
+                    var ver = info.Version;
+                    _version = double.Parse(ver.Major + "." + ver.Minor1 + ver.Minor2 + ver.Minor3);
+                }
+                return _version;
+            }
         }
 
         private static string CleanUrl(string url)

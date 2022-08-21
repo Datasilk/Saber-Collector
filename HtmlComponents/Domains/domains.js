@@ -22,7 +22,23 @@
                     width: 450
                 });
                 $('#form_add_domain').on('submit', S.domains.add.submit);
+                $('#domain_type').on('input', S.domains.add.changeDomainType);
             });
+        },
+
+        changeDomainType: function () {
+            var title = $('.domain-title-field');
+            var defaultp = $('.default-p');
+            var wildcardp = $('.wildcard-p');
+            if (domain_type.value == '3') {
+                title.hide();
+                defaultp.hide();
+                wildcardp.show();
+            } else {
+                title.show();
+                defaultp.show();
+                wildcardp.hide();
+            }
         },
 
         submit: function (e) {
@@ -30,11 +46,14 @@
             var data = {
                 domain: domain_name.value,
                 title: domain_title.value,
-                type: domain_type.value
+                type: domain_type.value 
             };
             S.ajax.post('CollectorDomains/Add', data, (response) => {
-                console.log('prepend response');
-                $('.domains .contents').prepend(response);
+                if (response != '') {
+                    $('.domains .contents').prepend(response);
+                } else if(data.type == '3') {
+                    S.message.show('.domains-messages', '', 'Wildcard "<b>' + data.domain + '</b>" was added to the Blacklist');
+                }
                 S.popup.hide();
             }, (err) => {
                 S.message.show('.popup.show .messages', 'error', err.responseText);
@@ -77,7 +96,8 @@
         getResults: function (start, length) {
             var data = {
                 subjectId: S.domains.search.selectedSubjectId,
-                type: domaintype.value,
+                type: domainfiltertype.value,
+                domainType: domaintype.value,
                 sort: sort.value,
                 search: search.value,
                 start: start == null ? 1 : start,
@@ -91,17 +111,19 @@
 
         },
 
-        customResults: function (domainsearch, subjectId, type, domainsort) {
+        customResults: function (domainsearch, subjectId, type, domaintype, domainsort) {
             var data = {
                 subjectId: subjectId, 
                 type: type,
+                domainType: domaintype,
                 sort: domainsort,
                 search: domainsearch,
                 start: 1,
                 length: 200
             }
 
-            domaintype.value = type;
+            domainfiltertype.value = type;
+            domaintype.value = domaintype;
             sort.value = domainsort;
             search.value = domainsearch;
 
@@ -170,6 +192,7 @@
                     name: col_name.value,
                     search: search.value,
                     subjectId: S.domains.search.selectedSubjectId,
+                    filtertype: domainfiltertype.value,
                     type: domaintype.value,
                     sort: sort.value
                 }

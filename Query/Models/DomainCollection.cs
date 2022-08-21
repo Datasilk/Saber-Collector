@@ -10,6 +10,7 @@ namespace Query.Models
         public string name { get; set; }
         public string search { get; set; }
         public int subjectId { get; set; }
+        public DomainFilterType filtertype { get; set; }
         public DomainType type { get; set; }
         public DomainSort sort { get; set; }
         public DateTime datecreated { get; set; }

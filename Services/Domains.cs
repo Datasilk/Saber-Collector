@@ -24,8 +24,16 @@ namespace Saber.Vendors.Collector.Services
             try
             {
                 domain = domain.GetDomainName();
-                var domainId = Query.Domains.Add(domain, title, parentId, type);
-                return GetDomainListItem(domainId);
+                if(type == 3)
+                {
+                    Query.Blacklists.Domains.Wildcards.Add(domain);
+                    return "";
+                }
+                else
+                {
+                    var domainId = Query.Domains.Add(domain, title, parentId, type);
+                    return GetDomainListItem(domainId);
+                }
             }
             catch(Exception ex)
             {
@@ -36,10 +44,10 @@ namespace Saber.Vendors.Collector.Services
         #endregion
 
         #region "Search"
-        public string Search(int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort, string search, int start, int length)
+        public string Search(int subjectId, Query.Models.DomainFilterType type, Query.Models.DomainType domainType, Query.Models.DomainSort sort, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            return Domains.RenderComponent(subjectId, type, sort, start, length, search.Replace("*", "%"));
+            return Domains.RenderComponent(subjectId, type, domainType, sort, start, length, search.Replace("*", "%"));
         }
 
         public string GetDomainListItem(int domainId)
@@ -49,6 +57,7 @@ namespace Saber.Vendors.Collector.Services
         }
         #endregion
 
+        #region "Details"
         public string Details(string domain)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
@@ -70,8 +79,9 @@ namespace Saber.Vendors.Collector.Services
             var title = info.title != "" ? info.title : info.domain.GetDomainName();
             return JsonResponse(new { title, domainId = info.domainId, popup = view.Render() });
         }
+        #endregion
 
-        #region "Info"
+        #region "Update"
         public string RequireSubscription(int domainId, bool required)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
@@ -94,12 +104,35 @@ namespace Saber.Vendors.Collector.Services
         }
         #endregion
 
+        #region "Links"
+        public string RenderLinks(int domainId)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/Domain/links.html");
+            var item = new View("/Vendors/Collector/Views/Domain/link-item.html");
+            var links = Query.Domains.GetLinks(domainId);
+            var html = new StringBuilder();
+            foreach (var link in links)
+            {
+                item.Clear();
+                item["domainid"] = link.domainId.ToString();
+                item["domain"] = link.domain;
+                item["url"] = "https://" + link.domain;
+                if (link.whitelisted) { item.Show("whitelisted"); }
+                if (link.blacklisted) { item.Show("blacklisted"); }
+                html.Append(item.Render());
+            }
+            view["links"] = html.ToString();
+            return view.Render();
+        }
+        #endregion
+
         #region "Analyzer Rules"
         public string RenderAnalyzerRulesList(int domainId)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            var view = new View("/Vendors/Collector/Views/AnalyzerRules/rules.html");
-            var item = new View("/Vendors/Collector/Views/AnalyzerRules/list-item.html");
+            var view = new View("/Vendors/Collector/Views/Domain/rules.html");
+            var item = new View("/Vendors/Collector/Views/Domain/list-item.html");
             var rules = Query.Domains.AnalyzerRules.GetList(domainId);
             var html = new StringBuilder();
             foreach(var rule in rules)
@@ -343,6 +376,7 @@ namespace Saber.Vendors.Collector.Services
                 item["search"] = collection.search;
                 item["subjectid"] = collection.subjectId.ToString();
                 item["type"] = ((int)collection.type).ToString();
+                item["filtertype"] = ((int)collection.filtertype).ToString();
                 item["sort"] = ((int)collection.sort).ToString();
                 item["title"] = collection.name;
                 currentGroupId = collection.colgroupId;
@@ -369,13 +403,13 @@ namespace Saber.Vendors.Collector.Services
             return view.Render();
         }
 
-        public string AddCollection(int colgroupId, string name, string search, int subjectId, Query.Models.DomainType type, Query.Models.DomainSort sort)
+        public string AddCollection(int colgroupId, string name, string search, int subjectId, Query.Models.DomainFilterType filterType, Query.Models.DomainType type, Query.Models.DomainSort sort)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             try
             {
                 if(name == "") { return Error("Collection Name is required"); }
-                Query.Domains.Collections.Add(colgroupId, name, search, subjectId, type, sort);
+                Query.Domains.Collections.Add(colgroupId, name, search, subjectId, filterType, type, sort);
                 return Success();
             }
             catch (Exception) { return Error("Could not create new collection"); }

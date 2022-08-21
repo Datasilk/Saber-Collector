@@ -14,6 +14,8 @@ IF EXISTS(SELECT * FROM Domains WHERE domain=@domain) BEGIN
 	IF @title = '' BEGIN
 		IF (SELECT COUNT(*) FROM Articles WHERE domainId=@domainId) >= 10 BEGIN
 			--get common word found in all article titles
+			DECLARE @title_results TABLE (title nvarchar(MAX))
+			INSERT INTO @title_results
 			EXEC Domain_FindTitle @domainId=@domainId
 		END
 	END

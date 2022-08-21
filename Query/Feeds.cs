@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Query
 {
@@ -14,6 +15,11 @@ namespace Query
         public static int Add(DocTypes doctype, int categoryId, string title, string url, string domain, string filter = "", int checkIntervals = 720)
         {
             return Sql.ExecuteScalar<int>("Feed_Add", new {doctype = (int)doctype, categoryId, title, url, domain, filter, checkIntervals });
+        }
+
+        public static Models.Feed GetInfo(int feedId)
+        {
+            return Sql.Populate<Models.Feed>("Feed_GetInfo", new { feedId }).FirstOrDefault();
         }
 
         public static void LogCheckedLinks(int feedId, int count)

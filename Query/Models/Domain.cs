@@ -7,6 +7,7 @@ namespace Query.Models
         public int domainId { get; set; }
         public bool paywall { get; set; }
         public bool free { get; set; }
+        public bool empty { get; set; }
         public DomainType type { get; set; }
         public string domain { get; set; }
         public string title { get; set; }
@@ -17,8 +18,21 @@ namespace Query.Models
         public bool blacklisted { get; set; }
     }
 
+    public enum DomainFilterType
+    {
+        All = 0,
+        Whitelisted = 1,
+        Blacklisted = 2,
+        Unlisted = 3,
+        Paywall = 4,
+        Free = 5,
+        Unprocessed = 6,
+        Empty = 7
+    }
+
     public enum DomainType
     {
+        all = -1,
         unused = 0,
         website = 1,
         ecommerce = 2,

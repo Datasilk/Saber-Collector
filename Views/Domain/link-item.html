@@ -1,0 +1,9 @@
+﻿<div class="row hover domain-link link-{{domainid}}">
+    <div class="col input">
+        <input type="checkbox" id="link{{domainid}}" value="{{domainid}}" />
+    </div>
+    <div class="col text"><label for="link{{domainid}}">{{domain}}</label></div>
+    <div class="col text right"><a href="{{url}}" target="_blank">visit</a></div>
+    {{whitelisted}}<div class="col text right pad-right whitelisted">whitelisted</div>{{/whitelisted}}
+    {{blacklisted}}<div class="col text right pad-right blacklisted">blacklisted</div>{{/blacklisted}}
+</div>

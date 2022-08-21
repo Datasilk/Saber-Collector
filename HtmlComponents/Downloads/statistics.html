@@ -4,8 +4,13 @@
             <div class="row stats">
                 {{stats}}
             </div>
-            <div class="row pad-top text-center cancel-downloads" style="display:none;">
-                <button class="button red">Stop Download Queue</button>
+            <div class="row pad-top">
+                <div class="col pad-right title">
+                    {{title}}
+                </div>
+                <div class="col right cancel-downloads" style="display:none;">
+                    <a href="javascript:">Stop</a>
+                </div>
             </div>
             <div class="row stat-log-row">
                 <div class="col stat-log pad-top pad-right green">start downloading articles by clicking the Download button...</div>

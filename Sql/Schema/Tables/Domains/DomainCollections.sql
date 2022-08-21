@@ -6,6 +6,7 @@
         [name] NVARCHAR(32) NOT NULL,
         [search] NVARCHAR(128) NOT NULL DEFAULT '',
         [subjectId] INT NOT NULL DEFAULT 0,
+        [filtertype] INT NOT NULL DEFAULT 0,
         [type] INT NOT NULL DEFAULT 0,
         [sort] INT NOT NULL DEFAULT 0,
         [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE()

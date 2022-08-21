@@ -12,7 +12,7 @@ namespace Saber.Vendors.Collector
     {
 
         #region "Domains Component"
-        public static string RenderComponent(int subjectId = 0, Query.Models.DomainType type = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
+        public static string RenderComponent(int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = Query.Models.DomainType.all,  Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
         {
             var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
             var subjectIds = new List<int>();
@@ -20,7 +20,7 @@ namespace Saber.Vendors.Collector
             {
                 subjectIds.Add(subjectId);
             }
-            var total = Query.Domains.GetCount(subjectIds.ToArray(), type, sort, search);
+            var total = Query.Domains.GetCount(subjectIds.ToArray(), type, domainType, sort, search);
             viewComponent["total-domains"] =  total.ToString("N0");
             viewComponent["pos-start"] = start.ToString("N0");
             viewComponent["pos-end"] = (start + length - 1).ToString("N0");
@@ -35,7 +35,7 @@ namespace Saber.Vendors.Collector
                 viewComponent.Show("has-paging");
                 viewComponent.Show("show-first");
             }
-            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, sort, start, length, search));
+            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, domainType, sort, start, length, search));
             if(totalResults < length)
             {
                 viewComponent["pos-end"] = (start + totalResults - 1).ToString("N0");
@@ -48,14 +48,14 @@ namespace Saber.Vendors.Collector
             return viewComponent.Render();
         }
 
-        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainType type = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
+        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
         {
             var subjectIds = new List<int>();
             if(subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
-            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, sort, search, start, length);
+            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, domainType, sort, search, start, length);
             total = domains.Count;
             var item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
             var html = new StringBuilder();
@@ -65,30 +65,30 @@ namespace Saber.Vendors.Collector
                 {
                     //populate view with domain info
                     item.Clear();
-                    html.Append(RenderListItem(domain, item));
+                    html.Append(RenderListItem(domain, item, type));
                 }
             }
             return html.ToString();
         }
 
-        public static string RenderListItem(int domainId)
+        public static string RenderListItem(int domainId, Query.Models.DomainFilterType type = 0)
         {
             var domain = Query.Domains.GetById(domainId);
-            return RenderListItem(domain);
+            return RenderListItem(domain, null, type);
         }
 
-        public static string RenderListItem(Query.Models.Domain domain, View item = null)
+        public static string RenderListItem(Query.Models.Domain domain, View item = null, Query.Models.DomainFilterType type = 0)
         {
             if (item == null) { item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html"); }
             //populate view with domain info
-            item["title"] = domain.title != "" ? domain.title : domain.domain.GetDomainName();
+            item["title"] = domain.title != null && domain.title != "" ? domain.title : domain.domain;
             //item["summary"] = domain.description.Length > 100 ? domain.description.Substring(0, 98) + "..." : domain.description;
             item["url"] = "https://" + domain.domain;
             item["domain"] = domain.domain;
-            item["domainid"] = domain.domainId.ToString();
+            item["domainid"] = type == Query.Models.DomainFilterType.Blacklisted ? "-1" : domain.domainId.ToString();
             if ((int)domain.type > -1)
             {
-                var domaintype = "";
+                string domaintype;
                 switch (domain.type)
                 {
                     
@@ -132,6 +132,10 @@ namespace Saber.Vendors.Collector
                 item.Show("has-domain-type");
                 item["domain-type"] = domaintype;
                 item["domain-type-id"] = domain.type.ToString();
+            }else if(type == Query.Models.DomainFilterType.Blacklisted)
+            {
+                item["domain-type"] = "blacklisted";
+                item["domain-type-id"] = "blacklisted";
             }
             if (domain.articles > 0)
             {

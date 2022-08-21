@@ -120,6 +120,8 @@ namespace Saber.Vendors.Collector.Hubs
                             Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName(), articleInfo.domainId);
                             await Clients.Caller.SendAsync("update", 1, "Redirected & updated article URL from " + url + " to " + newurl);
                         }
+
+                        //update article URL on client-side web browser
                         await Clients.Caller.SendAsync("update-url", newurl);
 
                         if(articleInfo == null)

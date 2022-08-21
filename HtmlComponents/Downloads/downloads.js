@@ -25,7 +25,7 @@
 
     init: function () {
         $('.downloads .download > .button').on('click', S.downloads.start);
-        $('.cancel-downloads button').on('click', S.downloads.stop);
+        $('.cancel-downloads a').on('click', S.downloads.stop);
 
         //set up signalR hub
         S.downloads.hub = new signalR.HubConnectionBuilder().withUrl('/downloadhub').build();
@@ -125,8 +125,8 @@
         //check for new downloads
         if (S.downloads.running == true) {
             if (downloaded == 0 && skipped != 1) {
-                S.downloads.update('get next URL in the queue after 10 seconds...');
-                setTimeout(S.downloads.check, 10 * 1000); //wait 10 seconds
+                S.downloads.update('get next URL in the queue after 60 seconds...');
+                setTimeout(S.downloads.check, 60 * 1001); //wait 60 seconds
             } else {
                 S.downloads.update('getting next URL in the queue...');
                 S.downloads.check(); //check immediately
