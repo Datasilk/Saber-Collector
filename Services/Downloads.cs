@@ -63,5 +63,14 @@ namespace Saber.Vendors.Collector.Services
             return Success();
         }
         #endregion
+
+        #region "Acceptable Languages"
+        public string RenderAcceptableLanguages()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+
+            return Error();
+        }
+        #endregion
     }
 }

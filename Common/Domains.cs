@@ -159,6 +159,19 @@ namespace Saber.Vendors.Collector
             {
                 item.Show("free");
             }
+            if (domain.empty == true)
+            {
+                item.Show("empty");
+            }
+            if (domain.deleted == true)
+            {
+                item.Show("deleted");
+            }
+            if (domain.lang != "" && Languages.KnownLanguages.ContainsKey(domain.lang))
+            {
+                item.Show("language");
+                item["lang"] = Languages.KnownLanguages[domain.lang];            
+            }
             return item.Render();
         }
         #endregion

@@ -21,8 +21,8 @@ AS
 	JOIN Domains d ON d.domainId = q.domainId
 	LEFT JOIN Whitelist_Domains w ON w.domain = d.domain -- must be a whitelisted domain
 	LEFT JOIN Blacklist_Domains b ON b.domain = d.domain -- check for blacklisted domain
-	WHERE q.status = 0
-	AND (
+	WHERE
+	(
 		-- filter by domain name
 		(@domain IS NOT NULL AND @domain <> '' AND d.domain = @domain)
 		OR @domain IS NULL OR @domain = ''
@@ -49,9 +49,11 @@ AS
 	AND (d.paywall = 0 OR (d.paywall = 1 AND d.free = 1))
 	AND ( 
 		-- get random download queue item
-		(@sort = 3 AND @maxQid > 0 AND q.qid >= (RAND() * @maxQid))
+		((@sort = 2 OR @sort = 3) AND @maxQid > 0 AND q.qid >= (RAND() * @maxQid))
 		OR @sort <> 3 OR @maxQid = 0
-	)
+	) 
+	AND q.status = 0
+	AND d.lang = 'en'
 	ORDER BY 
 	CASE WHEN @sort = 0 THEN q.datecreated END DESC,
 	CASE WHEN @sort = 2 THEN LEN(q.url) END
