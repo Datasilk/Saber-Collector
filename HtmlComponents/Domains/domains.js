@@ -43,6 +43,7 @@
 
         submit: function (e) {
             e.preventDefault();
+            e.cancelBubble = true;
             var data = {
                 domain: domain_name.value,
                 title: domain_title.value,

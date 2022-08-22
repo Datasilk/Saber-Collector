@@ -66,7 +66,7 @@ AS
 		WHERE domainId = @domainId
 
 		-- get next download in the queue
-		SELECT q.*, d.domain 
+		SELECT q.*, d.domain, d.articles
 		FROM DownloadQueue q 
 		JOIN Domains d ON d.domainId = q.domainId
 		WHERE qid=@qid

@@ -23,7 +23,6 @@ namespace Saber.Vendors.Collector.Services
             if (domain == null || domain == "") { return Error("Please specify the domain you wish to add"); }
             try
             {
-                domain = domain.GetDomainName();
                 if(type == 3)
                 {
                     Query.Blacklists.Domains.Wildcards.Add(domain);
@@ -347,10 +346,10 @@ namespace Saber.Vendors.Collector.Services
             var html = new StringBuilder();
             var itemhtml = new StringBuilder();
             var collections = Query.Domains.Collections.GetList();
-            var currentGroupId = 0;
+            var currentGroupId = -1;
             foreach(var collection in collections.Collections)
             {
-                if(currentGroupId > 0 && currentGroupId != collection.colgroupId)
+                if(currentGroupId >= 0 && currentGroupId != collection.colgroupId)
                 {
                     //new group
                     var group = collections.Groups.Where(a => a.colgroupId == currentGroupId).FirstOrDefault();
@@ -366,7 +365,7 @@ namespace Saber.Vendors.Collector.Services
                     {
                         //collection has no group
                         groupView.Clear();
-                        groupView["name"] = "";
+                        groupView["name"] = "No Category";
                         groupView["list"] = itemhtml.ToString();
                         html.Append(groupView.Render());
                         itemhtml.Clear();

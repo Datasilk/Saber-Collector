@@ -27,7 +27,7 @@ namespace Saber.Vendors.Collector.HtmlComponents.Articles
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/Domains/domains.css", "collector_domains_css");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/Domains/domains.js", "collector_domains_js");
 
-                        results.Add(new KeyValuePair<string, string>(prefix + key, Collector.Domains.RenderComponent()));
+                        //results.Add(new KeyValuePair<string, string>(prefix + key, Collector.Domains.RenderComponent()));
                         return results;
                     })
                 }

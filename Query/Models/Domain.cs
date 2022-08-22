@@ -7,9 +7,13 @@ namespace Query.Models
         public int domainId { get; set; }
         public bool paywall { get; set; }
         public bool free { get; set; }
+        public bool https { get; set; }
+        public bool www { get; set; }
         public bool empty { get; set; }
+        public bool deleted { get; set; }
         public DomainType type { get; set; }
         public string domain { get; set; }
+        public string lang { get; set; }
         public string title { get; set; }
         public string description { get; set; }
         public DateTime lastchecked { get; set; }
@@ -27,7 +31,9 @@ namespace Query.Models
         Paywall = 4,
         Free = 5,
         Unprocessed = 6,
-        Empty = 7
+        Empty = 7,
+        Blacklist_Wildcard = 8,
+        NotEmpty = 9
     }
 
     public enum DomainType

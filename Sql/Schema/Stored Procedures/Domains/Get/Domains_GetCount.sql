@@ -18,8 +18,39 @@ AS
 	DECLARE @haswildcard bit = 0
 	IF CHARINDEX('%', @search) > 0 SET @haswildcard = 1
 
-	IF @type <> 2 BEGIN
-		/* get list of domains that match filter */
+	
+	IF @type = 2 BEGIN
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
+		/* Get domains from Blacklist table */
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
+		SELECT COUNT(*)
+		FROM [Blacklist_Domains] d
+		WHERE
+		(
+			(@search IS NOT NULL AND @search  <> '' AND (
+				d.domain LIKE CASE WHEN @haswildcard = 1 THEN @search ELSE '%' + @search + '%' END
+			))
+			OR (@search IS NULL OR @search = '')
+		)
+	
+	END ELSE IF @type = 8 BEGIN
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
+		/* Get domains from Blacklist Wildcards table */
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
+		SELECT COUNT(*)
+		FROM [Blacklist_Wildcards] d
+		WHERE
+		(
+			(@search IS NOT NULL AND @search  <> '' AND (
+				d.domain LIKE CASE WHEN @haswildcard = 1 THEN @search ELSE '%' + @search + '%' END
+			))
+			OR (@search IS NULL OR @search = '')
+		)
+		
+	END ELSE BEGIN
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
+		/* Get domains from Domains table */
+		/* //////////////////////////////////////////////////////////////////////////////////////// */
 		SELECT COUNT(*)
 		FROM [Domains] d
 		LEFT JOIN Whitelist_Domains wl ON wl.domain = d.domain
@@ -40,6 +71,7 @@ AS
 			OR (@type = 5 AND d.free = 1)
 			OR (@type = 6 AND d.free = 0 AND d.paywall = 0 AND d.type = -1 AND bl.domain IS NULL AND wl.domain IS NULL)
 			OR (@type = 7 AND d.[empty] = 1)
+			OR (@type = 9 AND d.[empty] = 0)
 		)
 		AND (
 			(@sort = 2 AND d.articles > 0)
@@ -53,19 +85,5 @@ AS
 			(@parentId >= 0 AND d.parentId = @parentId)
 			OR (@parentId < 0)
 		)
-	END
-	IF @type = 2 BEGIN
-		/* //////////////////////////////////////////////////////////////////////////////////////// */
-		/* Get domains from Blacklist table */
-		/* //////////////////////////////////////////////////////////////////////////////////////// */
-		
-		SELECT COUNT(*)
-		FROM [Blacklist_Domains] d
-		WHERE
-		(
-			(@search IS NOT NULL AND @search  <> '' AND (
-				d.domain LIKE CASE WHEN @haswildcard = 1 THEN @search ELSE '%' + @search + '%' END
-			))
-			OR (@search IS NULL OR @search = '')
-		)
+		AND d.deleted = 0
 	END

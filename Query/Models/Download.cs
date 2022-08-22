@@ -12,6 +12,7 @@ namespace Query.Models
         public int status { get; set; }
         public string url { get; set; }
         public string domain { get; set; }
+        public int articles { get; set; }
         public DateTime datecreated { get; set; }
         public List<DownloadRule> downloadRules { get; set; }
     }

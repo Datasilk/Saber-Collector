@@ -31,7 +31,10 @@ namespace Saber.Vendors.Collector.Hubs
                         //invalid domain, delete domain & all articles related to domain
                         //shouldn't happen but just in case
                         Domains.DeleteAllArticles(queue.domainId);
-                        Query.Domains.Delete(queue.domainId);
+                        Query.Domains.IsDeleted(queue.domainId, true);
+                        await Clients.Caller.SendAsync("update", "Invalid Domain");
+                        await Clients.Caller.SendAsync("checked", 1, 0);
+                        return;
                     }
 
                     if (!Domains.ValidateURL(queue.url))
@@ -39,7 +42,7 @@ namespace Saber.Vendors.Collector.Hubs
                         //shouldn't happen but just in case
                         Query.Downloads.Delete(queue.qid);
                         await Clients.Caller.SendAsync("update", "Invalid URL");
-                        await Clients.Caller.SendAsync("checked", 1);
+                        await Clients.Caller.SendAsync("checked", 1, 0);
                         return;
                     }
 
@@ -50,7 +53,7 @@ namespace Saber.Vendors.Collector.Hubs
                         if (rule.rule == false && rule.url != "" && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
                         {
                             await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
-                            await Clients.Caller.SendAsync("checked", 1);
+                            await Clients.Caller.SendAsync("checked", 1, 0);
                             return;
                         }
                         else if (rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
@@ -78,6 +81,8 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                     if (newurl != queue.url && newurl != "")
                     {
+                        await Clients.Caller.SendAsync("update", "Redirected URL to <a href=\"" + newurl + "\" target=\"_blank\">" + newurl + "</a>");
+
                         ////////////////////////////////////////////////////////////////////////////////
                         //updated URL, retire current download and create new download for the new URL
                         Query.Downloads.Archive(queue.qid);
@@ -85,7 +90,7 @@ namespace Saber.Vendors.Collector.Hubs
                         if(newurl.Length > 255)
                         {
                             await Clients.Caller.SendAsync("update", "Redirected URL is too long");
-                            await Clients.Caller.SendAsync("checked", 1);
+                            await Clients.Caller.SendAsync("checked", 1, 0);
                             return;
                         }
                         queue.qid = Query.Downloads.AddQueueItem(newurl, newurl.GetDomainName(), queue.parentId, feedId);
@@ -102,7 +107,7 @@ namespace Saber.Vendors.Collector.Hubs
                             if (rule.rule == false && rule.url != "" && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
                             {
                                 await Clients.Caller.SendAsync("update", "URL matches download rule \"" + rule.url + "\" and will be skipped (<a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>)");
-                                await Clients.Caller.SendAsync("checked", 1);
+                                await Clients.Caller.SendAsync("checked", 1, 0);
                                 return;
                             }
                             else if (rule.rule == true && Domains.CheckDownloadRule(rule.url, "", "", queue.url, "", "") == true)
@@ -115,27 +120,24 @@ namespace Saber.Vendors.Collector.Hubs
 
                     ////////////////////////////////////////////////////////////////////////////////
                     // validate download results
+                    await Clients.Caller.SendAsync("update", "Validating download...");
                     if (sort == 2)
                     {
                         //don't create articles for homepages
                         downloadOnly = true;
-                    }
-                    if (downloadOnly == false)
-                    {
-                        downloadOnly = !Query.Whitelists.Domains.Check(queue.url.GetDomainName());
                     }
 
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
                     if (result == null || result == "")
                     {
                         await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
-                        await Clients.Caller.SendAsync("checked", 0);
+                        await Clients.Caller.SendAsync("checked", 0, 0);
                         if (sort == 2) { isEmpty = true; }
                     }
                     else if (result.Substring(0, 5) == "file:")
                     {
                         await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
-                        await Clients.Caller.SendAsync("checked", 1);
+                        await Clients.Caller.SendAsync("checked", 1, 0);
                         return;
                     }
                     try
@@ -143,7 +145,7 @@ namespace Saber.Vendors.Collector.Hubs
                         if(result.StartsWith("\"Uncaught TypeError") || result.StartsWith("log: ") || result.StartsWith("Object reference not set to an instance of an object"))
                         {
                             await Clients.Caller.SendAsync("update", "Error parsing DOM!");
-                            await Clients.Caller.SendAsync("checked", 1);
+                            await Clients.Caller.SendAsync("checked", 1, 0);
                             if (sort == 2) { isEmpty = true; }
                         }
                         else
@@ -155,15 +157,19 @@ namespace Saber.Vendors.Collector.Hubs
                     catch (Exception ex)
                     {
                         await Clients.Caller.SendAsync("update", "Error parsing DOM!");
-                        await Clients.Caller.SendAsync("checked", 1);
+                        await Clients.Caller.SendAsync("checked", 1, 0);
                         if (sort == 2) { isEmpty = true; }
                     }
 
                     if (isEmpty)
                     {
                         //domain doesn't contain any content //////////////////////////////
-                        Query.Domains.IsEmpty(queue.domainId, true);
+                        if (queue.articles == 0) { Query.Domains.IsEmpty(queue.domainId, true); }
                         return;
+                    }
+                    else if(sort == 2)
+                    {
+                        Query.Domains.UpdateHttpsWww(queue.domainId, queue.url.Contains("https://"), queue.url.Contains("www."));
                     }
 
                     //process article /////////////////////////////////////////////////////
@@ -175,10 +181,15 @@ namespace Saber.Vendors.Collector.Hubs
                         var articleInfo = Article.Merge(existingArticle, article);
 
                         if(articleInfo.url.Length >= queue.domain.Length + 7 && 
-                            articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 1)
+                            articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 2)
                         {
                             //found home page
-                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.title, articleInfo.summary);
+                            var lang = "en";
+                            if(articleInfo.summary != "")
+                            {
+                                lang = Languages.Detector.Detect(articleInfo.summary);
+                            }
+                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.title, articleInfo.summary, lang);
                         }
 
                         //check all download rules against article info
@@ -613,14 +624,34 @@ namespace Saber.Vendors.Collector.Hubs
             if(url == "") { return false; }
             if (url.IndexOf("http://") != 0 && url.IndexOf("https://") != 0) { return false; }
             if (url.Length > 255) { return false; }
-
+            var domain = url.GetDomainName();
             if (Rules.badUrls.Any(a => url.Contains(a))) { return false; }
             if (Rules.badUrlExtensions.Any(a => url.Contains("." + a))) { return false; }
-            if (!Domains.ValidateDomain(url.GetDomainName())) { return false; }
+            if (!Domains.ValidateDomain(domain)) { return false; }
             return true;
         }
 
         private bool ValidateURLs(string domain, List<Query.Models.DownloadRule> downloadRules, Dictionary<string, List<KeyValuePair<string, string>>> urls, out List<string> urlsChecked) {
+            //check blacklist wildcards
+            foreach(var wildcard in Collector.Blacklist.Wildcards)
+            {
+                if (wildcard.Match(domain).Success)
+                {
+                    urlsChecked = new List<string>();
+                    return false;
+                }
+            }
+
+            //check for numerical root domain
+            var domainparts = domain.Split(".");
+            if(domainparts.Skip(1).Any(a => a[0].Asc() >= 48 && a[0].Asc() <= 57))
+            {
+                //numerical root domain detected
+                urlsChecked = new List<string>();
+                return false;
+            }
+            
+            //check download rules for domain
             var rules = downloadRules.Where(b => b.domain == domain);
             if (urls[domain] == null || urls[domain].Count == 0) { 
                 urlsChecked = new List<string>();

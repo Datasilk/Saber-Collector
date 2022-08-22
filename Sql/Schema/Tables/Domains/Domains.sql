@@ -3,11 +3,15 @@
     (
 	    [domainId] INT NOT NULL PRIMARY KEY, 
         [domain] NVARCHAR(64) NOT NULL,
+        [lang] VARCHAR(6) NOT NULL DEFAULT 'en',
         [parentId] INT NOT NULL DEFAULT 0,
         [hastitle] BIT NOT NULL DEFAULT 0,
         [paywall] BIT NOT NULL DEFAULT 0,
         [free] BIT NOT NULL DEFAULT 0,
+        [https] BIT NOT NULL DEFAULT 0,
+        [www] BIT NOT NULL DEFAULT 0,
         [empty] BIT NOT NULL DEFAULT 0,
+        [deleted] BIT NOT NULL DEFAULT 0,
         [type] INT NOT NULL DEFAULT 0, -- 0 = unused, 1 = website, 2 = ecommerce, 3 = wiki, 4 = blog, 5 = science journal, 6 = SASS, 7 = social network, 8 = advertiser, 9 = search engine, 10 = portfolio
         [articles] INT NOT NULL DEFAULT 0,
         [title] NVARCHAR(128) NOT NULL DEFAULT '',

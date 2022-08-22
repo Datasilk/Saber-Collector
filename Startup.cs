@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -16,18 +17,15 @@ namespace Saber.Vendors.Collector
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IConfigurationRoot config)
         {
-            ConfigurePlugin();
-        }
+            Console.WriteLine("Configuring Collector...");
 
-        private void ConfigurePlugin()
-        {
             var file = App.MapPath("/Vendors/Collector/config.json");
             if (!File.Exists(file))
             {
                 Console.WriteLine("You must copy, rename, then modify \"/Vendors/Collector/config.template.json\" to \"/Vendors/Collector/config.json\" and restart Saber to use Collector.");
                 return;
             }
-            var config = new ConfigurationBuilder()
+            var configfile = new ConfigurationBuilder()
                     .AddJsonFile(file).Build();
 
             var environment = "";
@@ -47,30 +45,76 @@ namespace Saber.Vendors.Collector
                         break;
                 }
                 section = "storage:" + environment;
-                Article.storagePath = config.GetSection(section).Value;
+                Article.storagePath = configfile.GetSection(section).Value;
                 section = "browser:endpoint:" + environment;
-                Article.browserEndpoint = config.GetSection(section).Value;
+                Article.browserEndpoint = configfile.GetSection(section).Value;
 
                 //create folders if they don't exist
-                if (!Directory.Exists(Article.storagePath + "articles"))
+                try
                 {
-                    Directory.CreateDirectory(Article.storagePath + "articles");
+                    if (!Directory.Exists(Article.storagePath + "articles"))
+                    {
+                        Console.WriteLine("Created folder " + Article.storagePath + "articles");
+                        Directory.CreateDirectory(Article.storagePath + "articles");
+                    }
                 }
-                if (!Directory.Exists(Article.storagePath + "files"))
+                catch (Exception)
                 {
-                    Directory.CreateDirectory(Article.storagePath + "files");
+                    Console.WriteLine("Could not create folder " + Article.storagePath + "articles");
+                }
+                try
+                {
+                    if (!Directory.Exists(Article.storagePath + "files"))
+                    {
+                        Console.WriteLine("Created folder " + Article.storagePath + "files");
+                        Directory.CreateDirectory(Article.storagePath + "files");
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Could not create folder " + Article.storagePath + "files");
                 }
 
                 //load domain-level minimum download intervals (in seconds)
                 section = "domains:downloads:minIntervals";
-                Domains.DownloadMinimumIntervals = config.GetValue<int>(section);
+                Domains.DownloadMinimumIntervals = configfile.GetValue<int>(section);
+                section = "";
 
                 //load common words
                 Models.Article.Rules.commonWords = Query.CommonWords.GetList().ToArray();
+                Console.WriteLine("Loaded " + Models.Article.Rules.commonWords.Length + " common words from the database");
+
+                //load wildcard blacklist
+                var wildcards = Query.Blacklists.Domains.Wildcards.GetList();
+                foreach(var wildcard in wildcards)
+                {
+                    try
+                    {
+                        Blacklist.Wildcards.Add(
+                            new Regex("^" + Regex.Escape(wildcard)
+                                .Replace("\\*", ".*")
+                                .Replace("\\?", ".") + "$")
+                        );
+                    }
+                    catch (Exception) { }
+                }
+                Console.WriteLine("Loaded " + Blacklist.Wildcards.Count + " blacklist wildcards from the database");
+
+                //load language detector
+                Languages.Detector = new LanguageDetection.LanguageDetector();
+                Languages.Detector.AddAllLanguages();
+                Console.WriteLine("Loaded 53 languages into the language detector");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                Console.WriteLine("configuration section " + section + " does not exist in /Vendors/Collector/config.json");
+                if(section != "")
+                {
+                    Console.WriteLine("configuration section " + section + " does not exist in /Vendors/Collector/config.json");
+                }
+                else
+                {
+                    Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                }
             }
         }
     }

@@ -940,6 +940,7 @@ namespace Saber.Vendors.Collector
             var status = 0;
             var wasHttp = url.IndexOf("http://") >= 0;
             var wwwAdded = false;
+            var domain = url.GetDomainName();
 
             if (wasHttp == true)
             {
@@ -1044,7 +1045,7 @@ namespace Saber.Vendors.Collector
                     status = 0;
                     continue;
                 }
-                else if (url.IndexOf("/www.") < 0)
+                else if (status != 200 && url.IndexOf("/www.") < 0)
                 {
                     wwwAdded = true;
                     url = url.Replace("https://", "").Replace("http://", "");

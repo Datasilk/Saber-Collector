@@ -135,11 +135,6 @@ namespace Query
             Sql.ExecuteNonQuery("Domain_HasFreeContent", new { domainId, free });
         }
 
-        public static void IsEmpty(int domainId, bool empty)
-        {
-            Sql.ExecuteNonQuery("Domain_IsEmpty", new { domainId, empty });
-        }
-
         public static string FindDomainTitle(int domainId)
         {
             return Sql.ExecuteScalar<string>("Domain_FindTitle", new { domainId });
@@ -150,14 +145,29 @@ namespace Query
             return Sql.ExecuteScalar<string>("Domain_FindDescription", new { domainId });
         }
 
-        public static void UpdateDescription(int domainId, string title, string description)
+        public static void UpdateDescription(int domainId, string title, string description, string lang)
         {
-            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, title, description });
+            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, title, description, lang });
         }
 
         public static void UpdateDomainType(int domainId, Models.DomainType type)
         {
             Sql.ExecuteNonQuery("Domain_UpdateType", new { domainId, type = (int)type });
+        }
+
+        public static void UpdateHttpsWww(int domainId, bool https, bool www)
+        {
+            Sql.ExecuteNonQuery("Domain_UpdateHttpsWww", new { domainId, https, www });
+        }
+
+        public static void IsEmpty(int domainId, bool empty)
+        {
+            Sql.ExecuteNonQuery("Domain_IsEmpty", new { domainId, empty });
+        }
+
+        public static void IsDeleted(int domainId, bool delete)
+        {
+            Sql.ExecuteNonQuery("Domain_IsDeleted", new { domainId, delete });
         }
 
         #endregion

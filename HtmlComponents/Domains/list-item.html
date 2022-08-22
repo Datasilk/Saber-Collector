@@ -1,12 +1,14 @@
-﻿<div class="domain-item id-{{domainid}}" onclick="S.domain.details.show('{{domain}}')">
+﻿<div class="domain-item filter-{{filter-type}} id-{{domainid}}" onclick="S.domain.details.show('{{domain}}')">
     <div class="row">
         <div class="col title">
             <h4>{{title}}</h4>
         </div>
     </div>
+    {{has-url}}
     <div class="url">
         <a href="{{url}}" onclick="event.cancelBubble = true" target="_blank">{{url}}</a>
     </div>
+    {{/has-url}}
     <div class="info">
         {{whitelisted}}<span class="whitelisted">whitelisted</span>{{/whitelisted}}
         {{paywall}}<span class="paywall">paywall</span>{{/paywall}}

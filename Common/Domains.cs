@@ -83,15 +83,20 @@ namespace Saber.Vendors.Collector
             //populate view with domain info
             item["title"] = domain.title != null && domain.title != "" ? domain.title : domain.domain;
             //item["summary"] = domain.description.Length > 100 ? domain.description.Substring(0, 98) + "..." : domain.description;
-            item["url"] = "https://" + domain.domain;
+            if (type != Query.Models.DomainFilterType.Blacklist_Wildcard)
+            {
+                item.Show("has-url");
+            }
+            item["url"] = "http" + (domain.https ? "s" : "") + "://" + (domain.www ? "www." : "") + domain.domain;
             item["domain"] = domain.domain;
             item["domainid"] = type == Query.Models.DomainFilterType.Blacklisted ? "-1" : domain.domainId.ToString();
+            item["filter-type"] = type.ToString().ToLower();
+
             if ((int)domain.type > -1)
             {
                 string domaintype;
                 switch (domain.type)
                 {
-                    
                     case Query.Models.DomainType.ecommerce:
                         domaintype = "e-commerce";
                         break;
@@ -270,6 +275,7 @@ namespace Saber.Vendors.Collector
 
         #endregion
 
+        #region "Validation"
         public static bool ValidateURL(string url)
         {
             bool isValid = url.IndexOf("http://") == 0 || url.IndexOf("https://") == 0;
@@ -291,6 +297,14 @@ namespace Saber.Vendors.Collector
 
         public static bool ValidateDomain(string domain)
         {
+            //check blacklist wildcards
+            foreach (var wildcard in Blacklist.Wildcards)
+            {
+                if (wildcard.Match(domain).Success)
+                {
+                    return false;
+                }
+            }
             var parts = domain.Split(".");
             if(parts.Length < 2) { return false; }
             if (int.TryParse(parts[parts.Length - 1], out int num))
@@ -300,7 +314,9 @@ namespace Saber.Vendors.Collector
             }
             return true;
         }
+        #endregion
 
+        #region "Delete"
         public static void DeleteAllArticles(int domainId)
         {
             var domain = Query.Domains.GetById(domainId);
@@ -344,5 +360,6 @@ namespace Saber.Vendors.Collector
             
             Query.Domains.DeleteAllArticles(domainId);
         }
+        #endregion 
     }
 }
