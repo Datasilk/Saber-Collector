@@ -53,7 +53,7 @@ AS
 		OR @sort <> 3 OR @maxQid = 0
 	) 
 	AND q.status = 0
-	AND d.lang = 'en'
+	AND (d.lang = '' OR d.lang = 'en')
 	ORDER BY 
 	CASE WHEN @sort = 0 THEN q.datecreated END DESC,
 	CASE WHEN @sort = 2 THEN LEN(q.url) END

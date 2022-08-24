@@ -100,24 +100,26 @@
                 type: domainfiltertype.value,
                 domainType: domaintype.value,
                 sort: sort.value,
+                lang: domainlang.value,
                 search: search.value,
                 start: start == null ? 1 : start,
                 length: length == null ? 200 : length
             }
             S.ajax.post('CollectorDomains/Search', data, (response) => {
                 $('.domains-paging, .domains.accordion').remove();
-                $('.website > .content').append(response);
+                $('.website > .content.results').append(response);
                 S.accordion.load();
             });
 
         },
 
-        customResults: function (domainsearch, subjectId, type, domaintype, domainsort) {
+        customResults: function (domainsearch, subjectId, type, domaintype, domainsort, lang) {
             var data = {
                 subjectId: subjectId, 
                 type: type,
                 domainType: domaintype,
                 sort: domainsort,
+                lang: lang,
                 search: domainsearch,
                 start: 1,
                 length: 200
@@ -125,6 +127,7 @@
 
             domainfiltertype.value = type;
             domaintype.value = domaintype;
+            domainlang.value = lang || '';
             sort.value = domainsort;
             search.value = domainsearch;
 
@@ -137,7 +140,7 @@
 
             S.ajax.post('CollectorDomains/Search', data, (response) => {
                 $('.domains-paging, .domains.accordion').remove();
-                $('.website > .content').append(response);
+                $('.website > .content.results').append(response);
                 S.accordion.load();
             });
 
@@ -195,7 +198,8 @@
                     subjectId: S.domains.search.selectedSubjectId,
                     filtertype: domainfiltertype.value,
                     type: domaintype.value,
-                    sort: sort.value
+                    sort: sort.value,
+                    lang: domainlang.value
                 }
                 S.ajax.post('CollectorDomains/AddCollection', data, () => {
                     S.domains.collections.show(true);

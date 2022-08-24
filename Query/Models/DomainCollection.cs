@@ -13,6 +13,7 @@ namespace Query.Models
         public DomainFilterType filtertype { get; set; }
         public DomainType type { get; set; }
         public DomainSort sort { get; set; }
+        public string lang { get; set; }
         public DateTime datecreated { get; set; }
         public string groupName { get; set; }
     }

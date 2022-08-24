@@ -28,8 +28,7 @@ namespace Saber.Vendors.Collector.Hubs
 
                     if (!Domains.ValidateDomain(queue.domain))
                     {
-                        //invalid domain, delete domain & all articles related to domain
-                        //shouldn't happen but just in case
+                        //invalid domain, delete domain & all articles related to domain (shouldn't happen but just in case)
                         Domains.DeleteAllArticles(queue.domainId);
                         Query.Domains.IsDeleted(queue.domainId, true);
                         await Clients.Caller.SendAsync("update", "Invalid Domain");
@@ -39,14 +38,14 @@ namespace Saber.Vendors.Collector.Hubs
 
                     if (!Domains.ValidateURL(queue.url))
                     {
-                        //shouldn't happen but just in case
+                        //Delete download from database (shouldn't happen but just in case)
                         Query.Downloads.Delete(queue.qid);
                         await Clients.Caller.SendAsync("update", "Invalid URL");
                         await Clients.Caller.SendAsync("checked", 1, 0);
                         return;
                     }
 
-                    //first check download rules for queue
+                    //check download rules for queue
                     var downloadOnly = false;
                     foreach (var rule in queue.downloadRules)
                     {
@@ -66,7 +65,8 @@ namespace Saber.Vendors.Collector.Hubs
 
                     await Clients.Caller.SendAsync("update", "Downloading <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>...");
 
-                    //download content //////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////////
+                    //download content 
                     var result = "";
                     var newurl = "";
                     var isEmpty = false;
@@ -130,41 +130,89 @@ namespace Saber.Vendors.Collector.Hubs
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
                     if (result == null || result == "")
                     {
+                        //empty download result
                         await Clients.Caller.SendAsync("update", "Download timed out for URL: <a href=\"" + queue.url + "\" target=\"_blank\">" + queue.url + "</a>");
                         await Clients.Caller.SendAsync("checked", 0, 0);
                         if (sort == 2) { isEmpty = true; }
                     }
                     else if (result.Substring(0, 5) == "file:")
                     {
+                        //was not HTML content
                         await Clients.Caller.SendAsync("update", "URL points to a file of type \"" + result.Substring(5) + "\"");
                         await Clients.Caller.SendAsync("checked", 1, 0);
                         return;
                     }
-                    try
+                    
+                    if(result.StartsWith("\"Uncaught TypeError") || result.StartsWith("Object reference not set to an instance of an object"))
                     {
-                        if(result.StartsWith("\"Uncaught TypeError") || result.StartsWith("log: ") || result.StartsWith("Object reference not set to an instance of an object"))
-                        {
-                            await Clients.Caller.SendAsync("update", "Error parsing DOM!");
-                            await Clients.Caller.SendAsync("checked", 1, 0);
-                            if (sort == 2) { isEmpty = true; }
-                        }
-                        else
+                        //Charlotte returned an error or timed out
+                        await Clients.Caller.SendAsync("update", "Error parsing DOM!");
+                        await Clients.Caller.SendAsync("checked", 1, 0);
+                        //if (sort == 2) { isEmpty = true; }
+                    }
+                    else if(result.StartsWith("log: "))
+                    {
+                        //Charlotte returned an error or timed out
+                        await Clients.Caller.SendAsync("update", "Request timeout!");
+                        await Clients.Caller.SendAsync("checked", 1, 0);
+                        if (sort == 2) { isEmpty = true; }
+                    }
+                    else if(isEmpty == false)
+                    {
+                        try
                         {
                             article = Html.DeserializeArticle(result);
                             article.feedId = queue.feedId;
                         }
+                        catch (Exception ex)
+                        {
+                            await Clients.Caller.SendAsync("update", "Error parsing DOM!");
+                            await Clients.Caller.SendAsync("checked", 1, 0);
+                            //if (sort == 2) { isEmpty = true; }
+                        }
                     }
-                    catch (Exception ex)
+
+                    if (article.url.StartsWith("chrome-error"))
                     {
-                        await Clients.Caller.SendAsync("update", "Error parsing DOM!");
-                        await Clients.Caller.SendAsync("checked", 1, 0);
-                        if (sort == 2) { isEmpty = true; }
+                        //Charlotte returned a chrome-error:// as the resulting URL inside the JSON result
+                        isEmpty = true;
+                    }else if(article.elements.Count < 20)
+                    {
+                        isEmpty = true;
+                    }
+
+                    Query.Models.Article existingArticle = new Query.Models.Article();
+                    Query.Models.Article articleInfo = new Query.Models.Article();
+                    var isHomePage = false;
+
+                    if(isEmpty == false)
+                    {
+                        //merge analyzed article into Query Article
+                        existingArticle = Query.Articles.GetByUrl(queue.url) ?? Article.Create(queue.url);
+                        articleInfo = Article.Merge(existingArticle, article);
+                        
+                        //check if URL is homepage
+                        isHomePage = articleInfo.url.Length >= queue.domain.Length + 7 &&
+                                articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 2;
+                        
+                        //validate title & summary
+                        var checkTitleSummary = (articleInfo.title.ToLower() + " " + articleInfo.summary.ToLower()).Trim();
+                        var checkTitle = articleInfo.title.ToLower();
+                        if (isHomePage && checkTitleSummary != "" && 
+                            (Rules.badHomePageTitles.Any(a => checkTitleSummary.IndexOf(a) >= 0) ||
+                             Rules.badHomePageTitlesStartWith.Any(a => checkTitle.StartsWith(a))
+                            ))
+                        {
+                            isEmpty = true;
+                        }
                     }
 
                     if (isEmpty)
                     {
                         //domain doesn't contain any content //////////////////////////////
                         if (queue.articles == 0) { Query.Domains.IsEmpty(queue.domainId, true); }
+                        await Clients.Caller.SendAsync("update", "Domain is empty");
+                        await Clients.Caller.SendAsync("checked", 1, 0);
                         return;
                     }
                     else if(sort == 2)
@@ -176,25 +224,69 @@ namespace Saber.Vendors.Collector.Hubs
                     if (CheckToStopQueue(id, Clients.Caller)) { return; }
                     try
                     {
-                        //merge analyzed article into Query Article
-                        var existingArticle = Query.Articles.GetByUrl(queue.url) ?? Article.Create(queue.url);
-                        var articleInfo = Article.Merge(existingArticle, article);
-
-                        if(articleInfo.url.Length >= queue.domain.Length + 7 && 
-                            articleInfo.url.Substring(articleInfo.url.IndexOf(queue.domain) + queue.domain.Length).Length <= 2)
+                        if(isHomePage)
                         {
                             //found home page
-                            var lang = "en";
-                            if(articleInfo.summary != "")
+                            var lang = "";
+                            if (articleInfo.summary != "")
                             {
                                 lang = Languages.Detector.Detect(articleInfo.summary);
                             }
-                            Query.Domains.UpdateDescription(queue.domainId, articleInfo.title, articleInfo.summary, lang);
+                            if(lang == null || lang != "en")
+                            {
+                                if(lang.IndexOf("cn") < 0 && lang.IndexOf("zh") < 0 && lang != "ja")
+                                {
+                                    //check body text to find dominant language
+                                    var matchingLangs = new Dictionary<string, int>();
+                                    var detected = "";
+                                    foreach(var text in article.elements.Where(a => a.text != null).Select(a => a.text.Trim()))
+                                    {
+                                        detected = Languages.Detector.Detect(text);
+                                        if(detected == null || detected == "") { continue; }
+                                        if (matchingLangs.ContainsKey(detected))
+                                        {
+                                            matchingLangs[detected]+=text.Length;
+                                        }
+                                        else
+                                        {
+                                            matchingLangs.Add(detected, text.Length);
+                                        }
+                                    }
+                                    var bestLang = "";
+                                    var maxText = 0;
+                                    foreach(var key in matchingLangs.Keys)
+                                    {
+                                        if(key == "") { continue; }
+                                        if (matchingLangs[key] > maxText)
+                                        {
+                                            maxText = matchingLangs[key];
+                                            bestLang = key;
+                                        }
+                                    }
+                                    lang = bestLang;
+                                }
+                                if(lang != "en")
+                                {
+                                    Query.Domains.UpdateInfo(queue.domainId, articleInfo.title, articleInfo.summary, lang);
+                                    await Clients.Caller.SendAsync("update", "Content is not in English");
+                                    await Clients.Caller.SendAsync("checked", 1, 0);
+                                    return;
+                                }
+                            }
+                            Query.Domains.UpdateInfo(queue.domainId, articleInfo.title, articleInfo.summary, lang);
                         }
 
                         //check all download rules against article info
                         if (downloadOnly == false)
                         {
+                            //check page title for phrases that will flag the url as empty
+                            if ((articleInfo.title != "" && Rules.badPageTitles.Any(a => articleInfo.title.IndexOf(a) >= 0)) ||
+                                (articleInfo.summary != "" && Rules.badPageTitles.Any(a => articleInfo.summary.IndexOf(a) >= 0)))
+                            {
+                                downloadOnly = true;
+                            }
+
+                            //check default download rules
                             if (Domains.CheckDefaultDownloadLinksOnlyRules(queue.url, articleInfo.title, articleInfo.summary))
                             {
                                 downloadOnly = true;
@@ -352,6 +444,12 @@ namespace Saber.Vendors.Collector.Hubs
                             Query.Downloads.MoveArchived(); 
 
                         }
+                        
+                        //destroy references
+                        article = null; 
+                        articleInfo = null;
+                        existingArticle = null;
+                        
                         return;
                     }
                     catch (Exception ex)

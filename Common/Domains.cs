@@ -12,7 +12,7 @@ namespace Saber.Vendors.Collector
     {
 
         #region "Domains Component"
-        public static string RenderComponent(int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = Query.Models.DomainType.all,  Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
+        public static string RenderComponent(int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = Query.Models.DomainType.all,  Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
         {
             var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
             var subjectIds = new List<int>();
@@ -35,7 +35,7 @@ namespace Saber.Vendors.Collector
                 viewComponent.Show("has-paging");
                 viewComponent.Show("show-first");
             }
-            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, domainType, sort, start, length, search));
+            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, domainType, sort, start, length, lang, search));
             if(totalResults < length)
             {
                 viewComponent["pos-end"] = (start + totalResults - 1).ToString("N0");
@@ -48,14 +48,14 @@ namespace Saber.Vendors.Collector
             return viewComponent.Render();
         }
 
-        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string search = "")
+        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
         {
             var subjectIds = new List<int>();
             if(subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
-            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, domainType, sort, search, start, length);
+            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, domainType, sort, lang, search, start, length);
             total = domains.Count;
             var item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
             var html = new StringBuilder();
@@ -146,6 +146,11 @@ namespace Saber.Vendors.Collector
             {
                 item["total-articles"] = domain.articles.ToString();
                 item.Show("articles");
+            }
+            if (domain.inqueue > 0)
+            {
+                item["total-queue"] = domain.inqueue.ToString();
+                item.Show("inqueue");
             }
             if (domain.whitelisted == true)
             {

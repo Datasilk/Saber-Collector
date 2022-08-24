@@ -3,6 +3,7 @@
 GO
 CREATE PROCEDURE [dbo].[Domains_GetList]
 	@subjectIds nvarchar(MAX) = '',
+	@lang varchar(6) = '',
 	@search nvarchar(MAX) = '',
 	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free, 6 = unprocessed, 7 = empty
 	@domainType int = -1, 
@@ -112,6 +113,10 @@ AS
 			AND (
 				(@parentId >= 0 AND d.parentId = @parentId)
 				OR (@parentId < 0)
+			)
+			AND (
+				(@lang != '' AND d.lang = @lang)
+				OR @lang IS NULL OR @lang = ''
 			)
 			AND d.deleted = 0
 		) AS tbl WHERE rownum >= @start AND rownum < @start + @length

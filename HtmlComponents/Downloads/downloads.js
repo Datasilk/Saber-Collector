@@ -98,17 +98,19 @@
         var sort = download_sort ? parseInt(download_sort.value) : 0;
         S.downloads.id = id;
         S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
-        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 60 * 1000);
+        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 2 * 60 * 1000);
     },
 
     update: function (msg) {
         $('.stat-log').html(msg);
+        clearTimeout(S.downloads.timerCheck);
         if (S.downloads.console.visible == false) { return;}
         //receive command from SignalR
         var div = document.createElement('div');
         div.className = 'cli-line';
         div.innerHTML = '> ' + msg;
         $('.downloads .console').append(div); 
+        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 2 * 60 * 1000);
         //var box = $('.downloads .accordion > .box')[0];
         //box.scrollTop = box.scrollHeight;
     },

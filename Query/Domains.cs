@@ -15,14 +15,14 @@ namespace Query
 
         #region "Get"
 
-        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int start = 1, int length = 50, int parentId = -1)
+        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int start = 1, int length = 50, int parentId = -1)
         {
-            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), search, type, domainType, sort, start, length, parentId });
+            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, sort, start, length, parentId });
         }
 
-        public static int GetCount(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string search = "", int parentId = -1)
+        public static int GetCount(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int parentId = -1)
         {
-            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), search, type, domainType, sort, parentId });
+            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, sort, parentId });
         }
 
         public static Models.Domain GetInfo(string domain)
@@ -145,9 +145,9 @@ namespace Query
             return Sql.ExecuteScalar<string>("Domain_FindDescription", new { domainId });
         }
 
-        public static void UpdateDescription(int domainId, string title, string description, string lang)
+        public static void UpdateInfo(int domainId, string title, string description, string lang)
         {
-            Sql.ExecuteNonQuery("Domain_UpdateDescription", new { domainId, title, description, lang });
+            Sql.ExecuteNonQuery("Domain_UpdateInfo", new { domainId, title, description, lang });
         }
 
         public static void UpdateDomainType(int domainId, Models.DomainType type)
@@ -175,14 +175,14 @@ namespace Query
         #region "Collections"
         public static class Collections
         {
-            public static int Add(int colgroupId, string name, string search = "", int subjectId = 0, Models.DomainFilterType filtertype = Models.DomainFilterType.All, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical)
+            public static int Add(int colgroupId, string name, string search = "", int subjectId = 0, Models.DomainFilterType filtertype = Models.DomainFilterType.All, Models.DomainType type = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "")
             {
-                return Sql.ExecuteScalar<int>("Domain_Collection_Add", new { colgroupId, name, search, subjectId, filtertype, type, sort });
+                return Sql.ExecuteScalar<int>("Domain_Collection_Add", new { colgroupId, name, search, subjectId, filtertype, type, sort, lang });
             }
 
             public static int Add(Models.DomainCollection collection)
             {
-                return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.filtertype, collection.type, collection.sort);
+                return Add(collection.colgroupId, collection.name, collection.search, collection.subjectId, collection.filtertype, collection.type, collection.sort, collection.lang);
             }
 
             public static Models.DomainCollectionsAndGroups GetList()

@@ -51,7 +51,17 @@
         public static string[] badPageTitles = new string[]{
             "terms of use", "terms & conditions", "terms and conditions", "our policies",
             "privacy policy", "site map", "sitemap", "sign in", "sign up", "signin", "signup",
-            "subscribe", "cookie statement", "cookie policy"
+            "subscribe", "cookie statement", "cookie policy", "403 forbidden", "404", "page not found",
+            "access denied"
+        };
+
+        public static string[] badHomePageTitles = new string[]{
+            "403 ", "404 ", "page not found", "access denied", "forbidden", "404 not found", 
+            "domain expired", "domain is expired", "domain parking", "domain is parked"
+        };
+
+        public static string[] badHomePageTitlesStartWith = new string[]{
+            "error", "new tab", "bad request", "iis windows server"
         };
 
         //used to identify various DOM elements that are used as titles

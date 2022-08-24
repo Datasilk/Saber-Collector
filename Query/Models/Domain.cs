@@ -18,6 +18,7 @@ namespace Query.Models
         public string description { get; set; }
         public DateTime lastchecked { get; set; }
         public int articles { get; set; }
+        public int inqueue { get; set; }
         public bool whitelisted { get; set; }
         public bool blacklisted { get; set; }
     }

@@ -5,14 +5,17 @@
     ul{list-style:none;}
     li{display:inline-block; padding-left:10px;}
 }
-.domain-item{float:left; width:33%; padding:10px; border-bottom:1px solid #015e4a; overflow:hidden; height:125px;
+.domain-item{float:left; width:50%; padding:10px; border-bottom:1px solid #015e4a; overflow:hidden; height:125px;
     &:hover{background-color:#00383c;}
+    .title{width:100%;}
+    h4{text-overflow:ellipsis; white-space:nowrap; overflow:hidden;}
     .info{ height:36px;
         & > span{display:inline-blocck; padding:0 15px 5px 0;}
         .whitelisted{color:#88ff81 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
         .paywall{color:#e97b46 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
         .free{color:#39bbff !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block; text-transform:uppercase;}
         .articles .num{color:#49de00 !important;}
+        .inqueue .num{color:#0096de !important;}
         .lang{color:#7c9cfe !important;}
     }
     p.summary{height:40px; text-overflow:ellipsis; overflow:hidden; white-space:normal; opacity:0.7; margin-top:5px;}
@@ -22,8 +25,8 @@
     }
 }
 .page-menu{
+    .search-field{width:~"calc(100% - 810px)";}
     #search{max-width:500px; width:100%;}
-    #searchform{float:left;}
     .subjects-breadcrumb{padding-top:3px;
         span{display:inline-block; background-color:#4ebedd; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
 
@@ -36,8 +39,8 @@
 }
 
 .page-menu{#sort{max-width:130px;}}
-
-.domains-collections.dropmenu{display:none; right:146px; top:-25px; width:auto; padding-bottom:10px;
+.total-domains{padding:7px 7px 18px 4px;}
+.domains-collections.dropmenu{display:none; right:15px; top:40px; width:auto; padding-bottom:10px;
     svg{width:16px; height:16px;}
     & > .row, .group > .row{padding:10px; cursor:default; white-space:nowrap;}
     .group-title{padding:15px 20px 5px 10px; cursor:default;  white-space:nowrap; margin-right:30px; 
@@ -51,3 +54,11 @@
 .filter-blacklist_wildcard{height:55px;}
 .page-menu #domaintype{max-width:145px;}
 .page-menu #domainfiltertype{max-width:130px;}
+
+.subjects-breadcrumb{padding-top:3px;
+    span{display:inline-block; background-color:#4ebedd; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
+}
+
+@media (max-width:1000px){
+    .page-menu .search-field{width:200px;}
+}

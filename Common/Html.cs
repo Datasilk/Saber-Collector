@@ -26,7 +26,10 @@ namespace Saber.Vendors.Collector
             try
             {
                 //deserialize object from string
-                var node = JsonSerializer.Deserialize<Document>(dom);
+                var node = JsonSerializer.Deserialize<Document>(dom, new JsonSerializerOptions()
+                {
+                    MaxDepth = 256
+                });
                 var html = new StringBuilder();
                 var hierarchy = new List<int>();                
                 var parser = new Parser("");

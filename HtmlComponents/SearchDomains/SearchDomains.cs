@@ -24,10 +24,15 @@ namespace Saber.Vendors.Collector.HtmlComponents.UI
                     Render = new Func<View, IRequest, Dictionary<string, string>, Dictionary<string, object>, string, string, List<KeyValuePair<string, string>>>((view, request, args, data, prefix, key) =>
                     {
                         var results = new List<KeyValuePair<string, string>>();
+                        var lang = request.Parameters.ContainsKey("lang") ? request.Parameters["lang"] : args.ContainsKey("lang") ? args["lang"] : "en";
 
                         //render dropdown list of Feeds
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/SearchDomains/htmlcomponent.html");
                         viewComponent["subjects"] = Collector.Subjects.NavigateDropdown(0, false);
+                        viewComponent["languages"] = "<option value=\"\">All Languages</option>" + 
+                            string.Join("\n", Languages.KnownLanguages.Select(a => 
+                                "<option value=\"" + a.Key + "\"" + (a.Key == lang ? " selected" : "") + ">" + a.Value + "</option>"
+                            ).ToArray());
                         results.Add(new KeyValuePair<string, string>(prefix + key, viewComponent.Render()));
                         return results;
                     })

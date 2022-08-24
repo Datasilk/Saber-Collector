@@ -17,9 +17,17 @@
         {{deleted}}<span class="deleted">deleted</span>{{/deleted}}
         {{language}}<span class="lang">{{lang}}</span>{{/language}}
         {{articles}}
-            <span class="articles"><span class="num">{{total-articles}}</span> 
-            <a href="/?domainId={{domainid}}" class="nolink" target="_blank">articles</a></span>
+            <span class="articles">
+                <span class="num">{{total-articles}}</span> 
+                <a href="/?domainId={{domainid}}" class="nolink" target="_blank">articles</a>
+            </span>
         {{/articles}}
+        {{inqueue}}
+            <span class="inqueue">
+                <span class="num">{{total-queue}}</span> 
+                <a href="/downloads?domain={{domain}}" class="nolink" target="_blank"> new links</a>
+            </span>
+        {{/inqueue}}
         <div class="row">
             {{has-domain-type}}
                 <div class="col">

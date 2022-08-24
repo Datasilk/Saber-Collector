@@ -9,6 +9,7 @@
         [filtertype] INT NOT NULL DEFAULT 0,
         [type] INT NOT NULL DEFAULT -1,
         [sort] INT NOT NULL DEFAULT 0,
+        [lang] VARCHAR(6) NOT NULL DEFAULT '',
         [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
     )
 END TRY BEGIN CATCH END CATCH

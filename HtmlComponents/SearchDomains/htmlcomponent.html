@@ -1,6 +1,6 @@
 ﻿<form id="searchform">    
     <div class="row">
-        <div class="col pad-right pad-bottom-sm">
+        <div class="col pad-right pad-bottom-sm search-field">
             <input type="text" id="search" placeholder="Search for domains" />
         </div>
         <div class="col pad-right pad-bottom-sm">
@@ -70,6 +70,11 @@
                 <option value="22">Videos</option>
                 <option value="1">Website</option>
                 <option value="3">Wiki</option>
+            </select>
+        </div>
+        <div class="col pad-right pad-bottom-sm">
+            <select id="domainlang">
+                {{languages}}
             </select>
         </div>
         <div class="col pad-right">

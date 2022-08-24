@@ -48,6 +48,9 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 END
 CLOSE @cursor
 DEALLOCATE @cursor
+
+UPDATE Domains SET inqueue+=@count WHERE domainId=@domainId
+
 SELECT @count
 
 	

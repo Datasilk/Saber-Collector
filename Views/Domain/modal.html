@@ -85,6 +85,15 @@
             <label for="domain_freecontent">Includes <b>free</b> content</label>
         </div>
         <div class="row hover input">
+            <input type="checkbox" id="domain_empty" 
+                   {{isempty}}checked="checked"{{/isempty}} 
+                   oninput="S.domain.info.isEmpty()" />
+            <label for="domain_empty">
+                Is an <b>empty</b> website <span class="faded">(403, 404, 500, error, denied, blank)</span>
+            </label>
+        </div>
+        <hr/>
+        <div class="row hover input">
             <input type="checkbox" id="domain_download_articles" 
                    {{download-articles}}checked="checked"{{/download-articles}} 
                    oninput="S.domain.info.downloadArticles()" />

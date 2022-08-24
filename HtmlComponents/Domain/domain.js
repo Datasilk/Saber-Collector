@@ -45,6 +45,14 @@
             S.ajax.post('CollectorDomains/HasFreeContent', data, S.domain.updateListItem);
         },
 
+        isEmpty: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                isempty: domain_empty.checked == true
+            }
+            S.ajax.post('CollectorDomains/IsEmpty', data, S.domain.updateListItem);
+        },
+
         updateType: function () {
             var data = {
                 domainId: S.domain.details.domainId,

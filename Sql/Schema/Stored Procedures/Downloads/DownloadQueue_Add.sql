@@ -36,6 +36,7 @@ END
 		SET @qid = NEXT VALUE FOR SequenceDownloadQueue
 		INSERT INTO DownloadQueue (qid, [url], [path], feedId, domainId, [status], datecreated) 
 		VALUES (@qid, @url, dbo.GetPathFromUrl(@url, @domain), @feedId, @domainId, 0, GETUTCDATE())
+		UPDATE Domains SET inqueue+=1 WHERE domainId=@domainId
 	END ELSE BEGIN
 		SELECT @qid = qid FROM DownloadQueue WHERE url=@url
 		IF @qid IS NULL BEGIN
