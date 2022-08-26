@@ -155,6 +155,16 @@ namespace Query
             Sql.ExecuteNonQuery("Domain_UpdateType", new { domainId, type = (int)type });
         }
 
+        public static void UpdateDomainType2(int domainId, Models.DomainType type)
+        {
+            Sql.ExecuteNonQuery("Domain_UpdateType2", new { domainId, type = (int)type });
+        }
+
+        public static void UpdateLanguage(int domainId, string lang)
+        {
+            Sql.ExecuteNonQuery("Domain_UpdateLanguage", new { domainId, lang });
+        }
+
         public static void UpdateHttpsWww(int domainId, bool https, bool www)
         {
             Sql.ExecuteNonQuery("Domain_UpdateHttpsWww", new { domainId, https, www });

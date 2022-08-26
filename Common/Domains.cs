@@ -94,53 +94,20 @@ namespace Saber.Vendors.Collector
 
             if ((int)domain.type > -1)
             {
-                string domaintype;
-                switch (domain.type)
-                {
-                    case Query.Models.DomainType.ecommerce:
-                        domaintype = "e-commerce";
-                        break;
-                    case Query.Models.DomainType.science_journal:
-                        domaintype = "science journal";
-                        break;
-                    case Query.Models.DomainType.search_engine:
-                        domaintype = "search engine";
-                        break;
-                    case Query.Models.DomainType.ebooks:
-                        domaintype = "e-books";
-                        break;
-                    case Query.Models.DomainType.software_development:
-                        domaintype = "software dev";
-                        break;
-                    case Query.Models.DomainType.photo_gallery:
-                        domaintype = "photo gallery";
-                        break;
-                    case Query.Models.DomainType.mobile_apps:
-                        domaintype = "mobile apps";
-                        break;
-                    case Query.Models.DomainType.video_games:
-                        domaintype = "video games";
-                        break;
-                    case Query.Models.DomainType._3d_animation:
-                        domaintype = "3D animation";
-                        break;
-                    case Query.Models.DomainType.live_streaming:
-                        domaintype = "live streams";
-                        break;
-                    case Query.Models.DomainType.guns_weapons:
-                        domaintype = "guns & weapons";
-                        break;
-                    default:
-                        domaintype = domain.type.ToString();
-                        break;
-                }
                 item.Show("has-domain-type");
-                item["domain-type"] = domaintype;
+                item["domain-type"] = Types.Where(a => a.Key == (int)domain.type).FirstOrDefault().Value;//.ToLower();
                 item["domain-type-id"] = domain.type.ToString();
-            }else if(type == Query.Models.DomainFilterType.Blacklisted)
+            }
+            else if(type == Query.Models.DomainFilterType.Blacklisted)
             {
                 item["domain-type"] = "blacklisted";
                 item["domain-type-id"] = "blacklisted";
+            }
+            if ((int)domain.type2 > -1)
+            {
+                item.Show("has-domain-type2");
+                item["domain-type2"] = Types.Where(a => a.Key == (int)domain.type2).FirstOrDefault().Value;//.ToLower();
+                item["domain-type2-id"] = domain.type2.ToString();
             }
             if (domain.articles > 0)
             {
@@ -179,6 +146,111 @@ namespace Saber.Vendors.Collector
             }
             return item.Render();
         }
+        #endregion
+
+        #region "Domain Types"
+        public static Dictionary<int, string> Types { get; set; } = new Dictionary<int, string>()
+        {
+            {0, "Unused" },
+            {1, "Website" },
+            {2, "E-Commerce" },
+            {3, "Wiki" },
+            {4, "Blog" },
+            {5, "Science Journal" },
+            {6, "SASS" },
+            {7, "Social Network" },
+            {8, "Advertiser" },
+            {9, "Search Engine" },
+            {10, "Portfolio" },
+            {11, "News" },
+            {12, "Travel" },
+            {13, "Aggregator" },
+            {14, "Government" },
+            {15, "E-Books" },
+            {16, "Crypto" },
+            {17, "Law" },
+            {18, "Medical" },
+            {19, "Political" },
+            {20, "Software Development" },
+            {21, "Photo Gallery" },
+            {22, "Videos" },
+            {23, "Music" },
+            {24, "Maps" },
+            {25, "Mobile Apps" },
+            {26, "Video Games" },
+            {27, "Erotic (XXX)" },
+            {28, "Conspiracy" },
+            {29, "Religion" },
+            {30, "Weather" },
+            {31, "Comics" },
+            {32, "Gore" },
+            {33, "Real Estate" },
+            {34, "3D Animation" },
+            {35, "Live Streaming" },
+            {36, "History" },
+            {37, "Guns & Weapons" },
+            {38, "Magazine" },
+            {39, "Space" },
+            {40, "Directory" },
+            {41, "Propaganda" },
+            {42, "Freelance" },
+            {43, "Job Board" },
+            {44, "Events" },
+            {45, "Nonprofit" },
+            {46, "Forum" },
+            {47, "Dark Web" },
+            {48, "Torrent" },
+            {49, "Education" },
+            {50, "Software" },
+            {51, "Business" },
+            {52, "Podcast" },
+            {53, "ISP" },
+            {54, "Domain Registrar" },
+            {55, "Email Service" },
+            {56, "Cloud Platform" },
+            {57, "Storage Service" },
+            {58, "Vehicles" },
+            {59, "Technology" },
+            {60, "Artificial Intelligence" },
+            {61, "Energy" },
+            {62, "Photography" },
+            {63, "Archive" },
+            {64, "Art" },
+            {65, "Environmental" },
+            {66, "Local News" },
+            {67, "Cultural" },
+            {68, "Parked Domain" },
+            {69, "Financial" },
+            {70, "Tool" },
+            {71, "Organization" },
+            {72, "Stock Market" },
+            {73, "Crowd Funding" },
+            {74, "Firm" },
+            {75, "Web Design" },
+            {76, "Graphic Design" },
+            {77, "Marketing" },
+            {78, "Architecture" },
+            {79, "Venture Capital" },
+            {80, "Fitness" },
+            {81, "Health" },
+            {82, "Food" },
+            {83, "Recipes" },
+            {84, "Library" },
+            {85, "Q&A" },
+            {86, "Corporate" },
+            {87, "Internet" },
+            {88, "Browser" },
+            {89, "Operating System (OS)" },
+            {90, "Reviews" },
+            {91, "How To's" },
+            {92, "Institution" },
+            {93, "Nature" },
+            {94, "Science" },
+            {95, "Agency" },
+            {96, "Committee" },
+        };
+
+        public static KeyValuePair<int, string>[] TypesOrdered { get; set; } = Types.OrderBy(a => a.Value).ToArray();
         #endregion
 
         #region "Download Rules"

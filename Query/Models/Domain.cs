@@ -12,6 +12,7 @@ namespace Query.Models
         public bool empty { get; set; }
         public bool deleted { get; set; }
         public DomainType type { get; set; }
+        public DomainType type2 { get; set; }
         public string domain { get; set; }
         public string lang { get; set; }
         public string title { get; set; }
@@ -81,7 +82,62 @@ namespace Query.Models
         magazine = 38,
         space = 39,
         directory = 40,
-        propaganda = 41
+        propaganda = 41,
+        freelance = 42,
+        job_board = 43,
+        events = 44,
+        nonprofit = 45,
+        forum = 46,
+        dark_web = 47,
+        torrent = 48,
+        education = 49,
+        software = 50,
+        business = 51,
+        podcast = 52,
+        isp = 53,
+        domain_registrar = 54,
+        email = 55,
+        cloud_platform = 56,
+        storage_service = 57,
+        vehicles = 58,
+        technology = 59,
+        artificial_intelligence = 60,
+        energy = 61,
+        photography = 62,
+        archive = 63,
+        art = 64,
+        environmental = 65,
+        local_news = 66,
+        cultural = 67,
+        parked_domain = 68,
+        financial = 69,
+        tool = 70,
+        oprganization = 71,
+        stock_market = 72,
+        crowd_funding = 73,
+        firm = 74,
+        web_design = 75,
+        graphic_design = 76,
+        marketing = 77,
+        architecture = 78,
+        venture_capital = 79,
+        fitness = 80,
+        health = 81,
+        food = 82,
+        recipes = 83,
+        library = 84,
+        q_and_a = 85,
+        corporate = 86,
+        internet = 87,
+        browser = 88,
+        operating_system = 89,
+        reviews = 90,
+        how_tos = 91,
+        institution = 92,
+        nature = 93,
+        science = 94,
+        agency  = 95,
+        committee = 96
     }
 
     public enum DomainSort

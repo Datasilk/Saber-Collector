@@ -30,10 +30,15 @@
         {{/inqueue}}
         <div class="row">
             {{has-domain-type}}
-                <div class="col">
+                <div class="col pad-right">
                     <span class="domain-type {{domain-type-id}}">{{domain-type}}</span>
                 </div>
             {{/has-domain-type}}
+            {{has-domain-type2}}
+                <div class="col pad-right">
+                    <span class="domain-type {{domain-type2-id}}">{{domain-type2}}</span>
+                </div>
+            {{/has-domain-type2}}
         </div>
     </div>
 </div>

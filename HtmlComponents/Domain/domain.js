@@ -13,10 +13,6 @@
                 $('.popup.show .tab-rules').on('click', S.domain.rules.show);
                 $('.popup.show .tab-download').on('click', S.domain.download.show);
                 $('.popup.show .tab-advanced').on('click', S.domain.advanced.show);
-
-                //select correct domain type
-                var domaintype = $('.popup.show #domain_type').attr('data-value');
-                $('.popup.show #domain_type option[value="' + domaintype + '"]').attr("selected", "selected");
             }, () => { }, true);
         },
 
@@ -59,6 +55,22 @@
                 type: domain_type.value
             }
             S.ajax.post('CollectorDomains/UpdateDomainType', data, S.domain.updateListItem);
+        },
+
+        updateType2: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                type: domain_type2.value
+            }
+            S.ajax.post('CollectorDomains/UpdateDomainType2', data, S.domain.updateListItem);
+        },
+
+        updateLang: function () {
+            var data = {
+                domainId: S.domain.details.domainId,
+                lang: domain_lang.value
+            } 
+            S.ajax.post('CollectorDomains/UpdateLanguage', data, S.domain.updateListItem);
         }
     },
 

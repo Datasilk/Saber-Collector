@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Saber.Vendor;
@@ -64,7 +63,18 @@ namespace Saber.Vendors.Collector.Services
             var info = Query.Domains.GetInfo(domain);
             view["description"] = info.description != "" ? info.description : "No description was found for this domain yet.";
             view["domain-url"] = "https://" + info.domain;
-            view["domain-type"] = ((int)info.type).ToString();
+            view["domain-types"] = "<option value=\"-1\">None</option>" +
+                            string.Join("\n", Domains.TypesOrdered.Select(a =>
+                                "<option value=\"" + a.Key + "\"" + (a.Key == (int)info.type ? " selected" : "") + ">" + a.Value + "</option>"
+                            ).ToArray());
+            view["domain-types2"] = "<option value=\"-1\">None</option>" +
+                            string.Join("\n", Domains.TypesOrdered.Select(a =>
+                                "<option value=\"" + a.Key + "\"" + (a.Key == (int)info.type2 ? " selected" : "") + ">" + a.Value + "</option>"
+                            ).ToArray());
+            view["languages"] = "<option value=\"\">None</option>" +
+                            string.Join("\n", Languages.KnownLanguages.OrderBy(a => a.Value).Select(a =>
+                                "<option value=\"" + a.Key + "\"" + (a.Key == info.lang ? " selected" : "") + ">" + a.Value + "</option>"
+                            ).ToArray());
             view["domainid"] = info.domainId.ToString();
             view["articles"] = info.articles.ToString();
             if (info.paywall)
@@ -110,6 +120,20 @@ namespace Saber.Vendors.Collector.Services
         {
             if (!CheckSecurity()) { return AccessDenied(); }
             Query.Domains.UpdateDomainType(domainId, (Query.Models.DomainType)type);
+            return Success();
+        }
+
+        public string UpdateDomainType2(int domainId, int type)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.UpdateDomainType2(domainId, (Query.Models.DomainType)type);
+            return Success();
+        }
+
+        public string UpdateLanguage(int domainId, string lang)
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            Query.Domains.UpdateLanguage(domainId, lang);
             return Success();
         }
         #endregion

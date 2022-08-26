@@ -61,7 +61,7 @@
         };
 
         public static string[] badHomePageTitlesStartWith = new string[]{
-            "error", "new tab", "bad request", "iis windows server"
+            "error", "new tab", "bad request", "iis windows server", "Welcome to nginx", "optimum safe browsing"
         };
 
         //used to identify various DOM elements that are used as titles
@@ -211,6 +211,12 @@
             "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3",
             "h4", "h5", "h6", "header", "hr", "li", "main", "nav", "noscript", "ol",
             "output", "p", "pre", "section", "table", "tfoot", "ul" };
+
+        //used to detect poorly written text
+        public static string[] badLanguageDetectChars = new string[]
+        {
+            "@", "#", "%", "^", "*", "(", ")", "_", "{", "}", "[", "]", "/", "\\", "|", "<", ">", ":", ";"
+        };
 
         //common words stored in the database
         public static string[] commonWords;

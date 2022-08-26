@@ -21,51 +21,23 @@
     <div class="content-info pad">
         <div class="row hover">
             <div class="col field">Type</div>
+            <div class="col input pad-right-sm">
+                <select id="domain_type" oninput="S.domain.info.updateType()">
+                    {{domain-types}}
+                </select>
+            </div>
             <div class="col input">
-                <select id="domain_type" oninput="S.domain.info.updateType()" data-value="{{domain-type}}">
-                    <option value="-1">[Not Set]</option>
-                    <option value="0">Unused</option>
-                    <option value="34">3D Animation</option>
-                    <option value="8">Advertiser</option>
-                    <option value="13">Aggregator</option>
-                    <option value="4">Blog</option>
-                    <option value="31">Comics</option>
-                    <option value="28">Conspiracy</option>
-                    <option value="16">Crypto</option>
-                    <option value="40">Directory</option>
-                    <option value="15">E-Books</option>
-                    <option value="2">E-Commerce</option>
-                    <option value="27">Erotic</option>
-                    <option value="32">Gore</option>
-                    <option value="14">Government</option>
-                    <option value="37">Guns &amp; Weapons</option>
-                    <option value="36">History</option>
-                    <option value="17">Law</option>
-                    <option value="35">Live Streaming</option>
-                    <option value="38">Magazine</option>
-                    <option value="24">Maps</option>
-                    <option value="18">Medical</option>
-                    <option value="25">Mobile App</option>
-                    <option value="23">Music</option>
-                    <option value="11">News</option>
-                    <option value="21">Photo Gallery</option>
-                    <option value="19">Political</option>
-                    <option value="10">Portfolio</option>
-                    <option value="41">Propaganda</option>
-                    <option value="33">Real Estate</option>
-                    <option value="29">Religion</option>
-                    <option value="6">SASS</option>
-                    <option value="5">Science Journal</option>
-                    <option value="9">Search Engine</option>
-                    <option value="7">Social Network</option>
-                    <option value="20">Software Development</option>
-                    <option value="39">Space</option>
-                    <option value="12">Travel</option>
-                    <option value="30">Weather</option>
-                    <option value="26">Video Games</option>
-                    <option value="22">Videos</option>
-                    <option value="1">Website</option>
-                    <option value="3">Wiki</option>
+                <select id="domain_type2" oninput="S.domain.info.updateType2()">
+                    {{domain-types2}}
+                </select>
+            </div>
+        </div>
+        <hr/>
+        <div class="row hover">
+            <div class="col field">Language</div>
+            <div class="col input pad-right-sm">
+                <select id="domain_lang" oninput="S.domain.info.updateLang()">
+                    {{languages}}
                 </select>
             </div>
         </div>

@@ -79,7 +79,7 @@ AS
 			OR (@sort <> 2)
 		)
 		AND (
-				(@domainType >= 0 AND d.[type] = @domainType)
+				(@domainType >= 0 AND (d.[type] = @domainType OR d.[type2] = @domainType))
 				OR (@domainType < 0)
 			)
 		AND (

@@ -25,10 +25,15 @@ namespace Saber.Vendors.Collector.HtmlComponents.UI
                     {
                         var results = new List<KeyValuePair<string, string>>();
                         var lang = request.Parameters.ContainsKey("lang") ? request.Parameters["lang"] : args.ContainsKey("lang") ? args["lang"] : "en";
+                        var domaintype = int.Parse(request.Parameters.ContainsKey("type") ? request.Parameters["type"] : args.ContainsKey("type") ? args["type"] : "-1");
 
                         //render dropdown list of Feeds
                         var viewComponent = new View("/Vendors/Collector/HtmlComponents/SearchDomains/htmlcomponent.html");
                         viewComponent["subjects"] = Collector.Subjects.NavigateDropdown(0, false);
+                        viewComponent["domain-types"] = "<option value=\"-1\">All Types</option>" +
+                            string.Join("\n", Collector.Domains.TypesOrdered.Select(a =>
+                                "<option value=\"" + a.Key + "\"" + (a.Key == domaintype ? " selected" : "") + ">" + a.Value + "</option>"
+                            ).ToArray());
                         viewComponent["languages"] = "<option value=\"\">All Languages</option>" + 
                             string.Join("\n", Languages.KnownLanguages.Select(a => 
                                 "<option value=\"" + a.Key + "\"" + (a.Key == lang ? " selected" : "") + ">" + a.Value + "</option>"

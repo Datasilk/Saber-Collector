@@ -226,54 +226,59 @@ namespace Saber.Vendors.Collector.Hubs
                     {
                         if(isHomePage)
                         {
-                            //found home page
+                            //found home page, check body text to find dominant language
+                            await Clients.Caller.SendAsync("update", "Determining content language...");
                             var lang = "";
-                            if (articleInfo.summary != "")
+                            var matchingLangs = new Dictionary<string, int>();
+                            var detected = "";
+                            var texts = new List<string>() { articleInfo.title, articleInfo.summary };
+                            texts.AddRange(article.elements.Where(a => a.text != null).Select(a => a.text.Trim()));
+                            var badtext = new List<string>();
+                            foreach (var text in texts)
                             {
-                                lang = Languages.Detector.Detect(articleInfo.summary);
-                            }
-                            if(lang == null || lang != "en")
-                            {
-                                if(lang.IndexOf("cn") < 0 && lang.IndexOf("zh") < 0 && lang != "ja")
+                                if (Rules.badLanguageDetectChars.Any(a => text.Contains(a)))
                                 {
-                                    //check body text to find dominant language
-                                    var matchingLangs = new Dictionary<string, int>();
-                                    var detected = "";
-                                    foreach(var text in article.elements.Where(a => a.text != null).Select(a => a.text.Trim()))
-                                    {
-                                        detected = Languages.Detector.Detect(text);
-                                        if(detected == null || detected == "") { continue; }
-                                        if (matchingLangs.ContainsKey(detected))
-                                        {
-                                            matchingLangs[detected]+=text.Length;
-                                        }
-                                        else
-                                        {
-                                            matchingLangs.Add(detected, text.Length);
-                                        }
-                                    }
-                                    var bestLang = "";
-                                    var maxText = 0;
-                                    foreach(var key in matchingLangs.Keys)
-                                    {
-                                        if(key == "") { continue; }
-                                        if (matchingLangs[key] > maxText)
-                                        {
-                                            maxText = matchingLangs[key];
-                                            bestLang = key;
-                                        }
-                                    }
-                                    lang = bestLang;
+                                    badtext.Add(text);
+                                    continue;
                                 }
-                                if(lang != "en")
+                                detected = Languages.Detector.Detect(text);
+                                if (detected == null || detected == "") { continue; }
+                                if (matchingLangs.ContainsKey(detected))
                                 {
-                                    Query.Domains.UpdateInfo(queue.domainId, articleInfo.title, articleInfo.summary, lang);
-                                    await Clients.Caller.SendAsync("update", "Content is not in English");
-                                    await Clients.Caller.SendAsync("checked", 1, 0);
-                                    return;
+                                    matchingLangs[detected] += text.Length;
+                                }
+                                else
+                                {
+                                    matchingLangs.Add(detected, text.Length);
                                 }
                             }
+                            var bestLang = "";
+                            var maxText = 0;
+                            foreach (var key in matchingLangs.Keys)
+                            {
+                                if (key == "") { continue; }
+                                if (matchingLangs[key] > maxText)
+                                {
+                                    maxText = matchingLangs[key];
+                                    bestLang = key;
+                                }
+                            }
+                            if(bestLang == "en" && (
+                                (matchingLangs.ContainsKey("zh-cn") && matchingLangs["zh-cn"] > 30) ||
+                                (matchingLangs.ContainsKey("cn") && matchingLangs["cn"] > 30)
+                                ))
+                            {
+                                bestLang = "zh-cn";
+                            }
+                            lang = bestLang;
                             Query.Domains.UpdateInfo(queue.domainId, articleInfo.title, articleInfo.summary, lang);
+
+                            if (lang != "en")
+                            {
+                                await Clients.Caller.SendAsync("update", "Content is not in English");
+                                await Clients.Caller.SendAsync("checked", 1, 0);
+                                return;
+                            }
                         }
 
                         //check all download rules against article info
