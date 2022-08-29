@@ -12,7 +12,7 @@ namespace Saber.Vendors.Collector
     {
 
         #region "Domains Component"
-        public static string RenderComponent(int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = Query.Models.DomainType.all,  Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
+        public static string RenderComponent(int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = Query.Models.DomainType.all, Query.Models.DomainType domainType2 = Query.Models.DomainType.all,  Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
         {
             var viewComponent = new View("/Vendors/Collector/HtmlComponents/Domains/htmlcomponent.html");
             var subjectIds = new List<int>();
@@ -20,7 +20,7 @@ namespace Saber.Vendors.Collector
             {
                 subjectIds.Add(subjectId);
             }
-            var total = Query.Domains.GetCount(subjectIds.ToArray(), type, domainType, sort, search);
+            var total = Query.Domains.GetCount(subjectIds.ToArray(), type, domainType, domainType2, sort, search);
             viewComponent["total-domains"] =  total.ToString("N0");
             viewComponent["pos-start"] = start.ToString("N0");
             viewComponent["pos-end"] = (start + length - 1).ToString("N0");
@@ -35,7 +35,7 @@ namespace Saber.Vendors.Collector
                 viewComponent.Show("has-paging");
                 viewComponent.Show("show-first");
             }
-            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, domainType, sort, start, length, lang, search));
+            viewComponent["content"] = Components.Accordion.Render("Domains", "domains", RenderList(out var totalResults, subjectId, type, domainType, domainType2, sort, start, length, lang, search));
             if(totalResults < length)
             {
                 viewComponent["pos-end"] = (start + totalResults - 1).ToString("N0");
@@ -48,14 +48,14 @@ namespace Saber.Vendors.Collector
             return viewComponent.Render();
         }
 
-        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
+        public static string RenderList(out int total, int subjectId = 0, Query.Models.DomainFilterType type = 0, Query.Models.DomainType domainType = 0, Query.Models.DomainType domainType2 = 0, Query.Models.DomainSort sort = 0, int start = 1, int length = 200, string lang = "", string search = "")
         {
             var subjectIds = new List<int>();
             if(subjectId > 0)
             {
                 subjectIds.Add(subjectId);
             }
-            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, domainType, sort, lang, search, start, length);
+            var domains = Query.Domains.GetList(subjectIds.ToArray(), type, domainType, domainType2, sort, lang, search, start, length);
             total = domains.Count;
             var item = new View("/Vendors/Collector/HtmlComponents/Domains/list-item.html");
             var html = new StringBuilder();
@@ -156,7 +156,7 @@ namespace Saber.Vendors.Collector
             {2, "E-Commerce" },
             {3, "Wiki" },
             {4, "Blog" },
-            {5, "Science Journal" },
+            {5, "Journal" },
             {6, "SASS" },
             {7, "Social Network" },
             {8, "Advertiser" },
@@ -217,7 +217,7 @@ namespace Saber.Vendors.Collector
             {63, "Archive" },
             {64, "Art" },
             {65, "Environmental" },
-            {66, "Local News" },
+            {66, "Local" },
             {67, "Cultural" },
             {68, "Parked Domain" },
             {69, "Financial" },
@@ -248,6 +248,12 @@ namespace Saber.Vendors.Collector
             {94, "Science" },
             {95, "Agency" },
             {96, "Committee" },
+            {97, "Association" },
+            {98, "Sports" },
+            {99, "Memorials" },
+            {100, "Community" },
+            {101, "Academy" },
+            {102, "Comedy" },
         };
 
         public static KeyValuePair<int, string>[] TypesOrdered { get; set; } = Types.OrderBy(a => a.Value).ToArray();

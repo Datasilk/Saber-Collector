@@ -94,11 +94,16 @@
             });
         },
 
+        selectDomainType: function () {
+            $('.domain-search').addClass('has-domaintypes2');
+        },
+
         getResults: function (start, length) {
             var data = {
                 subjectId: S.domains.search.selectedSubjectId,
                 type: domainfiltertype.value,
                 domainType: domaintype.value,
+                domainType2: domaintype2.value,
                 sort: sort.value,
                 lang: domainlang.value,
                 search: search.value,
@@ -113,11 +118,12 @@
 
         },
 
-        customResults: function (domainsearch, subjectId, type, domaintype, domainsort, lang) {
+        customResults: function (domainsearch, subjectId, type, domaintype, domaintype2, domainsort, lang) {
             var data = {
                 subjectId: subjectId, 
                 type: type,
                 domainType: domaintype,
+                domainType2: domaintype2,
                 sort: domainsort,
                 lang: lang,
                 search: domainsearch,
@@ -127,6 +133,7 @@
 
             domainfiltertype.value = type;
             domaintype.value = domaintype;
+            domaintype2.value = domaintype2
             domainlang.value = lang || '';
             sort.value = domainsort;
             search.value = domainsearch;

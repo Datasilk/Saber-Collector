@@ -326,16 +326,17 @@ namespace Saber.Vendors.Collector.Hubs
                         else
                         {
 
-                            await Clients.Caller.SendAsync("update", "<span>" +
-                                    "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
-                                    "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
-                                "</span>");
+                            //await Clients.Caller.SendAsync("update", "<span>" +
+                            //        "words: " + articleInfo.wordcount + ", sentences: " + articleInfo.sentencecount + ", important: " + articleInfo.importantcount + ", score: " + articleInfo.score +
+                            //        "(" + (article.subjects.Count > 0 ? string.Join(", ", article.subjects.Select(a => a.title)) : "") + ") " +
+                            //    "</span>");
                         }
 
                         if (downloadOnly == false)
                         {
                             //save article to database
-                            if(articleInfo.articleId <= 0)
+                            await Clients.Caller.SendAsync("update", "Saving article to the database...");
+                            if (articleInfo.articleId <= 0)
                             {
                                 //add article (which also archives download)
                                 Article.Add(articleInfo);
@@ -365,12 +366,14 @@ namespace Saber.Vendors.Collector.Hubs
                         }
 
                         //display article information
-                        await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
+                        //await Clients.Caller.SendAsync("article", JsonSerializer.Serialize(articleInfo));
 
                         //get URLs from all anchor links on page //////////////////////////////////
+                        await Clients.Caller.SendAsync("update", "Collecting links from article...");
                         var urls = new Dictionary<string, List<KeyValuePair<string, string>>>();
                         var links = Article.GetLinks(article);
                         var addedLinks = 0;
+                        var addedDomains = 0;
 
                         foreach (var link in links)
                         {
@@ -423,18 +426,21 @@ namespace Saber.Vendors.Collector.Hubs
                                     if (count > 0)
                                     {
                                         addedLinks += count;
-                                        await Clients.Caller.SendAsync("update",
-                                            "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>");
+                                        addedDomains += 1;
+                                        //await Clients.Caller.SendAsync("update",
+                                        //    "<span>Found " + count + " new link(s) for <a href=\"https://" + domain + "\" target=\"_blank\">" + domain + "</a></span>");
                                     }
                                 }
                             }
                             catch (Exception ex)
                             {
                                 //ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
-                                    domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
+                                //await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
+                                //    domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
                             }
                         }
+
+                        await Clients.Caller.SendAsync("update", "Found " + addedLinks + " link" + (addedLinks != 1 ? "s" : "") + " on " + addedDomains + " domain" + (addedDomains != 1 ? "s" : "") + "...");
 
                         //finished processing download
                         await Clients.Caller.SendAsync("checked", 0, 1, downloadOnly == false && articleInfo.wordcount > 50 ? 1 : 0, 

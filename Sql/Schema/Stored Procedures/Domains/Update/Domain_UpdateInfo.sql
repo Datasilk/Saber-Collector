@@ -7,5 +7,5 @@ CREATE PROCEDURE [dbo].[Domain_UpdateInfo]
 	@description nvarchar(255),
 	@lang char(2) = 'en'
 AS
-	UPDATE Domains SET [title]=@title, [description] = @description, lang=@lang, dateupdated = GETUTCDATE()
+	UPDATE Domains SET [title]=@title, [description] = @description, lang=@lang, hastitle=1, dateupdated = GETUTCDATE()
 	WHERE domainId=@domainId

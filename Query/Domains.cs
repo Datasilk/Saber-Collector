@@ -15,14 +15,14 @@ namespace Query
 
         #region "Get"
 
-        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int start = 1, int length = 50, int parentId = -1)
+        public static List<Models.Domain>GetList(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainType domainType2 = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int start = 1, int length = 50, int parentId = -1)
         {
-            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, sort, start, length, parentId });
+            return Sql.Populate<Models.Domain>("Domains_GetList", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, domainType2, sort, start, length, parentId });
         }
 
-        public static int GetCount(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int parentId = -1)
+        public static int GetCount(int[] subjectIds = null, Models.DomainFilterType type = Models.DomainFilterType.All, Models.DomainType domainType = Models.DomainType.unused, Models.DomainType domainType2 = Models.DomainType.unused, Models.DomainSort sort = Models.DomainSort.Alphabetical, string lang = "", string search = "", int parentId = -1)
         {
-            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, sort, parentId });
+            return Sql.ExecuteScalar<int>("Domains_GetCount", new { subjectIds = string.Join(",", subjectIds), lang, search, type, domainType, domainType2, sort, parentId });
         }
 
         public static Models.Domain GetInfo(string domain)

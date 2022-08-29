@@ -7,6 +7,7 @@ CREATE PROCEDURE [dbo].[Domains_GetCount]
 	@search nvarchar(MAX) = '',
 	@type int = 0, -- 0 = all, 1 = whitelisted, 2 = blacklisted, 3 = not-listed, 4 = paywall, 5 = free, 6 = unprocessed, 7 = empty
 	@domainType int = -1, 
+	@domainType2 int = -1,
 	@sort int = 0, -- 0 = ASC, 1 = DESC, 2 = most articles, 3 = newest, 4 = oldest, 5 = last updated
 	@parentId int = -1
 AS
@@ -79,8 +80,14 @@ AS
 			OR (@sort <> 2)
 		)
 		AND (
-				(@domainType >= 0 AND (d.[type] = @domainType OR d.[type2] = @domainType))
-				OR (@domainType < 0)
+				(@domainType >= 0 AND @domainType2 < 0 AND (d.[type] = @domainType OR d.[type2] = @domainType))
+				OR 
+				(@domainType < 0 AND @domainType2 >= 0 AND (d.[type] = @domainType2 OR d.[type2] = @domainType2))
+				OR 
+				(@domainType >= 0 AND @domainType2 >= 0 AND (d.[type] = @domainType OR d.[type2] = @domainType
+														  OR d.[type] = @domainType2 OR d.[type2] = @domainType2))
+				OR 
+				(@domainType < 0)
 			)
 		AND (
 			(@parentId >= 0 AND d.parentId = @parentId)

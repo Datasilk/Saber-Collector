@@ -10,8 +10,8 @@
     .title{width:100%;}
     h4{text-overflow:ellipsis; white-space:nowrap; overflow:hidden;}
     .info{ height:36px;
-        & > span{display:inline-blocck; padding:0 15px 5px 0;}
-        .whitelisted{color:#88ff81 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
+        & > span{display:inline-block; padding:5px 15px 5px 0;}
+        .whitelisted{color:#88ff81 !important; display:inline-block;}
         .paywall{color:#e97b46 !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block;}
         .free{color:#39bbff !important; padding:4px; border-radius: 5px; margin:5px 0 0 0; display:inline-block; text-transform:uppercase;}
         .articles .num{color:#49de00 !important;}
@@ -24,8 +24,13 @@
         &.propaganda{font-weight:bold; color:#cc0000;}
     }
 }
+.domain-search{
+    .domaintypes2{display:none;}
+    &.has-domaintypes2 .domaintypes2{display:block;}
+}
 .page-menu{
     .search-field{width:~"calc(100% - 810px)";}
+    .has-domaintypes2 .search-field{width:~"calc(100% - 970px)";}
     #search{max-width:500px; width:100%;}
     .subjects-breadcrumb{padding-top:3px;
         span{display:inline-block; background-color:#4ebedd; color:#fff; padding:5px 10px; border-radius:15px; margin-left:10px;}
@@ -52,7 +57,9 @@
 }
 
 .filter-blacklist_wildcard{height:55px;}
-.page-menu #domaintype{max-width:145px;}
+.page-menu { 
+    #domaintype, #domaintype2{max-width:145px;}
+}
 .page-menu #domainfiltertype{max-width:130px;}
 
 .subjects-breadcrumb{padding-top:3px;

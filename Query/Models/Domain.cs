@@ -46,7 +46,7 @@ namespace Query.Models
         ecommerce = 2,
         wiki = 3,
         blog = 4,
-        science_journal= 5,
+        journal= 5,
         SASS = 6,
         social_network = 7,
         advertiser = 8,
@@ -107,7 +107,7 @@ namespace Query.Models
         archive = 63,
         art = 64,
         environmental = 65,
-        local_news = 66,
+        local = 66,
         cultural = 67,
         parked_domain = 68,
         financial = 69,
@@ -137,7 +137,13 @@ namespace Query.Models
         nature = 93,
         science = 94,
         agency  = 95,
-        committee = 96
+        committee = 96,
+        association = 97,
+        sports = 98,
+        memorials = 99,
+        community = 100,
+        academy = 101,
+        comedy = 102
     }
 
     public enum DomainSort

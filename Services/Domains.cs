@@ -42,10 +42,10 @@ namespace Saber.Vendors.Collector.Services
         #endregion
 
         #region "Search"
-        public string Search(int subjectId, Query.Models.DomainFilterType type, Query.Models.DomainType domainType, Query.Models.DomainSort sort, string lang, string search, int start, int length)
+        public string Search(int subjectId, Query.Models.DomainFilterType type, Query.Models.DomainType domainType, Query.Models.DomainType domainType2, Query.Models.DomainSort sort, string lang, string search, int start, int length)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            return Domains.RenderComponent(subjectId, type, domainType, sort, start, length, lang, search.Replace("*", "%"));
+            return Domains.RenderComponent(subjectId, type, domainType, domainType2, sort, start, length, lang, search.Replace("*", "%"));
         }
 
         public string GetDomainListItem(int domainId)

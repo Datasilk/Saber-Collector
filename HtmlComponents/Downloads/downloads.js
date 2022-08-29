@@ -4,6 +4,14 @@
     running: false,
     checkingQueue: false,
     timerFeeds: null,
+    timeout: 15, // in seconds
+    stats: [
+        'downloads',
+        'articles',
+        'links',
+        'words',
+        'important'
+    ],
 
     console: {
         visible: false,
@@ -24,17 +32,27 @@
     },
 
     init: function () {
-        $('.downloads .download > .button').on('click', S.downloads.start);
-        $('.cancel-downloads a').on('click', S.downloads.stop);
+        var _ = S.downloads;
+        $('.downloads .download > .button').on('click', _.start);
+        $('.cancel-downloads a').on('click', _.stop);
 
         //set up signalR hub
         S.downloads.hub = new signalR.HubConnectionBuilder().withUrl('/downloadhub').build();
-        S.downloads.hub.on('update', S.downloads.update);
-        S.downloads.hub.on('checked', S.downloads.checked);
-        S.downloads.hub.on('feed', S.downloads.checkedfeed);
-        S.downloads.hub.on('checkedfeeds', S.downloads.finishedCheckingFeeds);
-        S.downloads.hub.on('article', S.downloads.articles.found);
-        S.downloads.hub.start().catch(S.downloads.error);
+        _.hub.on('update', _.update);
+        _.hub.on('checked', _.checked);
+        _.hub.on('feed', _.checkedfeed);
+        _.hub.on('checkedfeeds', _.finishedCheckingFeeds);
+        _.hub.on('article', _.articles.found);
+        _.hub.start().catch(_.error);
+
+        var url = window.location.href;
+
+        for (x = 0; x < _.stats.length; x++) {
+            var stat = _.stats[x];
+            var item = _.getStat(stat);
+            var val = util.location.queryString(stat, url) || 0;
+            item.elem.html(val);
+        }
     },
 
     start: function () {
@@ -98,21 +116,30 @@
         var sort = download_sort ? parseInt(download_sort.value) : 0;
         S.downloads.id = id;
         S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
-        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 2 * 60 * 1000);
+        clearTimeout(S.downloads.timerCheck);
+        S.downloads.timerCheck = setTimeout( S.downloads.reload, S.downloads.timeout * 1000);
     },
 
     update: function (msg) {
         $('.stat-log').html(msg);
         clearTimeout(S.downloads.timerCheck);
+        S.downloads.timerCheck = setTimeout(S.downloads.reload, S.downloads.timeout * 1000);
         if (S.downloads.console.visible == false) { return;}
-        //receive command from SignalR
         var div = document.createElement('div');
         div.className = 'cli-line';
         div.innerHTML = '> ' + msg;
-        $('.downloads .console').append(div); 
-        S.downloads.timerCheck = setTimeout(() => { window.location.reload(); }, 2 * 60 * 1000);
-        //var box = $('.downloads .accordion > .box')[0];
-        //box.scrollTop = box.scrollHeight;
+        $('.downloads .console').append(div);
+    },
+
+    reload: function () {
+        var _ = S.downloads;
+        var url = window.location.href.split('&' + _.stats[0])[0];
+        for (x = 0; x < _.stats.length; x++) {
+            var stat = _.stats[x];
+            var item = _.getStat(stat);
+            url += '&' + stat + '=' + item.value;
+        }
+        window.location.href = url;
     },
 
     checked: function (skipped, downloaded, article, links, words, important) {
@@ -142,21 +169,23 @@
         $('.stat-log').html(msg);
         S.downloads.updateStat('links', links || 0);
         if (S.downloads.console.visible == false) { return; }
-        //receive command from SignalR
         var div = document.createElement('div');
         div.className = 'cli-line';
         div.innerHTML = '> ' + msg;
         $('.downloads .console').append(div);
-        //var box = $('.downloads .accordion > .box')[0];
-        //box.scrollTop = box.scrollHeight;
     },
 
-    updateStat: function (stat, increment) {
+    getStat: function (stat) {
         var elem = $('.accordion .stats .stat-' + stat + ' .number');
         var val = elem.html().trim() == '' ? 0 : parseInt(elem.html());
         if (isNaN(val)) { val = 0; }
-        val += increment;
-        elem.html(val);
+        return { name:stat, elem: elem, value: val };
+    },
+
+    updateStat: function (stat, increment) {
+        var item = S.downloads.getStat(stat);
+        item.value += increment;
+        item.elem.html(item.value);
     },
 
     error: function (err) {
@@ -251,8 +280,7 @@
                 list.append(S.downloads.articles.render(a));
             });
         }
-    },
-
+    }
 };
 
 //utility functions ///////////////////////////////////////
