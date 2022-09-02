@@ -254,6 +254,16 @@ namespace Saber.Vendors.Collector
             {100, "Community" },
             {101, "Academy" },
             {102, "Comedy" },
+            {103, "Chat" },
+            {104, "Restaurant" },
+            {105, "Delivery" },
+            {106, "Analytics" },
+            {107, "Camping/Hiking" },
+            {108, "Equipment" },
+            {109, "Council" },
+            {110, "Security" },
+            {111, "Parks" },
+            {112, "Services" },
         };
 
         public static KeyValuePair<int, string>[] TypesOrdered { get; set; } = Types.OrderBy(a => a.Value).ToArray();

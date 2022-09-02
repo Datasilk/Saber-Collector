@@ -10,6 +10,30 @@
 
 
 <defs>
+<g id="btn_arrow_down_0_Layer1_0_FILL">
+<path stroke="none" d="
+M 0 3
+L 16 16 32 3 29 0 16 11 3 0 0 3 Z"/>
+</g>
+
+<g id="btn_arrow_down_0_Layer0_0_FILL">
+<path fill-opacity="0" stroke="none" d="
+M 32 -8
+L 0 -8 0 24 32 24 32 -8 Z"/>
+</g>
+
+<g id="btn_arrow_up_0_Layer1_0_FILL">
+<path stroke="none" d="
+M 32 13
+L 16 0 0 13 3 16 16 5 29 16 32 13 Z"/>
+</g>
+
+<g id="btn_arrow_up_0_Layer0_0_FILL">
+<path fill-opacity="0" stroke="none" d="
+M 32 -8
+L 0 -8 0 24 32 24 32 -8 Z"/>
+</g>
+
 <g id="icon_add_0_Layer1_0_FILL">
 <path fill-opacity="0" stroke="none" d="
 M 0 0
@@ -480,7 +504,31 @@ M 35.5 51.05
 Q 37.45 51.05 39.45 51 40.05 51 40.05 51.5 40 53.5 40.85 55.25 39.6 55.75 38.65 56.6 36.1 59 32.75 60.4 29.2 58.65 25.4 57.2 24.85 57 24.8 56.55 24.471875 53.8779296875 27.55 52.2
 L 35.5 51.05 Z"/>
 </g>
-</defs><symbol id="icon-add" viewBox="0 0 15 15">
+</defs><symbol id="btn-arrow-down" viewBox="0 0 32 32">
+
+
+<g transform="matrix( 1, 0, 0, 1, 0,8) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#btn_arrow_down_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#btn_arrow_down_0_Layer0_0_FILL"/>
+</g>
+</g>
+</symbol><symbol id="btn-arrow-up" viewBox="0 0 32 32">
+
+
+<g transform="matrix( 1, 0, 0, 1, 0,8) ">
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#btn_arrow_up_0_Layer1_0_FILL"/>
+</g>
+
+<g transform="matrix( 1, 0, 0, 1, 0,0) ">
+<use xlink:href="#btn_arrow_up_0_Layer0_0_FILL"/>
+</g>
+</g>
+</symbol><symbol id="icon-add" viewBox="0 0 15 15">
 
 
 <g transform="matrix( 1, 0, 0, 1, 0,0) ">

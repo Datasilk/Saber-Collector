@@ -143,7 +143,17 @@ namespace Query.Models
         memorials = 99,
         community = 100,
         academy = 101,
-        comedy = 102
+        comedy = 102,
+        chat = 103,
+        restaurant = 104,
+        delivery = 105,
+        analytics = 106,
+        camping_hiking = 107,
+        equipment = 108,
+        council = 109,
+        security = 110,
+        parks = 111,
+        services = 112
     }
 
     public enum DomainSort
