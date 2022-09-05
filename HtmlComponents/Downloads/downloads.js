@@ -4,7 +4,7 @@
     running: false,
     checkingQueue: false,
     timerFeeds: null,
-    timeout: 15, // in seconds
+    timeout: 15, // reload page (in seconds)
     stats: [
         'downloads',
         'articles',
@@ -47,12 +47,15 @@
 
         var url = window.location.href;
 
+        //display stats (with associated values from query string)
         for (x = 0; x < _.stats.length; x++) {
             var stat = _.stats[x];
             var item = _.getStat(stat);
             var val = util.location.queryString(stat, url) || 0;
             item.elem.html(val);
         }
+
+        setTimeout(S.downloads.start, 1000);
     },
 
     start: function () {
@@ -95,7 +98,7 @@
     },
 
     checkFeeds: function () {
-        var feedId = feedid ? parseInt(feedid.value) : 0;
+        var feedId = typeof feedid != 'undefined' ? parseInt(feedid.value) : 0;
         S.downloads.hub.invoke('CheckFeeds', feedId);
         S.downloads.timerFeeds = setTimeout(S.downloads.checkFeeds, 15 * 60 * 1000); // every 15 minutes
     },
@@ -111,9 +114,9 @@
     check: function () {
         if (S.downloads.running === false) { return; } 
         var id = S.math.rnd.guid(6);
-        var feedId = feedid ? parseInt(feedid.value) : 0;
-        var domain = download_domain ? download_domain.value : '';
-        var sort = download_sort ? parseInt(download_sort.value) : 0;
+        var feedId = typeof feedid != 'undefined' ? parseInt(feedid.value) : 0;
+        var domain = typeof download_domain != 'undefined' ? download_domain.value : '';
+        var sort = typeof download_sort != 'undefined' ? parseInt(download_sort.value) : 0;
         S.downloads.id = id;
         S.downloads.hub.invoke('CheckQueue', id, feedId, domain, sort);
         clearTimeout(S.downloads.timerCheck);
@@ -134,6 +137,7 @@
     reload: function () {
         var _ = S.downloads;
         var url = window.location.href.split('&' + _.stats[0])[0];
+        if (url.indexOf('?') < 0) { url += '?reload'; }
         for (x = 0; x < _.stats.length; x++) {
             var stat = _.stats[x];
             var item = _.getStat(stat);

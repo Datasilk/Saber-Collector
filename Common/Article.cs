@@ -1067,10 +1067,14 @@ namespace Saber.Vendors.Collector
                 postData.Append(String.Format("{0}={1}&", WebUtility.HtmlEncode("session"), false));
                 postData.Append(String.Format("{0}={1}", WebUtility.HtmlEncode("macros"), WebUtility.HtmlEncode("?")));
                 StringContent postContent = new StringContent(postData.ToString(), Encoding.UTF8, "application/x-www-form-urlencoded");
-                HttpClient client = new HttpClient();
+                HttpClient client = new HttpClient()
+                {
+                    Timeout = TimeSpan.FromSeconds(10)
+                };
                 HttpResponseMessage message = client.PostAsync(browserEndpoint, postContent).GetAwaiter().GetResult();
                 string result = message.Content.ReadAsStringAsync().GetAwaiter().GetResult();
                 return result;
+
                 //old code that called Charlotte directly
                 //get JSON compressed HTML page from Charlotte windows service
                 //var binding = new BasicHttpBinding()

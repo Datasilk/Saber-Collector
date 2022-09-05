@@ -68,8 +68,10 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
                         viewStatistics["stats"] = html.ToString();
 
                         var title = "";
-                        switch (int.Parse(request.Parameters["sort"]))
+                        if (request.Parameters.ContainsKey("sort"))
                         {
+                            switch (int.Parse(request.Parameters["sort"]))
+                            {
                             case 0:
                                 title = "Newest First";
                                 break;
@@ -82,7 +84,9 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
                             case 3:
                                 title = "Random";
                                 break;
+                            }
                         }
+                        
                         if(request.Parameters.ContainsKey("domain") && request.Parameters["domain"] != "")
                         {
                             title += " - domain: " + request.Parameters["domain"];
@@ -110,11 +114,11 @@ namespace Saber.Vendors.Collector.HtmlComponents.Downloads
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/downloads/downloads.css", "collector_downloads_css");
                         request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/downloads/downloads.js", "collector_downloads_js");
-                        if (request.Parameters.ContainsKey("run"))
-                        {
-                            //auto-run the download queue
-                            request.AddScriptBlock("setTimeout(S.downloads.start, 1000);");
-                        }
+                        //if (request.Parameters.ContainsKey("run"))
+                        //{
+                        //    //auto-run the download queue
+                        //    request.AddScriptBlock("setTimeout(S.downloads.start, 1000);");
+                        //}
                         if (request.Parameters.ContainsKey("feedid"))
                         {
                             viewComponent.Show("has-feedid");

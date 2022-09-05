@@ -153,7 +153,18 @@ namespace Query.Models
         council = 109,
         security = 110,
         parks = 111,
-        services = 112
+        services = 112,
+        archaeology = 113,
+        agriculture = 114,
+        national = 115,
+        international = 116,
+        telecommunications = 117,
+        union = 118,
+        radio = 119,
+        club = 120,
+        author = 121,
+        scam = 122,
+        conference = 123
     }
 
     public enum DomainSort
