@@ -275,6 +275,13 @@ namespace Saber.Vendors.Collector
             {121, "Author" },
             {122, "Scam" },
             {123, "Conference" },
+            {124, "Vacation" },
+            {125, "Rental" },
+            {126, "Language" },
+            {127, "B2B" },
+            {128, "Stock" },
+            {129, "Disability" },
+            {130, "Television" }
         };
 
         public static KeyValuePair<int, string>[] TypesOrdered { get; set; } = Types.OrderBy(a => a.Value).ToArray();

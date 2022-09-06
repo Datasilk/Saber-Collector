@@ -164,7 +164,14 @@ namespace Query.Models
         club = 120,
         author = 121,
         scam = 122,
-        conference = 123
+        conference = 123,
+        vacation = 124,
+        rental = 125,
+        language = 126,
+        B2B = 127,
+        stock = 128,
+        disibility = 129,
+        television = 130
     }
 
     public enum DomainSort
