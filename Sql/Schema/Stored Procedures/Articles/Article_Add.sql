@@ -56,6 +56,6 @@ IF @articleId IS NULL BEGIN
 END
 
 --archive related Download Queue record
-UPDATE DownloadQueue SET status=2 WHERE [url] = @url
+UPDATE DownloadQueue SET status=0 WHERE [url] = @url
 
 SELECT @articleId
