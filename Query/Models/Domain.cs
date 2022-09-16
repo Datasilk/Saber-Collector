@@ -171,7 +171,10 @@ namespace Query.Models
         B2B = 127,
         stock = 128,
         disibility = 129,
-        television = 130
+        television = 130,
+        gambling = 131,
+        nft = 132,
+        currency = 133
     }
 
     public enum DomainSort
