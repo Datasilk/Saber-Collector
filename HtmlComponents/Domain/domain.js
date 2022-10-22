@@ -23,7 +23,7 @@
             $('.popup.show .content-' + id).show();
         }
     },
-
+     
     info: {
         requireSubscription: function () {
             var data = {
