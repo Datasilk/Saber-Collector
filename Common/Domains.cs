@@ -284,7 +284,11 @@ namespace Saber.Vendors.Collector
             {130, "Television" },
             {131, "Gambling" },
             {132, "NFT" },
-            {133, "Currency" }
+            {133, "Currency" },
+            {134, "Platform" },
+            {135, "Research" },
+            {136, "Metaverse" },
+            {137, "Competition" }
         };
 
         public static KeyValuePair<int, string>[] TypesOrdered { get; set; } = Types.OrderBy(a => a.Value).ToArray();

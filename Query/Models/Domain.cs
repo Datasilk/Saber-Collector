@@ -174,7 +174,11 @@ namespace Query.Models
         television = 130,
         gambling = 131,
         nft = 132,
-        currency = 133
+        currency = 133,
+        platform = 134,
+        research = 135,
+        metaverse = 136,
+        competition = 137
     }
 
     public enum DomainSort
