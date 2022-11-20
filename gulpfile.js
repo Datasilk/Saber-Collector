@@ -1,13 +1,13 @@
 var gulp = require('gulp'),
     sevenBin = require('7zip-bin'),
-    sevenZip = require('node-7z'),
-    less = require('gulp-less');
+    sevenZip = require('node-7z')
 
-var app = 'Market';
-var release = 'bin/Release/net5.0/';
-var publish = 'bin/Publish/';
+var app = 'Saber-Collector';
+var release = '../../bin/Release/net6.0/';
+var publish = '../../bin/';
 
 function publishToPlatform(platform) {
+
     return gulp.src([
         //include custom resources
         //'websitesettings.html', 'websitesettings.js'
@@ -29,6 +29,11 @@ gulp.task('publish:linux-x64', () => {
     return publishToPlatform('linux-x64');
 });
 
+gulp.task('publish:all', () => {
+    return publishToPlatform('win-x64');
+    return publishToPlatform('linux-x64');
+});
+
 gulp.task('zip', () => {
     setTimeout(() => {
         //wait 500ms before creating zip to ensure no files are locked
@@ -42,4 +47,4 @@ gulp.task('zip', () => {
     return gulp.src('.');
 });
 
-gulp.task('publish', gulp.series('publish:win-x64', 'publish:linux-x64', 'zip'));
+gulp.task('publish', gulp.series('publish:win-x64', 'zip'));
