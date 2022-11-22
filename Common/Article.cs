@@ -17,6 +17,7 @@ namespace Saber.Vendors.Collector
     public static class Article
     {
         public static string storagePath { get; set; }
+        public static string wwwrootPath { get; set; }
         public static string browserEndpoint { get; set; }
 
         private static double _version { get; set; }
@@ -337,7 +338,7 @@ namespace Saber.Vendors.Collector
             var maxFontSize = 20;
             var fontsizes = new List<KeyValuePair<int, int>>();
             var classNames = new List<string>();
-            var relpath = ContentPath(article.url).ToLower();
+            var pubpath = PublicPath(article.url).ToLower();
             ArticlePart lastPart = new ArticlePart();
 
 
@@ -405,7 +406,7 @@ namespace Saber.Vendors.Collector
                         {
                             parts.Add(new ArticlePart()
                             {
-                                value = relpath + img.filename, //+ article.id + "/" + img.index + "." + img.extension,
+                                value = pubpath + img.filename, //+ article.id + "/" + img.index + "." + img.extension,
                                 type = new List<TextType>() { TextType.image }
                             });
                         }
@@ -1103,6 +1104,18 @@ namespace Saber.Vendors.Collector
             //get content path for url
             var domain = url.GetDomainName();
             return storagePath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
+        }
+        public static string WwwrootPath(string url)
+        {
+            //get content path for url
+            var domain = url.GetDomainName();
+            return wwwrootPath + "articles/" + domain.Substring(0, 2) + "/" + domain + "/";
+        }
+        public static string PublicPath(string url)
+        {
+            //get public path for url
+            var domain = url.GetDomainName();
+            return "/content/collector/articles/" + domain.Substring(0, 2) + "/" + domain + "/";
         }
 
         public static double Version

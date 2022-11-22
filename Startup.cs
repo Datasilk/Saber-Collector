@@ -3,6 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Saber.Vendor;
@@ -46,6 +47,8 @@ namespace Saber.Vendors.Collector
                 }
                 section = "storage:" + environment;
                 Article.storagePath = configfile.GetSection(section).Value;
+                section = "wwwroot:" + environment;
+                Article.wwwrootPath = configfile.GetSection(section).Value;
                 section = "browser:endpoint:" + environment;
                 Article.browserEndpoint = configfile.GetSection(section).Value;
 
@@ -116,6 +119,27 @@ namespace Saber.Vendors.Collector
                     Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
                 }
             }
+
+            //handle files for Collector wwwroot content
+            app.Use(async (context, next) => {
+                if (context.Request.Path.Value.Contains("/collector/"))
+                {
+                    try
+                    {
+                        var path = context.Request.Path.Value.Split("/collector/")[1];
+                        var bytes = File.ReadAllBytesAsync(Article.wwwrootPath + path).Result;
+                        await context.Response.Body.WriteAsync(bytes, 0, bytes.Length);
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex.Message + "\n" + ex.StackTrace);
+                    }
+                }
+                else
+                {
+                    await next(context);
+                }
+            });
         }
     }
 }

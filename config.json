@@ -7,9 +7,14 @@
     }
   },
   "storage": {
-    "development": "/Content/Collector/",
-    "staging": "/Content/Collector/",
-    "production": "/Content/Collector/"
+    "development": "M://Collector/Content/",
+    "staging": "M://Collector/Content/",
+    "production": "M://Collector/Content/"
+  },
+  "wwwroot": {
+    "development": "M://Collector/wwwroot/",
+    "staging": "M://Collector/wwwroot/",
+    "production": "M://Collector/wwwroot/"
   },
   "domains": {
     "downloads": {

@@ -45,6 +45,7 @@ namespace Saber.Vendors.Collector.Hubs
 
 
                 var relpath = Article.ContentPath(url);
+                var wwwrootpath = Article.WwwrootPath(url);
                 var filepath = App.MapPath(relpath);
                 var filename = "";
                 if(articleInfo != null && articleInfo.articleId > 0)
@@ -150,6 +151,7 @@ namespace Saber.Vendors.Collector.Hubs
 
                     url = newurl;
 
+                    wwwrootpath = Article.WwwrootPath(url);
                     relpath = Article.ContentPath(url);
                     filepath = App.MapPath(relpath);
 
@@ -327,9 +329,9 @@ namespace Saber.Vendors.Collector.Hubs
                         {
                             await Clients.Caller.SendAsync("update", 1, "Downloading images for article...");
                         }
-                            
+
                         //build image path within wwwroot folder
-                        var imgpath = "/wwwroot/" + relpath.ToLower() + "/"; // + article.id + "/";
+                        var imgpath = wwwrootpath;
 
                         //check if img folder exists
                         if (!Directory.Exists(App.MapPath(imgpath)))
@@ -343,7 +345,7 @@ namespace Saber.Vendors.Collector.Hubs
                         {
                             //download each image
                             var img = article.images[x];
-                            var path = App.MapPath(imgpath + img.filename);
+                            var path = App.MapPath(wwwrootpath + img.filename);
                             if (!File.Exists(path))
                             {
                                 try

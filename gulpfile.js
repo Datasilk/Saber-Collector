@@ -11,14 +11,16 @@ var version = "0.1";
 gulp.task('publish:content', () => {
     //copy all Content folders
     return gulp.src([root + 'Content/**',
-    '!' + root + 'Content/Collector/**'
+        '!' + root + 'Content/Collector/**',
+        '!' + root + 'Content/_Collector/**'
     ]).pipe(gulp.dest(release + 'Content'));
 });
 
 gulp.task('publish:wwwroot', () => {
     //copy all wwwroot folders
     return gulp.src([root + 'wwwroot/**',
-    '!' + root + 'wwwroot/content/collector/**'
+        '!' + root + 'wwwroot/content/collector/**',
+        '!' + root + 'wwwroot/content/_collector/**'
     ]).pipe(gulp.dest(release + 'wwwroot'));
 });
 
