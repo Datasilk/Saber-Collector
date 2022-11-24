@@ -11,6 +11,11 @@
     "staging": "/Content/Collector/",
     "production": "/Content/Collector/"
   },
+  "wwwroot": {
+    "development": "/wwwroot/content/collector/",
+    "staging": "/wwwroot/content/collector/",
+    "production": "/wwwroot/content/collector/"
+  },
   "domains": {
     "downloads": {
       "minIntervals": 60

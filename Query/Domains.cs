@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 
 namespace Query
 {
@@ -234,6 +235,32 @@ namespace Query
             public static List<Models.CollectionGroup> GetList()
             {
                 return Sql.Populate<Models.CollectionGroup>("Domain_CollectionGroups_GetList");
+            }
+        }
+        #endregion
+
+        #region "DomainTypeMatches"
+        public static class DomainTypeMatches
+        {
+            public static int Add(List<Models.DomainTypeMatchPart> parts, int type, int type2, int threshold, int rank)
+            {
+                return Sql.ExecuteScalar<int>("DomainTypeMatches_Add", new { 
+                    words = JsonSerializer.Serialize(parts), type, type2, threshold, rank });
+            }
+
+            public static int Remove(int matchId)
+            {
+                return Sql.ExecuteScalar<int>("DomainTypeMatches_Remove", new { matchId });
+            }
+
+            public static List<Models.DomainTypeMatch> GetList()
+            {
+                var result = Sql.Populate<Models.DomainTypeMatch>("DomainTypeMatches_GetList");
+                foreach(var elem in result)
+                {
+                    elem.parts = JsonSerializer.Deserialize<List<Models.DomainTypeMatchPart>>(elem.words);
+                }
+                return result;
             }
         }
         #endregion

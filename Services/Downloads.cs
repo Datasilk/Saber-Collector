@@ -64,6 +64,16 @@ namespace Saber.Vendors.Collector.Services
         }
         #endregion
 
+        #region "DomainType Matches"
+        public string RenderDomainTypeMatches()
+        {
+            if (!CheckSecurity()) { return AccessDenied(); }
+            var view = new View("/Vendors/Collector/Views/DomainTypes/matches.html");
+
+            return view.Render();
+        }
+        #endregion
+
         #region "Acceptable Languages"
         public string RenderAcceptableLanguages()
         {

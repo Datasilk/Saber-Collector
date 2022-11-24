@@ -18,10 +18,6 @@
         [inqueue] INT NOT NULL DEFAULT 0,
         [title] NVARCHAR(128) NOT NULL DEFAULT '',
         [description] NVARCHAR(255) NOT NULL DEFAULT '',
-        [address] NVARCHAR(32) NOT NULL DEFAULT '',
-        [city] NVARCHAR(32) NOT NULL DEFAULT '',
-        [state] VARCHAR(3) NOT NULL DEFAULT '',
-        [zipcode] VARCHAR(12) NOT NULL DEFAULT '',
         [datecreated] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
         [dateupdated] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
         [lastchecked] DATETIME2 NOT NULL DEFAULT GETUTCDATE() -- last scraped a URL from the domain
