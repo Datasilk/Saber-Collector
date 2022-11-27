@@ -227,6 +227,15 @@ namespace Saber.Vendors.Collector
 
         private static Char[] attrKeywords = new Char[] { '=', '*', '~', '^', '$' };
 
+        public class Nth
+        {
+            public string operatorType { get; set; }
+            public string input1Type { get; set; }
+            public int input1Value { get; set; }
+            public string input2Type { get; set; }
+            public int input2Value { get; set; }
+        }
+
         /// <summary>
         /// Use a CSS selector to find HTML elements within the DOM
         /// </summary>
@@ -426,6 +435,72 @@ namespace Saber.Vendors.Collector
                 var param = cols.Length > 1 ? cols[1].Substring(0, cols[1].Length - 1) : "";
                 switch (cols[0].Trim())
                 {
+                    case "nth-child":
+                        var nthElements = new List<DomElement>();
+                        var nthChar = 0;
+                        var num = "";
+                        var Nth = new Nth();
+                        var Nths = new List<Nth>();
+                        DomElement el;
+                        while(nthChar > -1)
+                        {
+                            var c = param[nthChar];
+                            if(c.Asc() >= 48 && c.Asc() <= 57)
+                            {
+                                //found number
+                                num += c;
+                            }
+                            else
+                            {
+                                //not number
+                                if(num != "")
+                                {
+                                    if (Nth.input1Type == "")
+                                    {
+                                        //add existing number to input #1
+                                        Nth.input1Type = "#";
+                                        Nth.input1Value = int.Parse(num);
+                                    }
+                                    else if (Nth.input2Type == "")
+                                    {
+                                        //add existing number to input #2
+                                        Nth.input2Type = "#";
+                                        Nth.input2Value = int.Parse(num);
+                                        Nths.Add(Nth);
+                                        Nth = new Nth();
+                                    }
+                                    num = "";
+                                }
+                                if(c == 'n')
+                                {
+                                    //found Nth
+                                    var type = "n";
+                                    if(nthChar > 0 && param[nthChar - 1] == '-')
+                                    {
+                                        //negative
+                                        type = "-n";
+                                    }
+                                    if (Nth.input1Type == "")
+                                    {
+                                        //add Nth to input #1
+                                        Nth.input1Type = type;
+                                    }
+                                    else if (Nth.input2Type == "")
+                                    {
+                                        //add Nth to input #2
+                                        Nth.input2Type = type;
+                                        Nths.Add(Nth);
+                                        Nth = new Nth();
+                                    }
+                                }
+                            }
+                        }
+                        for(var x = 0; x < newElems.Count; x++)
+                        {
+
+                        }
+
+                        break;
                     case "parent":
                         var depth = 0;
                         int.TryParse(param, out depth);
@@ -493,6 +568,15 @@ namespace Saber.Vendors.Collector
                                 return true;
                             }
                         }).ToList();
+                        break;
+                    case "first":
+                        el = newElems.FirstOrDefault();
+                        newElems = new List<DomElement>();
+                        if (el != null) { newElems.Add(el); }
+                        break;
+                    case "not-first":
+                        el = newElems.FirstOrDefault();
+                        newElems = newElems.Where(a => a != el).ToList();
                         break;
                 }
             }

@@ -73,7 +73,7 @@ namespace Saber.Vendors.Collector.HtmlComponents.Analyzer
 
                         //add CSS & JS files
                         request.AddCSS("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.css", "collector_analyzer_css");
-                        request.AddScript("/editor/js/utility/signalr/signalr.js", "collector_signalr");
+                        request.AddScript("/editor/js/utility/signalr/dist/browser/signalr.js", "collector_signalr");
                         request.AddScript("/editor/vendors/collector/htmlcomponents/analyzer/analyzer.js", "collector_analyzer_js");
 
                         if(!(request.Parameters.ContainsKey("article-only") && request.Parameters["article-only"] == "0") &&

@@ -11,6 +11,7 @@ using Saber.Core.Extensions.Strings;
 using Utility.DOM;
 using Saber.Vendors.Collector.Models.Article;
 using WebBrowser.Wcf;
+using System.Threading.Tasks;
 
 namespace Saber.Vendors.Collector
 {
@@ -935,126 +936,125 @@ namespace Saber.Vendors.Collector
         public static string Download(string url, out string newurl)
         {
             //first, try to get headers for the URL from the host
-            var request = WebRequest.Create(url);
-            request.Method = "HEAD";
+            
+            var method = "HEAD";
             var contentType = "";
             var status = 0;
             var wasHttp = url.IndexOf("http://") >= 0;
+            var triedHttpAgain = false;
             var wwwAdded = false;
-            var domain = url.GetDomainName();
+            var i = 0;
 
             if (wasHttp == true)
             {
                 //change to https protocol
                 url = url.Replace("http://", "https://");
-                request = WebRequest.Create(url);
-                request.Method = "HEAD";
             }
 
             //long filesize = 0;
             while ((status < 301 && status > 200) || status == 0)
             {
+                i++;
                 status = 0;
-                try
+                using (var request = new HttpClient())
                 {
-                    //try downloading head first to see if the request is actually html or a file
-                    HttpWebResponse response;
+                    if (i > 12) { break; }//break on too many iterations
                     try
                     {
-                        response = (HttpWebResponse)request.GetResponse();
-                    }
-                    catch (WebException ex)
-                    {
-                        if(ex.Message.IndexOf("No such host is known") >= 0)
+                        //try downloading head first to see if the request is actually html or a file
+                        request.Timeout = TimeSpan.FromSeconds(10);
+                        try
                         {
-                            newurl = "";
-                            return "";
+                            using (HttpResponseMessage response = request.Send(new HttpRequestMessage()
+                            {
+                                Method = method == "GET" ? HttpMethod.Get : HttpMethod.Head,
+                                RequestUri = new Uri(url)
+                            }))
+                            {
+                                if (response == null && wasHttp == true && url.IndexOf("https://") == 0 && triedHttpAgain == false)
+                                {
+                                    //try going back to http protocol
+                                    url = url.Replace("https://", "http://");
+                                    method = "HEAD";
+                                    triedHttpAgain = true;
+                                    if (wwwAdded == true)
+                                    {
+                                        url = url.Replace("www.", "");
+                                        wwwAdded = false;
+                                    }
+                                    continue;
+                                }
+                                if ((response == null || response.StatusCode == HttpStatusCode.MethodNotAllowed) && method == "HEAD")
+                                {
+                                    //try GET method instead
+                                    method = "GET";
+                                    continue;
+                                }
+                                else if (response == null && wwwAdded == false && url.IndexOf("/www.") < 0)
+                                {
+                                    //try adding www. to the URL
+                                    wwwAdded = true;
+                                    url = url.Replace("https://", "").Replace("http://", "");
+                                    url = "https://www." + url;
+                                    method = "HEAD";
+                                    continue;
+                                }
+                                else if (response == null)
+                                {
+                                    //if all else fails, don't get response
+                                    break;
+                                }
+                                contentType = response.Content.Headers.ContentType != null ? response.Content.Headers.ContentType.ToString().Split(";")[0] : "";
+                                status = (int)response.StatusCode;
+
+                                var header = response.Content.Headers.Where(a => a.Key == "Location").FirstOrDefault().Value;
+                                var location = header != null ? CleanUrl(header.FirstOrDefault()) : "";
+                                if (location != "" && location != CleanUrl(url))
+                                {
+                                    //url redirect (301, 302, or 303)
+                                    url = location;
+                                    method = "HEAD";
+                                    continue;
+                                }
+                            }
                         }
-                        response = (HttpWebResponse)ex.Response;
+                        catch (Exception ex)
+                        {
+                            if (ex.Message.IndexOf("No such host is known") >= 0)
+                            {
+                                newurl = "";
+                                return "";
+                            }
+                        }
                     }
-                    if (response == null && wasHttp == true && url.IndexOf("https://") == 0)
+                    catch (Exception)
                     {
-                        //try going back to http protocol
-                        url = url.Replace("https://", "http://");
-                        request = WebRequest.Create(url);
-                        request.Method = "HEAD";
-                        continue;
+                        status = 500;
                     }
-                    if ((response == null || response.StatusCode == HttpStatusCode.MethodNotAllowed) && request.Method == "HEAD")
+                    if (status != 200 && method == "HEAD")
                     {
                         //try GET method instead
-                        request = WebRequest.Create(url);
-                        request.Method = "GET";
+                        status = 0;
+                        method = "GET";
                         continue;
                     }
-                    else if (response == null && wwwAdded == false && url.IndexOf("/www.") < 0)
+                    else if (status > 303 && method == "GET" && wasHttp == true && url.IndexOf("https://") >= 0)
                     {
-                        //try adding www. to the URL
+                        //try getting request after going back to http protocol
+                        url = url.Replace("https://", "http://");
+                        method = "HEAD";
+                        status = 0;
+                        continue;
+                    }
+                    else if (status != 200 && url.IndexOf("/www.") < 0)
+                    {
                         wwwAdded = true;
                         url = url.Replace("https://", "").Replace("http://", "");
                         url = "https://www." + url;
-                        request = WebRequest.Create(url);
-                        request.Method = "HEAD";
-                        continue;
-                    }
-                    else if (response == null)
-                    {
-                        //if all else fails, don't get response
-                        break;
-                    }
-
-                    contentType = response.ContentType.Split(";")[0];
-                    status = (int)response.StatusCode;
-
-                    if (CleanUrl(response.ResponseUri.OriginalString) != CleanUrl(url))
-                    {
-                        //url redirect
-                        url = response.ResponseUri.OriginalString;
-                        request = WebRequest.Create(url);
-                        request.Method = "HEAD";
+                        method = "HEAD";
                         status = 0;
                         continue;
                     }
-                    else if (status >= 301 && status <= 303 && response.Headers.AllKeys.Contains("location"))
-                    {
-                        //url redirect (301, 302, or 303)
-                        url = response.Headers["location"].ToString();
-                        request = WebRequest.Create(url);
-                        request.Method = "HEAD";
-                        status = 0;
-                        continue;
-                    }
-                }
-                catch (Exception)
-                {
-                    status = 500;
-                }
-                if (status != 200 && request.Method == "HEAD")
-                {
-                    //try GET method instead
-                    status = 0;
-                    request = WebRequest.Create(url);
-                    request.Method = "GET";
-                    continue;
-                }
-                else if (status > 303 && request.Method == "GET" && wasHttp == true && url.IndexOf("https://") >= 0)
-                {
-                    //try getting request after going back to http protocol
-                    url = url.Replace("https://", "http://");
-                    request = WebRequest.Create(url);
-                    request.Method = "HEAD";
-                    status = 0;
-                    continue;
-                }
-                else if (status != 200 && url.IndexOf("/www.") < 0)
-                {
-                    wwwAdded = true;
-                    url = url.Replace("https://", "").Replace("http://", "");
-                    url = "https://www." + url;
-                    request = WebRequest.Create(url);
-                    request.Method = "HEAD";
-                    status = 0;
-                    continue;
                 }
             }
 

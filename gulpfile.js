@@ -6,7 +6,7 @@ var app = 'Collector';
 var release = '../../bin/win-x64/';
 var publish = '../../bin/';
 var root = '../../';
-var version = "0.1";
+var version = "0.1.41";
 
 gulp.task('publish:content', () => {
     //copy all Content folders

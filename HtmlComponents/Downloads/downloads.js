@@ -135,15 +135,15 @@
     },
 
     reload: function () {
-        var _ = S.downloads;
-        var url = window.location.href.split('&' + _.stats[0])[0];
-        if (url.indexOf('?') < 0) { url += '?reload'; }
-        for (x = 0; x < _.stats.length; x++) {
-            var stat = _.stats[x];
-            var item = _.getStat(stat);
-            url += '&' + stat + '=' + item.value;
-        }
-        window.location.href = url;
+        //var _ = S.downloads;
+        //var url = window.location.href.split('&' + _.stats[0])[0];
+        //if (url.indexOf('?') < 0) { url += '?reload'; }
+        //for (x = 0; x < _.stats.length; x++) {
+        //    var stat = _.stats[x];
+        //    var item = _.getStat(stat);
+        //    url += '&' + stat + '=' + item.value;
+        //}
+        //window.location.href = url;
     },
 
     checked: function (skipped, downloaded, article, links, words, important) {

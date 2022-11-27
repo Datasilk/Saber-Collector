@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Net;
 using Microsoft.AspNetCore.SignalR;
@@ -84,7 +83,7 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", "Redirected URL to <a href=\"" + newurl + "\" target=\"_blank\">" + newurl + "</a>");
 
                         ////////////////////////////////////////////////////////////////////////////////
-                        //updated URL, retire current download and create new download for the new URL
+                        //updated URL; retire current download and create new download for the new URL
                         Query.Downloads.Archive(queue.qid);
                         downloadsArchived++;
                         if(newurl.Length > 255)
@@ -148,7 +147,6 @@ namespace Saber.Vendors.Collector.Hubs
                         //Charlotte returned an error or timed out
                         await Clients.Caller.SendAsync("update", "Error parsing DOM!");
                         await Clients.Caller.SendAsync("checked", 1, 0);
-                        //if (sort == 2) { isEmpty = true; }
                     }
                     else if(result.StartsWith("log: "))
                     {
@@ -435,6 +433,10 @@ namespace Saber.Vendors.Collector.Hubs
                             catch (Exception ex)
                             {
                                 //ERROR !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                if(ex.Message.IndexOf("Timeout") >= 0)
+                                {
+                                    await Clients.Caller.SendAsync("update", "Error: Timeout expired when adding links to download queue");
+                                }
                                 //await Clients.Caller.SendAsync("update", "Error: " + ex.Message + "<br/>" + ex.StackTrace + "<br/>" +
                                 //    domain + ", " + string.Join(",", urls[domain].Distinct().ToArray()));
                             }

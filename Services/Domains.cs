@@ -165,8 +165,8 @@ namespace Saber.Vendors.Collector.Services
         public string RenderAnalyzerRulesList(int domainId)
         {
             if (!CheckSecurity()) { return AccessDenied(); }
-            var view = new View("/Vendors/Collector/Views/Domain/rules.html");
-            var item = new View("/Vendors/Collector/Views/Domain/list-item.html");
+            var view = new View("/Vendors/Collector/Views/AnalyzerRules/rules.html");
+            var item = new View("/Vendors/Collector/Views/AnalyzerRules/list-item.html");
             var rules = Query.Domains.AnalyzerRules.GetList(domainId);
             var html = new StringBuilder();
             foreach(var rule in rules)
