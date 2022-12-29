@@ -1,9 +1,9 @@
 {
   "browser": {
     "endpoint": {
-      "development": "http://localhost:7077/Browser",
-      "staging": "http://localhost:7077/Browser",
-      "production": "http://localhost:7077/Browser"
+      "development": "http://localhost:7077/GetDOM",
+      "staging": "http://localhost:7077/GetDOM",
+      "production": "http://localhost:7077/GetDOM"
     }
   },
   "storage": {
