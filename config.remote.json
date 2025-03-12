@@ -1,0 +1,24 @@
+{
+  "browser": {
+    "endpoint": {
+      "development": "http://192.168.0.200:7007/GetDOM",
+      "staging": "http://192.168.0.200:7007/GetDOM",
+      "production": "http://192.168.0.200:7007/GetDOM"
+    }
+  },
+  "storage": {
+    "development": "M://Collector/Content/",
+    "staging": "M://Collector/Content/",
+    "production": "M://Collector/Content/"
+  },
+  "wwwroot": {
+    "development": "M://Collector/wwwroot/",
+    "staging": "M://Collector/wwwroot/",
+    "production": "M://Collector/wwwroot/"
+  },
+  "domains": {
+    "downloads": {
+      "minIntervals": 60
+    }
+  }
+}
