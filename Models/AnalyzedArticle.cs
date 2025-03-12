@@ -42,6 +42,7 @@ namespace Saber.Vendors.Collector.Models.Article
         public AnalyzedAuthor author { get; set; }
         public DateTime publishDate { get; set; }
         public List<AnalyzedPerson> people { get; set; }
+        public AnalyzedByLlm llm { get; set; }
 
         public AnalyzedArticle(string url = "", string html = "")
         {
@@ -319,4 +320,49 @@ namespace Saber.Vendors.Collector.Models.Article
         public int quote { get; set; } = 0;
         public int listItem { get; set; } = 0;
     }
+
+    #region "Analyzed LLM Results"
+
+    public class AnalyzedByLlm
+    {
+        public List<AnalyzedLlmElement> elements { get; set; } = new List<AnalyzedLlmElement>();
+        public List<AnalyzedLlmComment> comments { get; set; } = new List<AnalyzedLlmComment>();
+        public List<AnalyzedLlmPerson> people { get; set; } = new List<AnalyzedLlmPerson>();
+        public List<AnalyzedLlmCompany> companies { get; set; } = new List<AnalyzedLlmCompany>();
+    }
+
+    public class AnalyzedLlmElement
+    {
+        public LlmElementType type { get; set; }
+        public string value { get; set; } = "";
+    }
+
+    public enum LlmElementType
+    {
+        text = 0,
+        image = 1
+    }
+
+    public class AnalyzedLlmComment
+    {
+        public string user { get; set; } = "";
+        public string comment { get; set; } = "";
+        public DateTime? date { get; set; }
+        public List<AnalyzedLlmComment> comments { get; set; } = new List<AnalyzedLlmComment>();
+    }
+
+    public class AnalyzedLlmPerson
+    {
+        public string name { get; set; } = "";
+        public string position { get; set; } = "";
+        public string company { get; set; } = "";
+        public List<string> quotes { get; set; } = new List<string>();
+    }
+
+    public class AnalyzedLlmCompany
+    {
+        public string name { get; set; } = "";
+    }
+
+    #endregion
 }

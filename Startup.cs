@@ -51,6 +51,8 @@ namespace Saber.Vendors.Collector
                 Article.wwwrootPath = configfile.GetSection(section).Value;
                 section = "browser:endpoint:" + environment;
                 Article.browserEndpoint = configfile.GetSection(section).Value;
+                section = "llm:privatekey";
+                LLM.PrivateKey = configfile.GetSection(section).Value;
 
                 //create folders if they don't exist
                 try

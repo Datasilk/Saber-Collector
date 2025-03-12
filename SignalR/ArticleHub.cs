@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using Saber.Vendors.Collector.Models.Article;
 using Saber.Core.Extensions.Strings;
 using Saber.Vendor;
+using System.Text.Json;
 
 namespace Saber.Vendors.Collector.Hubs
 {
@@ -17,7 +18,7 @@ namespace Saber.Vendors.Collector.Hubs
 
         public async Task AnalyzeArticle(string url, bool published)
         {
-            
+
             await Clients.Caller.SendAsync("update", 1, "Collector v" + info.Version);
 
             //first, validate URL
@@ -43,12 +44,13 @@ namespace Saber.Vendors.Collector.Hubs
                     }
                 }
 
-
                 var relpath = Article.ContentPath(url);
                 var wwwrootpath = Article.WwwrootPath(url);
                 var filepath = App.MapPath(relpath);
                 var filename = "";
-                if(articleInfo != null && articleInfo.articleId > 0)
+
+
+                if (articleInfo != null && articleInfo.articleId > 0)
                 {
                     filename = articleInfo.articleId + ".html";
                     if (File.Exists(filepath + filename))
@@ -61,7 +63,7 @@ namespace Saber.Vendors.Collector.Hubs
                             await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
                                 "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
                         }
-                        
+
                         download = false;
                         Article.FileSize(article);
                     }
@@ -96,7 +98,7 @@ namespace Saber.Vendors.Collector.Hubs
                     try
                     {
                         article = Html.DeserializeArticle(result);
-                        if(article.url != null && article.url != "")
+                        if (article.url != null && article.url != "")
                         {
                             //get URL redirection from Charlotte
                             newurl = article.url;
@@ -115,7 +117,7 @@ namespace Saber.Vendors.Collector.Hubs
                     if (newurl != url)
                     {
                         //updated URL (was redirected)
-                        if(articleInfo != null)
+                        if (articleInfo != null)
                         {
                             //update existing article URL
                             Query.Articles.UpdateUrl(articleInfo.articleId, newurl, newurl.GetDomainName(), articleInfo.domainId);
@@ -125,11 +127,11 @@ namespace Saber.Vendors.Collector.Hubs
                         //update article URL on client-side web browser
                         await Clients.Caller.SendAsync("update-url", newurl);
 
-                        if(articleInfo == null)
+                        if (articleInfo == null)
                         {
                             var oldinfo = articleInfo;
                             articleInfo = Query.Articles.GetByUrl(newurl);
-                            if(articleInfo != null)
+                            if (articleInfo != null)
                             {
                                 filename = articleInfo.articleId + ".html";
                                 if (oldinfo != null && oldinfo.articleId != articleInfo.articleId)
@@ -140,8 +142,8 @@ namespace Saber.Vendors.Collector.Hubs
                             }
                         }
                     }
-                    
-                    if(articleInfo == null)
+
+                    if (articleInfo == null)
                     {
                         //no article yet
                         articleInfo = Article.Add(newurl);
@@ -184,7 +186,7 @@ namespace Saber.Vendors.Collector.Hubs
                         await Clients.Caller.SendAsync("update", 1, "Cached file located at: " + filepath + filename + " (" +
                             "<a href=\"javascript:\" onclick=\"article.delete(" + articleInfo.articleId + ")\">delete</a>)");
                     }
-                    
+
                 }
 
                 //set article information
@@ -208,11 +210,11 @@ namespace Saber.Vendors.Collector.Hubs
 
                 foreach (var rule in rules)
                 {
-                    if(rule.rule == false)
+                    if (rule.rule == false)
                     {
                         //remove elements from article
                         var elems = Html.FindElements(rule.selector, article.elements, article.elements);
-                        foreach(var elem in elems)
+                        foreach (var elem in elems)
                         {
                             excludedIndexes.Add(elem.index);
                             if (!indexFlagInfo.ContainsKey(elem.index))
@@ -241,7 +243,7 @@ namespace Saber.Vendors.Collector.Hubs
                 Html.GetBestElementIndexes(article, elements);
 
                 //mark best elements as protected or bad based on analyzer rules
-                foreach(var elem in elements)
+                foreach (var elem in elements)
                 {
                     if (excludedIndexes.Contains(elem.index))
                     {
@@ -276,7 +278,7 @@ namespace Saber.Vendors.Collector.Hubs
                 }
 
                 //add any missing elements that are protected
-                foreach(var index in protectedIndexes.Where(a => !elements.Any(b => b.index == a)))
+                foreach (var index in protectedIndexes.Where(a => !elements.Any(b => b.index == a)))
                 {
                     elements.Add(new AnalyzedElement()
                     {
@@ -299,8 +301,48 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("update", 1, "Collected article contents from DOM");
                 }
 
-                //send accordion with raw HTML to client
-                var rawhtml = Article.RenderRawHTML(article, elements);
+                // Get Article Contents via AI (LLM) //////////////////////////////////////////////////////////////////////////////////////////////////
+                download = true;
+                if (articleInfo != null && articleInfo.articleId > 0)
+                {
+                    filename = articleInfo.articleId + "_ai.json";
+                    if (File.Exists(filepath + filename))
+                    {
+                         await Clients.Caller.SendAsync("update", 1, "AI processing has been cached");
+                        try
+                        {
+                            article.llm = JsonSerializer.Deserialize<AnalyzedByLlm>(File.ReadAllText(filepath + filename));
+                            download = false;
+                        }
+                        catch (Exception)
+                        {
+                            await Clients.Caller.SendAsync("update", 1, "Failed to deserialize AI processed data!");
+                        }
+                    }
+
+                }
+
+                if (download == true)
+                {
+                    //process the page using AI
+                    await Clients.Caller.SendAsync("update", 1, "Processing the HTML document using AI LLM (this may take a while)");
+                    string llm = LLM.GetArticleContents(article);
+                    File.WriteAllText(filepath + filename, llm);
+                    await Clients.Caller.SendAsync("update", 1, "The AI processed JSON can be found at <a href=\"file://" + filepath + filename + "\">" + filepath + filename + "</a>");
+                    article.llm = JsonSerializer.Deserialize<AnalyzedByLlm>(llm);
+                }
+                else
+                {
+                    await Clients.Caller.SendAsync("update", 1, "The AI processed JSON can be found at <a href=\"file://" + filepath + filename + "\">" + filepath + filename + "</a>");
+                }
+
+
+
+
+                    // Send Data to Client ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    //send accordion with raw HTML to client
+                    var rawhtml = Article.RenderRawHTML(article, elements);
                 var html = Components.Accordion.Render("Raw HTML", "raw-html", "<div class=\"empty-top\"></div><div class=\"empty-bottom\"></div>", false);
                 await Clients.Caller.SendAsync("append", html);
                 if (!published)
@@ -308,21 +350,21 @@ namespace Saber.Vendors.Collector.Hubs
                     await Clients.Caller.SendAsync("rawhtml", rawhtml);
                     await Clients.Caller.SendAsync("update", 1, "Generated Raw HTML for dissecting DOM importance");
                 }
-                
+
                 var imgCount = 0;
                 var imgTotalSize = 0;
 
-                if(article.body.Count > 0)
+                if (article.body.Count > 0)
                 {
                     //found article content
                     if (!published)
                     {
                         await Clients.Caller.SendAsync("update", 1, "Found article text...");
                     }
-                        
+
                     Html.GetImages(article);
-                    
-                    if(article.images.Count > 0)
+
+                    if (article.images.Count > 0)
                     {
                         //images exist, download related images for article
                         if (!published)
@@ -341,7 +383,7 @@ namespace Saber.Vendors.Collector.Hubs
 
                         var cachedCount = 0;
 
-                        for(var x = 0; x < article.images.Count; x++)
+                        for (var x = 0; x < article.images.Count; x++)
                         {
                             //download each image
                             var img = article.images[x];
@@ -359,9 +401,10 @@ namespace Saber.Vendors.Collector.Hubs
                                         if (!published)
                                         {
                                             await Clients.Caller.SendAsync("update", 1, "Downloaded image \"" + img.filename + "\" (" + filesize + " kb)");
-                                        } 
+                                        }
                                     }
-                                }catch(Exception)
+                                }
+                                catch (Exception)
                                 {
                                     if (!published)
                                     {
@@ -382,7 +425,7 @@ namespace Saber.Vendors.Collector.Hubs
                             }
                         }
 
-                        if(cachedCount > 0)
+                        if (cachedCount > 0)
                         {
                             if (!published)
                             {
@@ -400,7 +443,7 @@ namespace Saber.Vendors.Collector.Hubs
                 {
                     //display list of words found
                     var allwords = Html.GetWordsOnly(article);
-                    var uniqueWords = allwords.Where(a => a.Length > 1 && a.Substring(0, 1).IsNumeric() == false && 
+                    var uniqueWords = allwords.Where(a => a.Length > 1 && a.Substring(0, 1).IsNumeric() == false &&
                         !Rules.commonWords.Contains(a.ToLower())).Select(a => a.ToLower()).Distinct().OrderBy(a => a).ToList();
                     var subjectWords = Query.Words.GetList(uniqueWords.ToArray());
                     html = Components.Accordion.Render("Words", "article-words", Article.RenderWordsList(article, uniqueWords, subjectWords), false);
@@ -437,7 +480,7 @@ namespace Saber.Vendors.Collector.Hubs
                     try
                     {
                         var subj = article.subjects.OrderBy(a => a.score * -1).First();
-                        if(subj != null)
+                        if (subj != null)
                         {
                             articleInfo.score = (short)subj.score;
                             articleInfo.subjectId = subj.id;
